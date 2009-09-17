@@ -1,0 +1,15 @@
+3.0.4でやること
+
+・著者区切りを(\s+and\s+)でもokにする．(DONE)
+・その上で，createAListを改訂する．
+
+  - 著者名短縮モード(Osamu Mizuno -> O. Mizuno, 水野 修 → 水野,  Poh Jr., Edgar Alan  -> E. A. Poh Jr.) (DONE)
+
+    and 区切りの場合，  ","の前がlastname (DONE)
+
+  - 検索モードが著者であるときに限り，
+    検索にヒットする著者に下線を引くOPT  (DONE)
+
+  - あとは，もれなくきれいに．
+
+・全カラムサーチを面倒くさがらずに作る．
