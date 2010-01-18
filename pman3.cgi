@@ -1,11 +1,11 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.1 2009/09/17 07:04:31 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.2 2010/01/18 08:43:35 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
 #              (c) 2002-2009 Osamu Mizuno, All right researved.
 # 
-our $VERSION = "3.1 Beta 2";
+our $VERSION = "3.1 Beta 4";
 # 
 # =================================================================================
 use strict;
@@ -316,8 +316,12 @@ sub makeQuery {
 	$order .= "year desc,month desc";
     } elsif ($od eq "t_ascend") {
 	$order .= "pt_order,year asc,month asc";
-    } else {
+    } elsif ($od eq "t_descend") {
 	$order .= "pt_order,year desc,month desc";
+    } elsif ($od eq "y_t_ascend") {
+	$order .= "year asc,pt_order,month asc";
+    } elsif ($od eq "y_t_descend") {
+	$order .= "year desc,pt_order,month desc";
     }
 
     my @smenu = ();
@@ -1394,6 +1398,10 @@ EOM
 	$selected[1] = "selected";
     } elsif ($session->param('SORT') eq "t_ascend") {
 	$selected[2] = "selected";
+    } elsif ($session->param('SORT') eq "y_t_ascend") {
+	$selected[4] = "selected";
+    } elsif ($session->param('SORT') eq "y_t_descend") {
+	$selected[5] = "selected";
     } else {
 	$selected[3] = "selected";
     }
@@ -1403,6 +1411,8 @@ EOM
     <option value="descend"   $selected[1]>$msg{'descend'}</option>
     <option value="t_ascend" $selected[2]>$msg{'t_ascend'}</option>
     <option value="t_descend" $selected[3]>$msg{'t_descend'}</option>
+    <option value="y_t_ascend" $selected[4]>$msg{'y_t_ascend'}</option>
+    <option value="y_t_descend" $selected[5]>$msg{'y_t_descend'}</option>
     </select>
 </div>
 <div id="smenu">
@@ -1680,10 +1690,20 @@ EOM
 EOM
 
         my $prevPtype = -1;
+        my $prevYear = -1;
 	my $counter = 1;
 	my $s = $session->param('SORT') || "t_descend";
 	foreach my $abib (@$bib) {
 	    # カテゴリヘッダ表示
+	    if ($s =~/y_/) {
+		if ($$abib{'year'} != $prevYear) {
+		    $prevYear = $$abib{'year'};
+		    my $py = $prevYear < 9999 ? $prevYear : ($prevYear == 9999 ? $msg{'accepted'} : $msg{'submitted'});
+		    $body .= "<h2>$py</h2>";
+		    $counter = 1;
+		    $prevPtype = -1;
+		}
+	    }
 	    if ($s =~/t_/) {
 		if ($$abib{'ptype'} != $prevPtype) {
 		    $prevPtype = $$abib{'ptype'};
@@ -2027,7 +2047,7 @@ EOM
         my $pt = $$abib{'ptype'};
 	$body .= $cgi->popup_menu(-name=>'edit_ptype',
 				  -values=>[@ptype_order],
-				  -default=>$pt,
+				  -default=>"$pt",
 				  -labels=>\%ptype);
 	$body .= <<EOM;
   </td>

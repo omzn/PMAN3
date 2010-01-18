@@ -151,7 +151,7 @@ ul.view li a:hover {background:#e0e0e0 url(images/corner.gif) top right no-repea
 */
 /* Tags */
 h1 {font-size:1.8em; font-weight:400; margin:0 0 5px; padding:0;}
-h2 {font-size:1.8em; font-weight:400; margin:0 0 12px;}
+h2 {font-size:1.8em; font-weight:400; margin:12px 0 12px;}
 h3 {font-size:1.4em; font-weight:400; margin:0 0 10px;}
 a {
     /*border-bottom:1px dotted #505050; */
