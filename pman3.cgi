@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.2 2010/01/18 08:43:35 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.3 2010/01/23 10:36:52 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -2045,10 +2045,24 @@ EOM
   <td width="80%" class="fieldBody">
 EOM
         my $pt = $$abib{'ptype'};
-	$body .= $cgi->popup_menu(-name=>'edit_ptype',
-				  -values=>[@ptype_order],
-				  -default=>"$pt",
-				  -labels=>\%ptype);
+#	$body .= $cgi->popup_menu(-name=>'edit_ptype',
+#				  -values=>[@ptype_order],
+#				  -default=>"$pt",
+#				  -labels=>\%ptype);
+	$body .= <<EOM;
+<select class="longinput" name="edit_ptype">
+EOM
+        foreach (@ptype_order) {
+	    my $selected = '';
+	    $selected = $pt if ($pt eq $_);
+	    $body .= <<EOM;
+<option value="$_" $selected>$ptype{$_}</option>
+EOM
+        }
+
+        $body .= <<EOM;
+      </select>
+EOM
 	$body .= <<EOM;
   </td>
 </tr>
@@ -2403,7 +2417,7 @@ sub printFooter {
     $footer .=<<EOM;
 <p class="center">
 This site is maintained by <a href="$maintainerAddress">$maintainerName</a>.<br />
-<a href="http://www-ise4.ist.osaka-u.ac.jp/~o-mizuno/pman3.html">PMAN $VERSION</a> - Paper MANagement system / (C) 2002-2009, <a href="http://www-ise4.ist.osaka-u.ac.jp/~o-mizuno/">Osamu Mizuno</a> / All rights reserved.
+<a href="http://www-ise4.ist.osaka-u.ac.jp/~o-mizuno/pman3.html">PMAN $VERSION</a> - Paper MANagement system / (C) 2002-2010, <a href="http://www-ise4.ist.osaka-u.ac.jp/~o-mizuno/">Osamu Mizuno</a> / All rights reserved.
 <br />
 Time to show this page: $drawingTime seconds.
 </p>
