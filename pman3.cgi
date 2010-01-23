@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.3 2010/01/23 10:36:52 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.4 2010/01/23 10:39:18 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -2054,7 +2054,7 @@ EOM
 EOM
         foreach (@ptype_order) {
 	    my $selected = '';
-	    $selected = $pt if ($pt eq $_);
+	    $selected = "selected" if ($pt eq $_);
 	    $body .= <<EOM;
 <option value="$_" $selected>$ptype{$_}</option>
 EOM
