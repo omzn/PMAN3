@@ -183,8 +183,8 @@ dl {
     line-height:1.2em; 
 }
 dt {
-    margin-top:5px;
-    margin-bottom:15px;
+    margin-top:15px;
+    margin-bottom:10px;
     font-weight: bold;
 }
 dd {
