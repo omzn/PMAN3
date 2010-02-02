@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.4 2010/01/23 10:39:18 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.5 2010/02/02 06:11:23 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -1699,7 +1699,7 @@ EOM
 		if ($$abib{'year'} != $prevYear) {
 		    $prevYear = $$abib{'year'};
 		    my $py = $prevYear < 9999 ? $prevYear : ($prevYear == 9999 ? $msg{'accepted'} : $msg{'submitted'});
-		    $body .= "<h2>$py</h2>";
+		    $body .= "<dt class=\"yearhead\">$py</dt>";
 		    $counter = 1;
 		    $prevPtype = -1;
 		}
