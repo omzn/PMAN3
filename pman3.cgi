@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.5 2010/02/02 06:11:23 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.6 2010/02/02 06:22:58 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -2654,8 +2654,8 @@ sub createAList {
 	$pages = 'pp.'; $page = 'p.';
     }
     my $pp = ($$ent{'pages'} eq "" ? "": 
-	      ($$ent{'pages'}=~/\d+\-+\d+/ ? "$pages $$ent{'pages'}," :
-	       ($$ent{'pages'}=~/\d+/ ? "$page $$ent{'pages'}," :
+	      ($$ent{'pages'}=~/^\d+\-+\d+$/ ? "$pages $$ent{'pages'}," :
+	       ($$ent{'pages'}=~/^\d+$/ ? "$page $$ent{'pages'}," :
 		"$$ent{'pages'},") ) );
 
     my $edr;
