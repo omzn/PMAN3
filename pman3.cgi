@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.6 2010/02/02 06:22:58 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.7 2010/02/03 11:51:38 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -114,7 +114,13 @@ if ($use_cache) {
     if ($page) {
 	my $dt = Time::HiRes::tv_interval($t0);
 	$page =~ s/Time to show this page: [\d\.]+ seconds\./Time to show this page: $dt seconds\. (cached)/;
-	print $page;
+#	print $page;
+
+	if (utf8::is_utf8($page)) {
+	    print encode('utf-8', $page);
+	} else {
+	    print $page;
+	}
 	exit 0;
     }
 }
@@ -1208,7 +1214,11 @@ sub printScreen {
     # LOGIN状態でない場合のみ．
     #   ここでgenerateURLの内容をキーとしてcacheDBを保存．
     print $header;
-    print $doc;
+    if (utf8::is_utf8($doc)) {
+	print encode('utf-8', $doc);
+    } else {
+	print $doc;
+    }
 }
 
 # エラー表示
@@ -1234,7 +1244,11 @@ sub printError {
 #    Encode::from_to($doc, "euc-jp", $cs);
 
     print $header;
-    print $doc;
+    if (utf8::is_utf8($doc)) {
+	print encode('utf-8', $doc);
+    } else {
+	print $doc;
+    }
 
     $dbh->disconnect;
     exit(0);
