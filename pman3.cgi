@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.7 2010/02/03 11:51:38 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.8 2010/02/06 13:22:38 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -160,7 +160,11 @@ sub manageSession {
 	    $cgi->param($g,@v);
 	}
     }
-
+    # 短縮
+    if (defined($cgi->param("D"))) {
+	$cgi->param("MODE","detail");
+	$cgi->param("ID",$cgi->param("ID"));
+    }
     my $sid = $cgi->param('SID') || $cgi->cookie('SID') || undef ;
 
     if ($sid) {
