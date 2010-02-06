@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.10 2010/02/06 13:27:31 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.11 2010/02/06 13:31:36 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -1737,7 +1737,7 @@ EOM
 	    $body .= "<dd><a href=\"$scriptName?MODE=detail;ID=$$abib{'id'}\">\[$counter\]</a> ";
 	    # リスト1行生成
 	    if  (!defined($cgi->param('SSI')) && !defined($cgi->param('STATIC'))) {
-		&createAList(\$body,$abib,"$scriptName?MODE=list","$scriptName?MODE=detail")."</dd>\n";
+		&createAList(\$body,$abib,"$scriptName?","$scriptName?")."</dd>\n";
 	    } else {
 		&createAList(\$body,$abib)."</dd>\n";
 		
@@ -2476,7 +2476,7 @@ sub createAList {
     #   英語モードならtitle_e利用だけど，title_eが無ければtitle
     my $t = ($lang eq "en" && $$ent{'title_e'} ne "") ? $$ent{'title_e'} : $$ent{'title'};
     &capitalizePaperTitle(\$t);
-    $t = ($tlink ne "" ? "<a href=\"$tlink;ID=$$ent{'id'}\">$t</a>" : $t);
+    $t = ($tlink ne "" ? "<a href=\"".$tlink."D=$$ent{'id'}\">$t</a>" : $t);
 
     # 著者の処理
     ## DBを使って書き直し． <- これが遅い？？
@@ -2621,7 +2621,7 @@ sub createAList {
 	    $authors[$_] =~s/\&Nacute;/\&\#323;/g;
 	    $authors[$_] =~s/\&Zacute;/\&\#377;/g;
 	    # see http://www.thesauruslex.com/typo/eng/enghtml.htm
-	    $authors[$_] = "<a href=\"$alink;FROM=author;SEARCH=$enc;LOGIC=and\">$ul1$authors[$_]$ul2</a>";
+	    $authors[$_] = "<a href=\"".$alink."A=$enc\">$ul1$authors[$_]$ul2</a>";
 	} else {
 	    $authors[$_] = "$ul1$authors[$_]$ul2";
 	}
