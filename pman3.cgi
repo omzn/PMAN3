@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.11 2010/02/06 13:31:36 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.12 2010/02/06 13:38:44 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -1188,7 +1188,7 @@ sub printScreen {
 	    &createAList(\$aline,$_);
 	    $rss->add_item(
 		title => "[$ptype{$_->{'ptype'}}] $_->{'title'}",
-		link => "http://$httpServerName$scriptName?MODE=detail;ID=$id",
+		link => "http://$httpServerName$scriptName?D=$id",
 		description => $aline,
 		);
 	}
@@ -1734,7 +1734,7 @@ EOM
 		    $counter = 1;
 		} 
 	    }
-	    $body .= "<dd><a href=\"$scriptName?MODE=detail;ID=$$abib{'id'}\">\[$counter\]</a> ";
+	    $body .= "<dd><a href=\"$scriptName?D=$$abib{'id'}\">\[$counter\]</a> ";
 	    # リスト1行生成
 	    if  (!defined($cgi->param('SSI')) && !defined($cgi->param('STATIC'))) {
 		&createAList(\$body,$abib,"$scriptName?","$scriptName?")."</dd>\n";
