@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.12 2010/02/06 13:38:44 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.13 2010/02/07 05:33:11 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -78,8 +78,8 @@ our $bib;
 our %ptype;
 our @jname;
 our @ptype_order ;
-our @bb_order = ( 'author', 'author_e', 'editor', 'editor_e', 'key',
-		 'title', 'title_e', 'journal', 'journal_e', 'booktitle',
+our @bb_order = ( 'title', 'title_e', 'author', 'author_e', 'editor', 'editor_e', 'key',
+		 'journal', 'journal_e', 'booktitle',
 		 'booktitle_e', 'series', 'volume', 'number', 'chapter', 'pages',
 		 'edition', 'school', 'type', 'institution', 'organization',
 		 'publisher', 'publisher_e', 'address', 'month', 'year',
@@ -160,7 +160,8 @@ sub manageSession {
 	    $cgi->param($g,@v);
 	}
     }
-    # 短縮
+
+    # 短縮パラメータ
     if (defined($cgi->param("D"))) {
 	$cgi->param("MODE","detail");
 	$cgi->param("ID",$cgi->param("D"));
@@ -170,6 +171,13 @@ sub manageSession {
 	$cgi->param("LOGIC","and");
 	$cgi->param("SEARCH",$cgi->param("A"));
     }
+    if (defined($cgi->param("T"))) {
+	$cgi->param("FROM","tag");
+	$cgi->param("LOGIC","or");
+	$cgi->param("SEARCH",$cgi->param("T"));
+    }
+
+
     my $sid = $cgi->param('SID') || $cgi->cookie('SID') || undef ;
 
     if ($sid) {
@@ -1623,7 +1631,7 @@ sub printTagMenu {
     # タグの重要度に応じてサイズを変える．
     for (my $i=0;$i<=$max;$i+=2) {
 	my $size = ($tg[$i+1] / $tg[1]) * 1.3 + 0.5;
-	push(@taglist,"<span style=\"font-size: ${size}em;\"><a href=\"$scriptName?MODE=$pm;FROM=tag;SEARCH=".uri_escape_utf8($tg[$i])."\">$tg[$i]<sup>($tg[$i+1])</sup></a></span>");
+	push(@taglist,"<span style=\"font-size: ${size}em;\"><a href=\"$scriptName?T=".uri_escape_utf8($tg[$i])."\">$tg[$i]<sup>($tg[$i+1])</sup></a></span>");
     } 
     $tags = join(" ",@taglist);
        
