@@ -1,11 +1,11 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.13 2010/02/07 05:33:11 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.14 2010/02/07 11:45:44 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
 #              (c) 2002-2009 Osamu Mizuno, All right researved.
 # 
-our $VERSION = "3.1 Beta 4";
+our $VERSION = "3.1 Beta 5";
 # 
 # =================================================================================
 use strict;
@@ -176,7 +176,6 @@ sub manageSession {
 	$cgi->param("LOGIC","or");
 	$cgi->param("SEARCH",$cgi->param("T"));
     }
-
 
     my $sid = $cgi->param('SID') || $cgi->cookie('SID') || undef ;
 
@@ -1073,9 +1072,19 @@ sub getCacheFromCDB {
 
     # 非ログイン状態に限り
     my $SQL;
-    my $cdbh = DBI->connect("dbi:SQLite:dbname=$CACHE_DB", undef, undef, 
-		       {AutoCommit => 0, RaiseError => 1 });
+    my $cdbh;
+
+    if (!-f $CACHE_DB) { # CACHE_DBが無かったら作る．
+	$cdbh = DBI->connect("dbi:SQLite:dbname=$CACHE_DB", undef, undef, 
+			     {AutoCommit => 0, RaiseError => 1 });
+	$SQL = "CREATE TABLE cache(id integer primary key autoincrement, url text not null, page  text);";
+	$cdbh->do($SQL);
+    } else {
+	$cdbh = DBI->connect("dbi:SQLite:dbname=$CACHE_DB", undef, undef, 
+			     {AutoCommit => 0, RaiseError => 1 });
+    }
     $cdbh->{unicode} = 1;
+
     my $url = $cdbh->quote(&generateURL);
     my @p;
     eval {
@@ -3601,9 +3610,6 @@ sub modifyCategory {
     $dbh->disconnect;    
     exit(0);
 }
-
-
-
 
 # 与えられたテキストからタグを抽出
 # テキストにはtitleを仮定

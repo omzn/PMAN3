@@ -126,8 +126,8 @@ our %msg = (
 
         "faccess"=>"管理者のみ閲覧可能",
         "filedesc"=>"ファイルの説明",
-        "open"=>"[閲覧可]",
-        "hidden"=>"[閲覧不可]",
+        "open"=>"[一般閲覧可]",
+        "hidden"=>"[一般閲覧不可]",
 
 	#Add by Manabe
 	"clrcookie"=>"Cookie初期化",
