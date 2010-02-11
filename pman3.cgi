@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.14 2010/02/07 11:45:44 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.15 2010/02/11 09:32:09 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -1076,12 +1076,12 @@ sub getCacheFromCDB {
 
     if (!-f $CACHE_DB) { # CACHE_DBが無かったら作る．
 	$cdbh = DBI->connect("dbi:SQLite:dbname=$CACHE_DB", undef, undef, 
-			     {AutoCommit => 0, RaiseError => 1 });
+			     { RaiseError => 1 });
 	$SQL = "CREATE TABLE cache(id integer primary key autoincrement, url text not null, page  text);";
 	$cdbh->do($SQL);
     } else {
 	$cdbh = DBI->connect("dbi:SQLite:dbname=$CACHE_DB", undef, undef, 
-			     {AutoCommit => 0, RaiseError => 1 });
+			     { RaiseError => 1 });
     }
     $cdbh->{unicode} = 1;
 
@@ -1895,7 +1895,7 @@ EOM
 	    for (0..$#aa) {
 		my $enc = uri_escape_utf8($aa[$_]);
 		my $htmenc = HTML::Entities::encode($aa[$_]);
-		$aa[$_] = "<a title=\"$htmenc\" href=\"$scriptName?MODE=table;FROM=author;SEARCH=$enc;LOGIC=and\">$aa[$_]</a>";
+		$aa[$_] = "<a title=\"$htmenc\" href=\"$scriptName?A=$enc\">$aa[$_]</a>";
 	    }
 	    $body .= join(", ",@aa);
 	    my $t = $lang eq 'en' && $$abib{'title_e'} ne '' ? $$abib{'title_e'} 
@@ -1904,7 +1904,7 @@ EOM
 	    my $esct = 	HTML::Entities::encode($t);
 	    $body .= <<EOM;
 <br /></td>
-<td class="ptd"><a title="$esct" href="$scriptName?MODE=detail;ID=$$abib{'id'}">$t</a><br /></td>
+<td class="ptd"><a title="$esct" href="$scriptName?D=$$abib{'id'}">$t</a><br /></td>
 EOM
 
         if ($$abib{'style'} eq "article") {
