@@ -209,7 +209,9 @@ input,select,textarea {
 .right {margin:-8px 0 8px 0; text-align:right;}
 .block {background:#f0f0f0; padding:10px;}
 .hide {display:none;}
-.red {color:red;}
+.red, .red a:link, .red a:visited, .red a:hover {
+    color: red;
+}
 .tableview {
 }
 .pth {
