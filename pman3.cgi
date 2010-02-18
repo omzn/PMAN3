@@ -1,9 +1,9 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.16 2010/02/18 10:42:29 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.17 2010/02/18 15:55:59 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
-#              (c) 2002-2009 Osamu Mizuno, All right researved.
+#              (c) 2002-2010 Osamu Mizuno, All right researved.
 # 
 our $VERSION = "3.1 Beta 6";
 # 
