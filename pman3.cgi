@@ -1,11 +1,11 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.15 2010/02/11 09:32:09 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.16 2010/02/18 10:42:29 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
 #              (c) 2002-2009 Osamu Mizuno, All right researved.
 # 
-our $VERSION = "3.1 Beta 5";
+our $VERSION = "3.1 Beta 6";
 # 
 # =================================================================================
 use strict;
@@ -102,7 +102,7 @@ our $t0 = [Time::HiRes::gettimeofday];
 
 our $dbh = DBI->connect("dbi:SQLite:dbname=$DB", undef, undef, 
 		       {AutoCommit => 0, RaiseError => 1 });
-$dbh->{unicode} = 1;
+$dbh->{sqlite_unicode} = 1;
 
 &manageSession; 
 # キャッシュ読み込み処理の実装部
@@ -156,7 +156,7 @@ sub manageSession {
     # CGIで渡ってきた値をutf-8化
     for my $g ($cgi->param) {
 	if ($g ne 'edit_upfile') { # upfileの破壊を防ぐ
-	    my @v = map {Encode::decode('utf8',$_)} $cgi->param($g);
+	    my @v = map {Encode::decode('utf8',utf8::encode($_))} $cgi->param($g);
 	    $cgi->param($g,@v);
 	}
     }
@@ -933,23 +933,6 @@ sub registAuthorDB {
     }
 }
 
-sub updateAuthorDB {
-    my ($a_name,$a_name_e) = @_;
-
-    my $SQL = "UPDATE authors SET author_key=".$dbh->quote($a_name_e)." WHERE author_name=".$dbh->quote($a_name);
-    eval {
-	my $sth = $dbh->do($SQL);
-	$dbh->commit;	  
-    };
-
-    if ($@) { 
-	$dbh->rollback; $dbh->disconnect; 
-	my $emsg = "Incomplete query. While inserting author list.";
-	$emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
-	&printError($emsg);
-    }
-}
-
 sub add_categoryDB {
     my $newcatname = shift;
 
@@ -1083,7 +1066,7 @@ sub getCacheFromCDB {
 	$cdbh = DBI->connect("dbi:SQLite:dbname=$CACHE_DB", undef, undef, 
 			     { RaiseError => 1 });
     }
-    $cdbh->{unicode} = 1;
+    $cdbh->{sqlite_unicode} = 1;
 
     my $url = $cdbh->quote(&generateURL);
     my @p;
@@ -1110,7 +1093,7 @@ sub storeCacheToCDB {
  
     my $cdbh = DBI->connect("dbi:SQLite:dbname=$CACHE_DB", undef, undef, 
 		       {AutoCommit => 0, RaiseError => 1 });
-    $cdbh->{unicode} = 1;
+    $cdbh->{sqlite_unicode} = 1;
     my $url = &generateURL;
     my $SQL = '';
     eval {
@@ -1132,7 +1115,7 @@ sub storeCacheToCDB {
 sub expireCacheFromCDB {
     my $cdbh = DBI->connect("dbi:SQLite:dbname=$CACHE_DB", undef, undef, 
 		       {AutoCommit => 0, RaiseError => 1 });
-    $cdbh->{unicode} = 1;
+    $cdbh->{sqlite_unicode} = 1;
     my $SQL = 'DELETE FROM cache;';
     eval {
 	$cdbh->do($SQL);
