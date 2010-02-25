@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.20 2010/02/25 03:25:12 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.21 2010/02/25 03:31:12 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -1637,6 +1637,7 @@ EOM
 EOM
     } else {
         $message .= "<p>";
+    }
     return $message;
 }
 
