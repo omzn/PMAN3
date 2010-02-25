@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.24 2010/02/25 13:45:02 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.25 2010/02/25 13:53:19 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -11,7 +11,7 @@ our $VERSION = "3.1 Beta 7";
 use strict;
 use utf8;
 
-our $debug=0;
+our $debug=1;
 
 use DBI;
 use CGI;
@@ -120,8 +120,10 @@ if ($use_cache) {
 
 	if (utf8::is_utf8($page)) {
 	    print encode('utf-8', $page);
+	    print STDERR "[Debug cache - utf8 flag]" if $debug;
 	} else {
 	    print $page;
+	    print STDERR "[Debug cache - no utf8 flag]" if $debug;
 	}
 	exit 0;
     }
