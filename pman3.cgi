@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.22 2010/02/25 07:19:20 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.23 2010/02/25 12:05:50 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -292,6 +292,7 @@ sub clearSessionParams {
     $session->clear('XML');
     $session->clear('STATIC');
     $session->clear('SSI');
+    $session->clear('tag');
 
     if ($mode eq "delete") {
 	$session->clear('ID');
@@ -859,7 +860,7 @@ sub updateTagDB {
 
     if ($@) { 
 	$dbh->rollback; $dbh->disconnect; 
-	my $emsg = "Incomplete query. While inserting a file.";
+	my $emsg = "Incomplete query. While updating tag DB.";
 	$emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
 	&printError($emsg);
     }
@@ -2323,9 +2324,25 @@ EOM
 
 <h3>$msg{'tagsetting'}</h3>
 <table>
+<form method="POST" action="$scriptName">
+<input type="hidden" name="MODE" value="config2">
 <tr>
-  <form method="POST" action="$scriptName">
-  <input type="hidden" name="MODE" value="config2">
+  <td class="fieldHead" width="25%">
+  <input type="hidden" name="tag" value="merge" />
+      $msg{'tag_merge'}
+  </td>
+  <td class="fieldBody" width="60%">
+      $msg{'tag_merge_exp'}
+  </td> 
+  <td class="fieldBody" width="15%">
+    <input type="submit" value="$msg{'merge'}" />
+  </td>
+</tr>
+</form>
+
+<form method="POST" action="$scriptName">
+<input type="hidden" name="MODE" value="config2">
+<tr>
   <td class="fieldHead" width="25%">
   <input type="hidden" name="tag" value="rebuild" />
       $msg{'tag_rebuild'}
@@ -3451,6 +3468,9 @@ sub registEntry {
     my $tags = $cgi->param('edit_tags');
     if ($tags eq "") {
 	$tags = &createTags($cgi->param('edit_title'),$cgi->param('edit_title_e'));
+	if (!utf8::is_utf8($tags)) {
+	    utf8::decode($tags);
+	}
     }
     &updateTagDB($session->param('ID'),$tags);
 
@@ -3682,7 +3702,7 @@ sub doConfigSetting {
 	&printError('You must login first.');
     }
 
-    my $tag = $session->param('tag');
+    my $tag = $cgi->param('tag');
     if ($tag eq "rebuild") {
 	# (id, title, title_eを全文献について取得)
 	&getTitleOnlyDB();
@@ -3698,7 +3718,23 @@ sub doConfigSetting {
 	    }
 	    &updateTagDB( $_->{id}, $new_tags );
 	}
+    } elsif ($tag eq "merge") {
+	# (id, title, title_eを全文献について取得)
+	&getTitleOnlyDB();
+	foreach (@$bib) {
+	    my $new_tags = &createTags($_->{title},$_->{title_e});
+	    my @t; 
+	    push(@t,split(/,/,$new_tags));
+	    my @tt = uniqArray(\@t);
+	    $new_tags = join(",",@tt);
+	    if (!utf8::is_utf8($new_tags)) {
+		utf8::decode($new_tags);
+	    }
+	    &updateTagDB( $_->{id}, $new_tags );
+	}
     }
+
+    my $cache = $session->param('cache');
     
     #redirect
     print $cgi->redirect("$scriptName?MODE=config");
