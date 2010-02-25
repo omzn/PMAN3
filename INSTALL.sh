@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: INSTALL.sh,v 1.2 2010/02/25 02:54:20 o-mizuno Exp $
+# $Id: INSTALL.sh,v 1.3 2010/02/25 15:18:13 o-mizuno Exp $
 
 TMPE=/tmp/pman_install_error
 PERL=/usr/bin/perl
@@ -31,13 +31,26 @@ $PERL -e "use URI::Escape;" 2>&1 | head -1 | cut -d ' ' -f 3 >> $TMPE
 $PERL -e "use Encode;" 2>&1 | head -1 | cut -d ' ' -f 3 >> $TMPE
 $PERL -e "use Digest::MD5;" 2>&1 | head -1 | cut -d ' ' -f 3 >> $TMPE
 $PERL -e "use MIME::Types;" 2>&1 | head -1 | cut -d ' ' -f 3 >> $TMPE
-$PERL -e "use XML::Simple;" 2>&1 | head -1 | cut -d ' ' -f 3 >> $TMPE
-$PERL -e "use XML::RSS;" 2>&1 | head -1 | cut -d ' ' -f 3 >> $TMPE
 $PERL -e "use Time::HiRes;" 2>&1 | head -1 | cut -d ' ' -f 3 >> $TMPE
+
+#echo "Would you like to use XML features (XML & RSS feed)?"
+#read useXML
+#$PERL -e "use XML::Simple;" 2>&1 | head -1 | cut -d ' ' -f 3 >> $TMPE
+#$PERL -e "use XML::RSS;" 2>&1 | head -1 | cut -d ' ' -f 3 >> $TMPE
+#echo "Would you like to use automatic Japanese tagging?"
+#read useMeCab
+#$PERL -e "use Text::MeCab;" 2>&1 | head -1 | cut -d ' ' -f 3 >> $TMPE
 
 if [ -z "`cat $TMPE`" ]; then
     echo "[OK] All necessary perl modules are installed."
     rm -f $TMPE
+    echo "[Notice 1] If you want to use RSS feature, please install XML::RSS module"
+    echo "[Notice 1]    and set \$use_rss = 1 in config.pl."
+    echo "[Notice 2] If you want to use XML feature, please install XML::Simple module."
+    echo "[Notice 2]    and set \$use_xml = 1 in config.pl."
+    echo "[Notice 3] If you want to use Japanese auto tagging feature,"
+    echo "[Notice 3]    please install Text::MeCab module and mecab,"
+    echo "[Notice 3]    and set \$use_AutoJapaneseTag = 1 in config.pl."
 else
     echo "[NG] Necessary perl modules are not installed."
     cat $TMPE

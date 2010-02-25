@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.29 2010/02/25 14:34:19 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.30 2010/02/25 15:18:13 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -11,7 +11,7 @@ our $VERSION = "3.1 Beta 7";
 use strict;
 use utf8;
 
-our $debug=1;
+our $debug=0;
 
 use DBI;
 use CGI;
