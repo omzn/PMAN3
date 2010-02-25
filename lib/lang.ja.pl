@@ -242,10 +242,14 @@ our %msg = (
     "tagsetting"=>"タグ設定",
     "tag_rebuild"=>"タグの再構築（消去）",
     "tag_rebuild_exp"=>"全文献のタグを表題から再構築します．現在のタグは消去されます．",
-    "rebuild"=>"再構築",
+    "rebuild"=>"再構築(消去)",
     "tag_merge"=>"タグの再構築（統合）",
     "tag_merge_exp"=>"全文献のタグを表題から再構築します．現在のタグも保持されます．",
-    "merge"=>"統合",
+    "merge"=>"再構築(統合)",
+
+    "cachesetting"=>"キャッシュ設定",
+    "cache_delete"=>"キャッシュ削除",
+    "cache_delete_exp"=>"全ページキャッシュを削除します．",
 
 );
 

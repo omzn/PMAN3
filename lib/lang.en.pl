@@ -247,6 +247,10 @@ our %msg = (
     "tag_merge"=>"Merge tags",
     "tag_merge_exp"=>"Rebuild tag database for all bibs. Currennt tags remain and merged.",
     "merge"=>"Merge",
+
+    "cachesetting"=>"Cache setting",
+    "cache_delete"=>"Expire cache",
+    "cache_delete_exp"=>"Force to expire page caches.",
     
 	);
 

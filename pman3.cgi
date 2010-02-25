@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.28 2010/02/25 14:33:09 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.29 2010/02/25 14:34:19 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -2361,10 +2361,10 @@ EOM
 <tr>
   <td class="fieldHead" width="25%">
   <input type="hidden" name="cache" value="delete" />
-      $msg{'cache_del'}
+      $msg{'cache_delete'}
   </td>
   <td class="fieldBody" width="60%">
-      $msg{'cache_del_exp'}
+      $msg{'cache_delete_exp'}
   </td> 
   <td class="fieldBody" width="15%">
     <input type="submit" value="$msg{'del'}" />
