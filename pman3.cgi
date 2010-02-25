@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.27 2010/02/25 14:22:03 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.28 2010/02/25 14:33:09 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -289,7 +289,9 @@ sub clearSessionParams {
     $session->clear('XML');
     $session->clear('STATIC');
     $session->clear('SSI');
+
     $session->clear('tag');
+    $session->clear('cache');
 
     if ($mode eq "delete") {
 	$session->clear('ID');
@@ -2335,7 +2337,6 @@ EOM
   </td>
 </tr>
 </form>
-
 <form method="POST" action="$scriptName">
 <input type="hidden" name="MODE" value="config2">
 <tr>
@@ -2351,6 +2352,24 @@ EOM
   </td>
 </tr>
 </form>
+</table>
+
+<h3>$msg{'cachesetting'}</h3>
+<table>
+<form method="POST" action="$scriptName">
+<input type="hidden" name="MODE" value="config2">
+<tr>
+  <td class="fieldHead" width="25%">
+  <input type="hidden" name="cache" value="delete" />
+      $msg{'cache_del'}
+  </td>
+  <td class="fieldBody" width="60%">
+      $msg{'cache_del_exp'}
+  </td> 
+  <td class="fieldBody" width="15%">
+    <input type="submit" value="$msg{'del'}" />
+  </td>
+</tr>
 </table>
 EOM
 
@@ -3715,9 +3734,10 @@ sub doConfigSetting {
 	    }
 	    &updateTagDB( $_->{id}, $new_tags );
 	}
+	&expireCacheFromCDB;
     } elsif ($tag eq "rebuild") {
 	# (id, title, title_eを全文献について取得)
-	&getTitleOnlyDB();
+	&getTitleOnlyDB;
 	foreach (@$bib) {
 	    my $new_tags = &createTags($_->{title},$_->{title_e});
 	    my @t; 
@@ -3729,15 +3749,17 @@ sub doConfigSetting {
 	    }
 	    &updateTagDB( $_->{id}, $new_tags );
 	}
+	&expireCacheFromCDB;
     }
 
     my $cache = $cgi->param('cache');
-    
+    if ($cache eq "delete") {
+	&expireCacheFromCDB;
+    }    
     #redirect
     print $cgi->redirect("$scriptName?MODE=config");
 
     &clearSessionParams;
-    &expireCacheFromCDB;
     $dbh->disconnect;    
     exit(0);
 }
