@@ -242,7 +242,7 @@ our %msg = (
         "Title_config" => "Option Configuration",       
     "tagsetting"=>"Tag setting",
     "tag_rebuild"=>"Rebuild tags",
-    "tag_rebuild_exp"=>"Rebuild tag database for all bibs. Current tags are deleted. Be careful!",
+    "tag_rebuild_exp"=>"Rebuild tag database for all bibs. Be careful!",
     "rebuild"=>"Rebuild",
     
 	);

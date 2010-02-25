@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.21 2010/02/25 03:31:12 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.22 2010/02/25 07:19:20 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -54,9 +54,9 @@ our $CACHE_DB = "./db/cache.db";
 # Options (can be specified in config.pl)
 #=====================================================
 our $use_cache = 1;
-our $useDBforSession = 0;
-our $useJapaneseTags = 0;
+our $use_DBforSession = 0;
 
+our $use_AutoJapaneseTags = 0;
 our $use_RSS = 0;
 our $use_XML = 0;
 
@@ -140,7 +140,7 @@ exit(0);
 #=====================================================
 
 sub manageSession {
-    if (!$useDBforSession) {
+    if (!$use_DBforSession) {
 # セッションのゴミ掃除
 	if(!opendir(DIR, "$TMPDIR")){
 	    die;
@@ -205,9 +205,9 @@ sub manageSession {
 
     if ($sid) {
         $session = new CGI::Session("driver:File", $sid, {Directory=>$TMPDIR})
-	    if (!$useDBforSession);
+	    if (!$use_DBforSession);
         $session = new CGI::Session("driver:sqlite", $sid, {DataSource=>$SESS_DB}) 
-	    if ($useDBforSession);
+	    if ($use_DBforSession);
 	
 	if (defined($cgi->param('LOGIN')) && $cgi->param('LOGIN') eq "off") {
 	    $cgi->delete('PASSWD');
@@ -219,9 +219,9 @@ sub manageSession {
 	}
     } else {
         $session = new CGI::Session("driver:File", undef, {Directory=>$TMPDIR})
-	    if (!$useDBforSession);
+	    if (!$use_DBforSession);
 	$session = new CGI::Session("driver:sqlite", undef, {DataSource=>$SESS_DB})
-	    if ($useDBforSession);
+	    if ($use_DBforSession);
 
     }
     $session->expire('+3h');
@@ -256,6 +256,9 @@ sub manageSession {
     }
     if (defined($session->param('MODE')) && $session->param('MODE') eq "category2" ) {
 	&modifyCategory();
+    }
+    if (defined($session->param('MODE')) && $session->param('MODE') eq "config2" ) {
+	&doConfigSetting();
     }
     if (defined($session->param('MODE')) && $session->param('MODE') eq "filedelete" ) {
 	&deleteFile();
@@ -635,6 +638,23 @@ sub deleteDB {
 	$emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
 	&printError($emsg);
     }
+}
+
+sub getTitleOnlyDB {
+    eval {
+	# 文献情報取得 -> $bib
+	my $SQL = "SELECT id,title,title_e FROM bib";
+	$bib = $dbh->selectall_arrayref($SQL,{Columns => {}});
+    };
+    
+    if ($@) {
+	$dbh->disconnect;
+	my $emsg = "Incomplete query while getting titles.";
+	$emsg .= "<br /> $@ <br />" if ($debug);
+	&printError($emsg);
+    }
+ 
+    return 0;
 }
 
 sub insertFileDB {
@@ -1327,7 +1347,8 @@ EOM
     if ($login == 1) {
 	$topmenu .= <<EOM;
   <a class="toptab" href="$scriptName?LOGIN=off">$topMenu{'logout'}</a><span class="hide"> | </span>
-  <a class="toptab" href="$scriptName?MODE=category">$topMenu{'config'}</a><span class="hide"> | </span>
+  <a class="toptab" href="$scriptName?MODE=category">$topMenu{'category'}</a><span class="hide"> | </span>
+  <a class="toptab" href="$scriptName?MODE=config">$topMenu{'config'}</a><span class="hide"> | </span>
 EOM
     } else {
 	$topmenu .= <<EOM;
@@ -1621,7 +1642,7 @@ EOM
 }
 
 sub printMessageMenu {
-    return if ($session->param('MODE') =~ /(add|category)/);
+    return if ($session->param('MODE') =~ /(add|category|config)/);
     my $message;
 
     my $numOfBib = $#$bib + 1;
@@ -1643,7 +1664,7 @@ EOM
 
 # 頻出タグを表示するメニュー
 sub printTagMenu {
-    return if ($session->param('MODE') =~ /(detail|edit|add|category)/);
+    return if ($session->param('MODE') =~ /(detail|edit|add|category|config)/);
     my @idlist;
     foreach (@$bib) {
 	push(@idlist,$_->{'id'});
@@ -1682,7 +1703,8 @@ sub printBody {
     # EDIT 判定
     if (($session->param('MODE') eq "edit" || 
 	 $session->param('MODE') eq "add" || 
-	 $session->param('MODE') eq "category")
+	 $session->param('MODE') eq "category" ||
+	 $session->param('MODE') eq "config" )
 	&& $login != 1) {
 	&printError('You must login first.');
     }
@@ -1703,7 +1725,7 @@ EOM
         return $body;
     }
 
-    if (@$bib == () && !( $mode eq "add" || $mode eq "category" )) {
+    if (@$bib == () && !( $mode eq "add" || $mode eq "category" || $mode eq "config")) {
 	$body .= "<p>$msg{'nothingfound'}</p>";
 	return $body;
     }
@@ -2293,6 +2315,32 @@ EOM
 </form>
 EOM
 #### end mode = add
+
+#### begin mode = config
+    } elsif ($mode eq "config") { 
+
+	$body .= <<EOM;
+
+<h3>$msg{'tagsetting'}</h3>
+<table>
+<tr>
+  <form method="POST" action="$scriptName">
+  <input type="hidden" name="MODE" value="config2">
+  <td class="fieldHead" width="25%">
+  <input type="hidden" name="tag" value="rebuild" />
+      $msg{'tag_rebuild'}
+  </td>
+  <td class="fieldBody" width="60%">
+      $msg{'tag_rebuild_exp'}
+  </td> 
+  <td class="fieldBody" width="15%">
+    <input type="submit" value="$msg{'rebuild'}" />
+  </td>
+</tr>
+</form>
+</table>
+EOM
+
 #### begin mode = category
     } elsif ($mode eq "category") { 
 
@@ -3628,8 +3676,41 @@ sub modifyCategory {
     exit(0);
 }
 
+# オプション設定
+sub doConfigSetting {
+    if ($login != 1) {
+	&printError('You must login first.');
+    }
+
+    my $tag = $session->param('tag');
+    if ($tag eq "rebuild") {
+	# (id, title, title_eを全文献について取得)
+	&getTitleOnlyDB();
+	foreach (@$bib) {
+	    my $old_tags = &getTagListDB($_->{id});
+	    my $new_tags = &createTags($_->{title},$_->{title_e});
+	    my @t = split(/\s/,$old_tags);
+	    push(@t,split(/,/,$new_tags));
+	    my @tt = uniqArray(\@t);
+	    $new_tags = join(",",@tt);
+	    if (!utf8::is_utf8($new_tags)) {
+		utf8::decode($new_tags);
+	    }
+	    &updateTagDB( $_->{id}, $new_tags );
+	}
+    }
+    
+    #redirect
+    print $cgi->redirect("$scriptName?MODE=config");
+
+    &clearSessionParams;
+    &expireCacheFromCDB;
+    $dbh->disconnect;    
+    exit(0);
+}
+
 # 与えられたテキストからタグを抽出
-# テキストにはtitleを仮定
+# テキストにはtitleを仮定 
 sub createTags {
     my ($title,$title_e) = @_;
     my $except = "A|AN|ABOUT|AMONG|AND|AS|AT|BETWEEN|BOTH|BUT|BY|FOR|FROM|IN|INTO|OF|ON|THE|THUS|TO|UNDER|USING|VS|WITH|WITHIN";
@@ -3637,7 +3718,10 @@ sub createTags {
 
     my @t ;
     if (&isJapanese($title)) {
-	if ($useJapaneseTags) {
+	if ($use_AutoJapaneseTags) {
+	    if (!utf8::is_utf8($title)) {
+		utf8::decode($title);
+	    }
 	    require Text::MeCab;
 	    my $m = Text::MeCab->new();
 	    my $n = $m->parse($title);
@@ -3646,8 +3730,10 @@ sub createTags {
 		utf8::decode($f[0]);
 		if ($f[0] eq "名詞") {
 		    my $str = $n->surface;
-		    utf8::decode($str);
-		    push(@t,$str);
+		    if ($str !~ /^[a-zA-Z0-9_\-.,\$]+$/ ) {
+			utf8::decode($str);
+			push(@t,$str);
+		    }
 		}
 	    } while ($n = $n->next );
 	}
@@ -3659,7 +3745,7 @@ sub createTags {
 	    push(@t,lc($_));
 	}
     }
-    return join(",",@t);
+    return join(",",&uniqArray(\@t));
 }
 
 # あるページのセッション情報をURLの形で表示．
@@ -3759,5 +3845,21 @@ sub isJapanese {
 #	return 0;
 #    }
 #}
+
+sub uniqArray{
+    my $array = shift;
+    my %hash  = ();
+
+    foreach my $value ( @$array ){
+	if (utf8::is_utf8($value)) {
+	    utf8::encode($value);
+	}
+        $hash{$value} = 1;
+    }
+
+    return(
+        keys %hash
+    );
+}
 
 exit(0);

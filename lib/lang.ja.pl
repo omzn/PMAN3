@@ -241,7 +241,7 @@ our %msg = (
     "Title_config"=>"オプション設定",
     "tagsetting"=>"タグ設定",
     "tag_rebuild"=>"タグの再構築",
-    "tag_rebuild_exp"=>"全文献のタグを表題から再構築します．現在のタグは全て失われます．",
+    "tag_rebuild_exp"=>"全文献のタグを表題から再構築します．現在のタグも保持されます．",
     "rebuild"=>"再構築",
 
 );
