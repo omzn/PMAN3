@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.18 2010/02/25 02:53:01 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.19 2010/02/25 03:11:43 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -3626,7 +3626,7 @@ sub createTags {
     my @t ;
     if (&isJapanese($title)) {
 	if ($useJapaneseTags) {
-	    use Text::MeCab;
+	    require Text::MeCab;
 	    my $m = Text::MeCab->new();
 	    my $n = $m->parse($title);
 	    do {
