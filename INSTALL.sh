@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: INSTALL.sh,v 1.1 2009/09/17 07:04:31 o-mizuno Exp $
+# $Id: INSTALL.sh,v 1.2 2010/02/25 02:54:20 o-mizuno Exp $
 
 TMPE=/tmp/pman_install_error
 PERL=/usr/bin/perl
