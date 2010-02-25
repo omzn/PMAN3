@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.19 2010/02/25 03:11:43 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.20 2010/02/25 03:25:12 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -22,10 +22,10 @@ use HTML::Scrubber;
 use HTML::Entities;
 use Encode;
 use Digest::MD5 qw/md5_hex/;
-use URI::Escape qw/uri_escape_utf8/;
-use XML::Simple;
-use XML::RSS;
 use MIME::Types qw/by_suffix/;
+use URI::Escape qw/uri_escape_utf8/;
+#use XML::Simple;
+#use XML::RSS;
 
 our $PASSWD;
 our $titleOfSite;
@@ -34,8 +34,6 @@ our $maintainerAddress;
 our $texHeader1;
 our $texHeader2;
 our $texFooter;
-
-require 'config.pl';
 
 our %bt;
 our %viewMenu;
@@ -53,11 +51,14 @@ our $SESS_DB = "./db/sess.db";
 our $CACHE_DB = "./db/cache.db";
 
 #=====================================================
-# Options
+# Options (can be specified in config.pl)
 #=====================================================
 our $use_cache = 1;
 our $useDBforSession = 0;
 our $useJapaneseTags = 0;
+
+our $use_RSS = 0;
+our $use_XML = 0;
 
 our $use_mimetex = 0;
 our $MIMETEXPATH = "$LIBDIR/mimetex.cgi";
@@ -65,6 +66,7 @@ our $MIMETEXPATH = "$LIBDIR/mimetex.cgi";
 our $httpServerName = $ENV{'SERVER_NAME'};
 our $scriptName = $ENV{'SCRIPT_NAME'};
 
+require 'config.pl';
 #=====================================================
 # Global Variables
 #=====================================================
@@ -1182,7 +1184,8 @@ sub printScreen {
 	$document->param(CONTENTS=> &printBody);    
 	$doc = $document->output;
 
-    } elsif (defined($cgi->param('XML'))) {
+    } elsif ($use_XML && defined($cgi->param('XML'))) {
+	require XML::Simple;
 	$header =  $cgi->header(
 	    -type => 'text/xml',
 	    -charset => 'utf-8'	
@@ -1192,7 +1195,8 @@ sub printScreen {
 
 	$doc = XMLout($bibhash,XMLDecl => 1,NoAttr => 1,RootName => 'bibs');
 
-    } elsif (defined($cgi->param('RSS'))) {
+    } elsif ($use_RSS && defined($cgi->param('RSS'))) {
+	require XML::RSS;
 	$header =  $cgi->header(
 	    -type => 'application/rss+xml',
 	    -charset => 'utf-8'	
@@ -1624,8 +1628,15 @@ sub printMessageMenu {
     my $url = &generateURL;
 
     $message .= <<EOM;
-<p class="right">$numOfBib $msg{'found'} : <a href="$url">$msg{'URL'}</a> : <a href="$url;STATIC">HTML</a> : <a href="$url;LIMIT=10;RSS">RSS</a> </p>
+<p class="right">$numOfBib $msg{'found'} : <a href="$url">$msg{'URL'}</a> 
+: <a href="$url;STATIC">HTML</a> 
 EOM
+    if ($use_RSS) {
+        $message .= <<EOM;
+: <a href="$url;LIMIT=10;RSS">RSS</a> </p>
+EOM
+    } else {
+        $message .= "<p>";
     return $message;
 }
 
