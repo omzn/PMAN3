@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.25 2010/02/25 13:53:19 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.26 2010/02/25 14:06:28 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -11,7 +11,7 @@ our $VERSION = "3.1 Beta 7";
 use strict;
 use utf8;
 
-our $debug=1;
+our $debug=0;
 
 use DBI;
 use CGI;
@@ -116,7 +116,6 @@ if ($use_cache) {
     if ($page) {
 	my $dt = Time::HiRes::tv_interval($t0);
 	$page =~ s/Time to show this page: [\d\.]+ seconds\./Time to show this page: $dt seconds\. (cached)/;
-#	print $page;
 
 	if (utf8::is_utf8($page)) {
 	    print encode('utf-8', $page);
@@ -914,16 +913,16 @@ sub getIdFromAuthorsDB {
     return join(",",@idlist);
 }
 
-#sub getAuthorFromAuthorsDB {
-#    my ($pid,$aulist,$keylist) = @_;
-#
-#    my $SQL = "SELECT author_name,author_key FROM authors WHERE paper_id=$pid ORDER BY author_order";
-#    my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
-#    foreach (@$f) {
-#	push(@$aulist,$_->{'author_name'});
-#	push(@$keylist,$_->{'author_key'});
-#    }
-#}
+sub getAuthorFromAuthorsDB {
+    my ($pid,$aulist,$keylist) = @_;
+
+    my $SQL = "SELECT author_name,author_key FROM authors WHERE paper_id=$pid ORDER BY author_order";
+    my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
+    foreach (@$f) {
+	push(@$aulist,$_->{'author_name'});
+	push(@$keylist,$_->{'author_key'});
+    }
+}
 
 sub getAuthorListDB {
     my @al;
@@ -1098,7 +1097,6 @@ sub getCacheFromCDB {
     return if (defined($cgi->param('STATIC')));
     return if (defined($cgi->param('XML')));
     return if (defined($cgi->param('RSS')));
-#    my $page = shift;
 
     # 非ログイン状態に限り
     my $SQL;
@@ -2581,23 +2579,24 @@ sub createAList {
 
     # 著者の処理
     ## DBを使って書き直し． <- これが遅い？？
-    # replacement
-    my $tmp_a = $lang eq 'en' && $$ent{'author_e'} ne '' ? 
-	$$ent{'author_e'}: $$ent{'author'};
-    my $tmp_k = $$ent{'key'};
 
     my @authors; my @keys;
-    if ($tmp_a =~/\s+and\s+/) {
-	@authors = split(/\s+and\s+/,$tmp_a) ;
-    } else {
-	@authors = split(/\s*,\s*/,$tmp_a) ;
-    }
-    if ($tmp_k =~/\s+and\s+/) {
-	@keys = split(/\s+and\s+/,$tmp_k) ;
-    } else {
-	@keys = split(/\s*,\s*/,$tmp_k) ;
-    }
-    #&getAuthorFromAuthorsDB($$ent{'id'},\@authors,\@keys);
+    # replacement
+#    my $tmp_a = $lang eq 'en' && $$ent{'author_e'} ne '' ? 
+#	$$ent{'author_e'}: $$ent{'author'};
+#    my $tmp_k = $$ent{'key'};
+
+#    if ($tmp_a =~/\s+and\s+/) {
+#	@authors = split(/\s+and\s+/,$tmp_a) ;
+#    } else {
+#	@authors = split(/\s*,\s*/,$tmp_a) ;
+#    }
+#    if ($tmp_k =~/\s+and\s+/) {
+#	@keys = split(/\s+and\s+/,$tmp_k) ;
+#    } else {
+#	@keys = split(/\s*,\s*/,$tmp_k) ;
+#    }
+    &getAuthorFromAuthorsDB($$ent{'id'},\@authors,\@keys);
 
     my $astr = join(',',@authors);
     my $isJA = &isJapanese($astr) ;
