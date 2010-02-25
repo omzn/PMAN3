@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.26 2010/02/25 14:06:28 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.27 2010/02/25 14:22:03 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -11,7 +11,7 @@ our $VERSION = "3.1 Beta 7";
 use strict;
 use utf8;
 
-our $debug=0;
+our $debug=1;
 
 use DBI;
 use CGI;
@@ -24,8 +24,6 @@ use Encode;
 use Digest::MD5 qw/md5_hex/;
 use MIME::Types qw/by_suffix/;
 use URI::Escape qw/uri_escape_utf8/;
-#use XML::Simple;
-#use XML::RSS;
 
 our $PASSWD;
 our $titleOfSite;
@@ -119,10 +117,8 @@ if ($use_cache) {
 
 	if (utf8::is_utf8($page)) {
 	    print encode('utf-8', $page);
-	    print STDERR "[Debug cache - utf8 flag]" if $debug;
 	} else {
 	    print $page;
-	    print STDERR "[Debug cache - no utf8 flag]" if $debug;
 	}
 	exit 0;
     }
@@ -3704,7 +3700,7 @@ sub doConfigSetting {
     }
 
     my $tag = $cgi->param('tag');
-    if ($tag eq "rebuild") {
+    if ($tag eq "merge") {
 	# (id, title, title_eを全文献について取得)
 	&getTitleOnlyDB();
 	foreach (@$bib) {
@@ -3713,13 +3709,13 @@ sub doConfigSetting {
 	    my @t = split(/\s/,$old_tags);
 	    push(@t,split(/,/,$new_tags));
 	    my @tt = uniqArray(\@t);
-	    $new_tags = join(",",@tt);
+	    $new_tags = join(",",sort(@tt));
 	    if (!utf8::is_utf8($new_tags)) {
 		utf8::decode($new_tags);
 	    }
 	    &updateTagDB( $_->{id}, $new_tags );
 	}
-    } elsif ($tag eq "merge") {
+    } elsif ($tag eq "rebuild") {
 	# (id, title, title_eを全文献について取得)
 	&getTitleOnlyDB();
 	foreach (@$bib) {
@@ -3727,7 +3723,7 @@ sub doConfigSetting {
 	    my @t; 
 	    push(@t,split(/,/,$new_tags));
 	    my @tt = uniqArray(\@t);
-	    $new_tags = join(",",@tt);
+	    $new_tags = join(",",sort(@tt));
 	    if (!utf8::is_utf8($new_tags)) {
 		utf8::decode($new_tags);
 	    }
@@ -3735,7 +3731,7 @@ sub doConfigSetting {
 	}
     }
 
-    my $cache = $session->param('cache');
+    my $cache = $cgi->param('cache');
     
     #redirect
     print $cgi->redirect("$scriptName?MODE=config");
@@ -3782,7 +3778,7 @@ sub createTags {
 	    push(@t,lc($_));
 	}
     }
-    return join(",",&uniqArray(\@t));
+    return join(",",sort(&uniqArray(\@t)));
 }
 
 # あるページのセッション情報をURLの形で表示．
