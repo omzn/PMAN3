@@ -213,6 +213,7 @@ input,select,textarea {
     color: red;
 }
 .tableview {
+    font-size: 0.75em;
 }
 .pth {
     background-color: #f0f0f0;

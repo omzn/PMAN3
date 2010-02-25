@@ -1,11 +1,11 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.17 2010/02/18 15:55:59 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.18 2010/02/25 02:53:01 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
 #              (c) 2002-2010 Osamu Mizuno, All right researved.
 # 
-our $VERSION = "3.1 Beta 6";
+our $VERSION = "3.1 Beta 7";
 # 
 # =================================================================================
 use strict;
@@ -56,10 +56,10 @@ our $CACHE_DB = "./db/cache.db";
 # Options
 #=====================================================
 our $use_cache = 1;
-
 our $useDBforSession = 0;
-our $use_mimetex = 0;
+our $useJapaneseTags = 0;
 
+our $use_mimetex = 0;
 our $MIMETEXPATH = "$LIBDIR/mimetex.cgi";
 
 our $httpServerName = $ENV{'SERVER_NAME'};
@@ -104,7 +104,7 @@ our $dbh = DBI->connect("dbi:SQLite:dbname=$DB", undef, undef,
 		       {AutoCommit => 0, RaiseError => 1 });
 $dbh->{sqlite_unicode} = 1;
 
-&manageSession; 
+&manageSession;
 # キャッシュ読み込み処理の実装部
 #   LOGIN状態でない場合のみ．
 #   ここでgenerateURLの内容をキーとしてcacheDBを検索．
@@ -153,29 +153,51 @@ sub manageSession {
 # CGI
     $cgi->charset('utf-8');
 
-    # CGIで渡ってきた値をutf-8化
-    for my $g ($cgi->param) {
-	if ($g ne 'edit_upfile') { # upfileの破壊を防ぐ
-	    my @v = map {Encode::decode('utf8',utf8::encode($_))} $cgi->param($g);
-	    $cgi->param($g,@v);
-	}
-    }
+    print STDERR "[Debug 1] Manage session now.\n" if ($debug);
 
     # 短縮パラメータ
-    if (defined($cgi->param("D"))) {
+    if ($cgi->param("D") ne "") {
 	$cgi->param("MODE","detail");
-	$cgi->param("ID",$cgi->param("D"));
+	my $param = $cgi->param("D");
+	if (utf8::is_utf8($param)) {
+	    utf8::encode($param);
+	}
+	$cgi->param("ID",$param);
     }
-    if (defined($cgi->param("A"))) {
+    if ($cgi->param("A") ne "") {
 	$cgi->param("FROM","author");
 	$cgi->param("LOGIC","and");
-	$cgi->param("SEARCH",$cgi->param("A"));
+	my $param = $cgi->param("A");
+	if (utf8::is_utf8($param)) {
+	    utf8::encode($param);
+	}
+	$cgi->param("SEARCH",$param);
     }
-    if (defined($cgi->param("T"))) {
+    if ($cgi->param("T") ne "") {
 	$cgi->param("FROM","tag");
 	$cgi->param("LOGIC","or");
-	$cgi->param("SEARCH",$cgi->param("T"));
+	my $param = $cgi->param("T");
+	if (utf8::is_utf8($param)) {
+	    utf8::encode($param);
+	}
+	$cgi->param("SEARCH",$param);
     }
+
+    print STDERR "[Debug 2] " if ($debug);
+    # CGIで渡ってきた値をutf-8化
+    for my $g ($cgi->param) {
+	print STDERR "($g) " if ($debug);
+	if ($g ne 'edit_upfile') { # upfileの破壊を防ぐ
+	    my $param = $cgi->param($g);
+	    if (!utf8::is_utf8($param)) { # utf-8 flagが立ってないやつだけ．
+		my @v = map {Encode::decode('utf-8',$_)} $cgi->param($g);
+		$cgi->param($g,@v);
+	    }
+	}
+    }
+    # この時点で，$cgiの中身はutf8 flag ON
+    print STDERR "\n" if ($debug);
+    print STDERR "[Debug 3] Manage session now.\n" if ($debug);
 
     my $sid = $cgi->param('SID') || $cgi->cookie('SID') || undef ;
 
@@ -1472,7 +1494,7 @@ EOM
 EOM
 
     my $search = $session->param('SEARCH') || "" ;
-    utf8::decode($search);
+    utf8::decode($search) if (!utf8::is_utf8($search)) ;
     $searchmenu .= <<EOM;
         <input class="longinput" name="SEARCH" type="text" size="25" value="$search" />
 EOM
@@ -1527,7 +1549,7 @@ EOM
 EOM
 
             my $search = $session->param("SEARCH$i") || "" ;
-	    utf8::decode($search);
+	    utf8::decode($search)  if (!utf8::is_utf8($search)) ;;
 	    $searchmenu .= <<EOM;
         <input class="longinput" name="SEARCH$i" type="text" size="25" value="$search" />
 EOM
@@ -1756,9 +1778,9 @@ EOM
 	my $texttl = $cgi->param("textitle") || $cgi->cookie("textitle") ;
 	my $texnme = $cgi->param("texname") || $cgi->cookie("texname") ;
 
-	utf8::decode($texaff);
-	utf8::decode($texttl);
-	utf8::decode($texnme);
+	utf8::decode($texaff)  if (!utf8::is_utf8($texaff)) ;
+	utf8::decode($texttl)  if (!utf8::is_utf8($texttl)) ;
+	utf8::decode($texnme)  if (!utf8::is_utf8($texnme)) ;
 
 	$body .= <<EOM;
 <div class="opt">
@@ -3596,16 +3618,30 @@ sub modifyCategory {
 
 # 与えられたテキストからタグを抽出
 # テキストにはtitleを仮定
-sub createTags(){
+sub createTags {
     my ($title,$title_e) = @_;
     my $except = "A|AN|ABOUT|AMONG|AND|AS|AT|BETWEEN|BOTH|BUT|BY|FOR|FROM|IN|INTO|OF|ON|THE|THUS|TO|UNDER|USING|VS|WITH|WITHIN";
     $except .= "|NEW|BASED|ITS|APPROACH|APPROACHES|METHOD|METHODS|SYSTEM|SYSTEMS";
 
+    my @t ;
     if (&isJapanese($title)) {
+	if ($useJapaneseTags) {
+	    use Text::MeCab;
+	    my $m = Text::MeCab->new();
+	    my $n = $m->parse($title);
+	    do {
+		my @f = split(/,/,$n->feature);
+		utf8::decode($f[0]);
+		if ($f[0] eq "名詞") {
+		    my $str = $n->surface;
+		    utf8::decode($str);
+		    push(@t,$str);
+		}
+	    } while ($n = $n->next );
+	}
 	$title = $title_e;
     }
     $title =~s/[{}\$\_\:\'\`\(\)]//g;
-    my @t ;
     foreach (split(/\s+/,$title)) {
 	if ($_ !~ /^($except)$/i && $_ !~ /^-+$/) {
 	    push(@t,lc($_));
@@ -3684,7 +3720,6 @@ sub generateURL {
 # 渡されたテキストのHTMLタグを削除して返す．
 sub htmlScrub {
     my $html = shift;
-    return $html;
     my $scrubber = HTML::Scrubber->new();
     return $scrubber->scrub($html);
 }
@@ -3694,7 +3729,9 @@ sub isJapanese {
 # utf-8での日本語判定ルーチン(下)がうまく動かないので，
 # euc-jpへ変換して判定する．こっちのほうが確実と言えば確実．
     my ($str) = @_;
-    utf8::encode($str);
+    if (utf8::is_utf8($str)) {
+	Encode::_utf8_off($str); # utf8 flagを落とす
+    }
     Encode::from_to($str,"utf-8","euc-jp");
     if ($str =~ /[\xA1-\xFE][\xA1-\xFE]/) {
 	return 1;
