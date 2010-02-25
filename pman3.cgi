@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.23 2010/02/25 12:05:50 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.24 2010/02/25 13:45:02 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -1145,7 +1145,7 @@ sub storeCacheToCDB {
 	$SQL = "INSERT INTO cache VALUES(null,?,?)";
 	my $sth = $cdbh->prepare($SQL);
 	$sth->execute($url,$$h.$$d);
-	$cdbh->commit;	  
+	$cdbh->commit;
     };
 
     if ($@) { 
