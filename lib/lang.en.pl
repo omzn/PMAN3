@@ -50,6 +50,7 @@ our %topMenu = (
     "english"=>"English",
     "login"=>"Login",
     "logout"=>"Logout",
+    "category"=>"Category",
     "config"=>"Config",
     "help"=>"Help",
     );
@@ -238,7 +239,11 @@ our %msg = (
         "notavailable"=>"Not available.",
         "nothingfound"=>"No publication is found.",
 
-       
+        "Title_config" => "Option Configuration",       
+    "tagsetting"=>"Tag setting",
+    "tag_rebuild"=>"Rebuild tags",
+    "tag_rebuild_exp"=>"Rebuild tag database for all bibs. Current tags are deleted. Be careful!",
+    "rebuild"=>"Rebuild",
     
 	);
 

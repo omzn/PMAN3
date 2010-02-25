@@ -50,7 +50,8 @@ our %topMenu = (
     "english"=>"英語",
     "login"=>"ログイン",
     "logout"=>"ログアウト",
-    "config"=>"設定",
+    "category"=>"分類設定",
+    "config"=>"オプション設定",
     "help"=>"ヘルプ",
     );
 
@@ -218,7 +219,7 @@ our %msg = (
         "Title_detail"=>"研究業績の詳細",
         "Title_edit"=>"研究業績の編集",
         "Title_add"=>"研究業績を追加",
-        "Title_category"=>"分類の編集",
+        "Title_category"=>"分類の設定",
 
         "deleteConfirm"=>"この文献を削除してもよろしいですか？",
 
@@ -234,8 +235,14 @@ our %msg = (
 
         "frequenttags"=>"この検索内の頻出タグ: ",
 
-        "notavailable"=>"利用できません．",
-        "nothingfound"=>"そのような文献が見つかりません．",
+    "notavailable"=>"利用できません．",
+    "nothingfound"=>"そのような文献が見つかりません．",
+
+    "Title_config"=>"オプション設定",
+    "tagsetting"=>"タグ設定",
+    "tag_rebuild"=>"タグの再構築",
+    "tag_rebuild_exp"=>"全文献のタグを表題から再構築します．現在のタグは全て失われます．",
+    "rebuild"=>"再構築",
 
 );
 
