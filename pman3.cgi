@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.31 2010/03/01 13:51:18 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.32 2010/03/01 13:57:21 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -1476,7 +1476,7 @@ function clearElement(element) {
 <div id="smenu">
 EOM
 
-    my $multi = "onChange=\"document.search.submit();\"";
+    my $multi = "onChange=\"doument.search.submit();\"";
     $multi = "multiple size=\"7\"" if ($mmode eq "detail") ;
 
     $searchmenu .= <<EOM;
@@ -4052,7 +4052,8 @@ sub doConfigSetting {
     # texHeader, texFooter,
     my @op = ('titleOfSite','maintainerName','maintainerAddress',
 	      'use_cache','use_DBforSession','use_AutoJapaneseTags','use_RSS',
-	      'use_XML','use_mimetex','texHeader','texFooter','use_latexpdf');
+	      'use_XML','use_mimetex','texHeader','texFooter','use_latexpdf',
+	      'latexcmd','dvipdfcmd');
     foreach (@op) {
 	my $param = $cgi->param('opt_'.$_);
 	if ($param ne "") {
