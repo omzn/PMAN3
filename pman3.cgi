@@ -1,11 +1,11 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.30 2010/02/25 15:18:13 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.31 2010/03/01 13:51:18 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
 #              (c) 2002-2010 Osamu Mizuno, All right researved.
 # 
-our $VERSION = "3.1 Beta 7";
+our $VERSION = "3.1 Beta 8";
 # 
 # =================================================================================
 use strict;
@@ -25,14 +25,6 @@ use Digest::MD5 qw/md5_hex/;
 use MIME::Types qw/by_suffix/;
 use URI::Escape qw/uri_escape_utf8/;
 
-our $PASSWD;
-our $titleOfSite;
-our $maintainerName;
-our $maintainerAddress;
-our $texHeader1;
-our $texHeader2;
-our $texFooter;
-
 our %bt;
 our %viewMenu;
 our %topMenu;
@@ -47,27 +39,62 @@ our $TMPDIR = "/tmp";
 our $DB = "./db/bibdat.db";
 our $SESS_DB = "./db/sess.db";
 our $CACHE_DB = "./db/cache.db";
+our $OPTIONS_DB = "./db/config.db";
+our $MIMETEXPATH = "$LIBDIR/mimetex.cgi";
 
 #=====================================================
 # Options (can be specified in config.pl)
 #=====================================================
+our $PASSWD;
+our $titleOfSite;
+our $maintainerName;
+our $maintainerAddress;
+our $texHeader1;
+our $texHeader2;
+our $texHeader;
+our $texFooter;
+
 our $use_cache = 1;
 our $use_DBforSession = 0;
-
 our $use_AutoJapaneseTags = 0;
 our $use_RSS = 0;
 our $use_XML = 0;
-
 our $use_mimetex = 0;
-our $MIMETEXPATH = "$LIBDIR/mimetex.cgi";
+our $use_latexpdf = 0;
 
-our $httpServerName = $ENV{'SERVER_NAME'};
-our $scriptName = $ENV{'SCRIPT_NAME'};
+our $latexcmd = "platex";
+our $dvipdfcmd = "dvipdfmx -V 4";
 
 require 'config.pl';
+our %opts = ( 
+    use_XML              => $use_XML,
+    use_RSS              => $use_RSS,
+    use_cache            => $use_cache,
+    use_DBforSession     => $use_DBforSession,
+    use_AutoJapaneseTags => $use_AutoJapaneseTags,
+    use_mimetex          => $use_mimetex,
+    use_latexpdf         => $use_latexpdf,
+    PASSWD               => $PASSWD,
+    titleOfSite          => $titleOfSite,
+    maintainerName       => $maintainerName,
+    maintainerAddress    => $maintainerAddress,
+    texHeader1           => $texHeader1,
+    texHeader2           => $texHeader2,
+    texHeader            => $texHeader1.$texHeader2,
+    texFooter            => $texFooter,
+    latexcmd             => $latexcmd,
+    dvipdfcmd            => $dvipdfcmd,
+
+    );
+
+&getOptionsDB;
+
 #=====================================================
 # Global Variables
 #=====================================================
+our $httpServerName = $ENV{'SERVER_NAME'};
+our $scriptName = $ENV{'SCRIPT_NAME'};
+
 our $query = ""; 
 our $cgi = new CGI;
 our $session;
@@ -92,6 +119,7 @@ our %mlist = ("0,en"=>"","0,ja"=>"",
 	     "7,en"=>"July","7,ja"=>"7月","8,en"=>"August","8,ja"=>"8月",
 	     "9,en"=>"September","9,ja"=>"9月","10,en"=>"October","10,ja"=>"10月",
 	     "11,en"=>"November","11,ja"=>"11月","12,en"=>"December","12,ja"=>"12月");
+
 
 #=====================================================
 # Main
@@ -290,9 +318,6 @@ sub clearSessionParams {
     $session->clear('STATIC');
     $session->clear('SSI');
 
-    $session->clear('tag');
-    $session->clear('cache');
-
     if ($mode eq "delete") {
 	$session->clear('ID');
 	$session->clear('MODE');
@@ -301,11 +326,19 @@ sub clearSessionParams {
     } elsif ($mode eq "filedelete") {
 	$session->clear('MODE');
 	$session->clear('FID');
+    } elsif ($mode eq "config2") {
+	$session->clear('MODE');
+	$session->clear('tag');
+	$session->clear('cache');
+	my $sps = $session->param_hashref();
+	$session->clear([grep(/opt_/,keys(%$sps))]);
     } elsif ($mode eq "category2") {
 	$session->clear('MODE');
 	$session->clear('op');
 	my $sps = $session->param_hashref();
 	$session->clear([grep(/cat_/,keys(%$sps))]);
+    } elsif ($mode eq "PDF") {
+	$session->param('MODE','latex');
     } 
 }
 
@@ -1099,17 +1132,16 @@ sub getCacheFromCDB {
     # 非ログイン状態に限り
     my $SQL;
     my $cdbh;
-
-    if (!-f $CACHE_DB) { # CACHE_DBが無かったら作る．
-	$cdbh = DBI->connect("dbi:SQLite:dbname=$CACHE_DB", undef, undef, 
-			     { RaiseError => 1 });
+    $cdbh = DBI->connect("dbi:SQLite:dbname=$CACHE_DB", undef, undef, 
+			 { RaiseError => 1 });
+    $cdbh->{sqlite_unicode} = 1;
+    $SQL = "SELECT name FROM sqlite_master WHERE type='table'"; 
+    my @dbs = $cdbh->selectrow_array($SQL);
+    if (grep(/^cache$/,@dbs) == ()) {    
 	$SQL = "CREATE TABLE cache(id integer primary key autoincrement, url text not null, page  text);";
 	$cdbh->do($SQL);
-    } else {
-	$cdbh = DBI->connect("dbi:SQLite:dbname=$CACHE_DB", undef, undef, 
-			     { RaiseError => 1 });
+	$cdbh->commit;
     }
-    $cdbh->{sqlite_unicode} = 1;
 
     my $url = $cdbh->quote(&generateURL);
     my @p;
@@ -1172,6 +1204,50 @@ sub expireCacheFromCDB {
 	&printError($emsg);
     }
     return;
+}
+
+sub getOptionsDB {
+    my $odbh = DBI->connect("dbi:SQLite:dbname=$OPTIONS_DB", undef, undef, 
+		       {AutoCommit => 0, RaiseError => 1 });
+    $odbh->{sqlite_unicode} = 1;
+
+    my $SQL = "SELECT name FROM sqlite_master WHERE type='table'"; 
+    my @dbs = $odbh->selectrow_array($SQL);
+    my $sth;
+    if (grep(/^config$/,@dbs) == ()) {
+	$SQL = "CREATE TABLE config(id integer primary key autoincrement, name text not null, val text not null)";
+	$sth = $odbh->do($SQL);
+	if(!$sth){
+	    print STDERR $odbh->errstr . "\n";
+	}
+	foreach (keys(%opts)) {
+	    $SQL = "INSERT INTO config VALUES(null,?,?)";
+	    $sth = $odbh->prepare($SQL);
+	    $sth->execute($_,$opts{$_});
+	}
+	$odbh->commit;
+    }
+    # odbhからoption取得
+    $SQL = "SELECT name,val FROM config;";
+    my $optref = $odbh->selectall_arrayref($SQL,{Columns => {}});
+    foreach my $op (@$optref) {
+	eval "\$$$op{'name'} = \'$$op{'val'}\'";
+    }
+    $odbh->disconnect;
+}
+
+sub updateOptionsDB {
+    my $odbh = DBI->connect("dbi:SQLite:dbname=$OPTIONS_DB", undef, undef, 
+		       {AutoCommit => 0, RaiseError => 1 });
+    $odbh->{sqlite_unicode} = 1;
+    my ( $name,$val ) = @_;
+    $name = $odbh->quote($name);
+    $val = $odbh->quote($val);
+    
+    my $SQL = "UPDATE config SET val=$val WHERE name=$name ;"; 
+    $odbh->do($SQL);
+    $odbh->commit;
+    $odbh->disconnect;
 }
 
 #=====================================================
@@ -1653,11 +1729,16 @@ sub printMessageMenu {
 EOM
     if ($use_RSS) {
         $message .= <<EOM;
-: <a href="$url;LIMIT=10;RSS">RSS</a> </p>
+: <a href="$url;LIMIT=10;RSS">RSS</a>
 EOM
-    } else {
-        $message .= "<p>";
     }
+    if ($use_latexpdf && $session->param('MODE') eq "latex") {
+        $message .= <<EOM;
+: <a href="$scriptName?MODE=PDF">PDF</a>
+EOM
+    }
+    
+    $message .= "</p>";
     return $message;
 }
 
@@ -1805,7 +1886,7 @@ EOM
 EOM
 #### end mode = list
 #### begin mode = latex
-    } elsif ($mode eq "latex") {
+    } elsif ($mode eq "latex" || $mode eq "PDF") {
 
 	my $texaff = $cgi->param("texaffi") || $cgi->cookie("texaffi") ;
 	my $texttl = $cgi->param("textitle") || $cgi->cookie("textitle") ;
@@ -1814,17 +1895,6 @@ EOM
 	utf8::decode($texaff)  if (!utf8::is_utf8($texaff)) ;
 	utf8::decode($texttl)  if (!utf8::is_utf8($texttl)) ;
 	utf8::decode($texnme)  if (!utf8::is_utf8($texnme)) ;
-
-	$body .= <<EOM;
-<div class="opt">
-<form name="texparam" method="POST">
-$msg{'texnme'}: <input type="text" name="texname" size="20" value="$texnme" \>
-$msg{'texaff'}: <input type="text" name="texaffi" size="20" value="$texaff" \>
-$msg{'texttl'}: <input type="text" name="textitle" size="20" value="$texttl" \>
-<input type="submit" value="$msg{'save'}" />
-</form>
-</div>
-EOM
 
 	my %check;
 	my @opt = $cgi->param('OPT');
@@ -1841,6 +1911,10 @@ EOM
 	}
 
 
+	$texHeader =~s/myName\}\{\}/myName\}\{$texnme\}/;
+	$texHeader =~s/myAffiliation\}\{\}/myAffiliation\}\{$texaff\}/;
+	$texHeader =~s/myTitle\}\{\}/myTitle\}\{$texttl\}/;
+
 	$body .= <<EOM;
 <div class="opt">
 <form name="listoption" method="POST">
@@ -1852,29 +1926,38 @@ EOM
 <input type="hidden"   name="OPT" value="xx" \>
 </form>
 </div>
-<br />
-<br />
+EOM
+	$body .= <<EOM;
+<div class="opt">
+<form name="texparam" method="POST">
+$msg{'texnme'}: <input type="text" name="texname" size="20" value="$texnme" \><br />
+$msg{'texaff'}: <input type="text" name="texaffi" size="20" value="$texaff" \><br />
+$msg{'texttl'}: <input type="text" name="textitle" size="20" value="$texttl" \><br />
+<input type="submit" value="$msg{'save'}" />
+</form>
+</div>
 <textarea rows="40" cols="80">
-$texHeader1
-\\author{$texaff \\\\ $texttl ~~ $texnme}
-$texHeader2
+EOM
+
+	my $tex .= <<EOM;
+$texHeader
 EOM
 
         my $prevPtype = -1;
         my $counter = 1;
 	my $s = $session->param('SORT') || "t_descend";
         if ($s !~ /t_/) {
-	    $body .= "\\begin\{enumerate\}\n";
+	    $tex .= "\\begin\{enumerate\}\n";
 	}
 	foreach my $abib (@$bib) {
 	    # カテゴリヘッダ表示
 	    if ($s =~/t_/) {
 		if ($$abib{'ptype'} != $prevPtype) {
 		    if ($prevPtype >= 0) {
-			$body .= "\\end\{enumerate\}\n";
+			$tex .= "\\end\{enumerate\}\n";
 		    }
 		    $prevPtype = $$abib{'ptype'};
-		    $body .= <<EOM;
+		    $tex .= <<EOM;
 \\section\{$ptype{$prevPtype}\}
 \\label\{sec:$prevPtype\}
 
@@ -1884,17 +1967,26 @@ EOM
 		    $counter = 1;
 		} 
 	    }
-	    $body .= "\\item\n";
+	    $tex .= "\\item\n";
 	    # リスト1行生成
-	    &createAList(\$body,$abib)."\n";
+	    &createAList(\$tex,$abib);
+	    $tex .= "\n";
 	    $counter ++;
 	}
 
-	$body .= <<EOM;
+	$tex .= <<EOM;
 \\end{enumerate}
 $texFooter
+EOM
+
+        $body .= <<EOM;
+$tex
 </textarea>
 EOM
+        if ($use_latexpdf && $mode eq "PDF") {
+	    &doLaTeX($tex);
+        } 
+
 #### end mode = latex
 #### begin mode = table
     } elsif ($mode eq "table") {
@@ -2314,11 +2406,211 @@ EOM
 </form>
 EOM
 #### end mode = add
-
 #### begin mode = config
     } elsif ($mode eq "config") { 
 
 	$body .= <<EOM;
+<h3>$msg{'adminsetting'}</h3>
+<table>
+<form method="POST" action="$scriptName">
+<input type="hidden" name="MODE" value="config2">
+<tr>
+  <td class="fieldHead" width="25%">$msg{'set_passwd'}</td>
+  <td class="fieldBody" width="60%">$msg{'set_passwd_exp'}</td> 
+  <td class="fieldBody" width="15%">
+  <input type="password" name="opt_PASSWD"/>
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%"></td>
+  <td class="fieldBody" width="60%"></td> 
+  <td class="fieldBody" width="15%">
+  <input type="submit" value="$msg{doEdit}"/>
+  </td>
+</tr>
+</form>
+</table>
+
+<h3>$msg{'optionsetting'}</h3>
+<table>
+<form method="POST" action="$scriptName">
+<input type="hidden" name="MODE" value="config2">
+<tr>
+  <td class="fieldHead" width="25%">$msg{'use_cache'}</td>
+  <td class="fieldBody" width="60%">$msg{'use_cache_exp'}</td> 
+  <td class="fieldBody" width="15%">
+EOM
+        $body .= $cgi->popup_menu(-name=>'opt_use_cache',
+				  -default=>"$use_cache",
+				  -values=>['1','0'],
+				  -labels=>{ '1'=>$msg{'use'},
+					     '0'=>$msg{'dontuse'} }
+	);
+	$body .= <<EOM;
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'use_DBforSession'}</td>
+  <td class="fieldBody" width="60%">$msg{'use_DBforSession_exp'}</td> 
+  <td class="fieldBody" width="15%">
+EOM
+        $body .= $cgi->popup_menu(-name=>'opt_use_DBforSession',
+				  -default=>"$use_DBforSession",
+				  -values=>['1','0'],
+				  -labels=>{ '1'=>$msg{'use'},
+					     '0'=>$msg{'dontuse'} }
+	);
+	$body .= <<EOM;
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'use_AutoJapaneseTags'}</td>
+  <td class="fieldBody" width="60%">$msg{'use_AutoJapaneseTags_exp'}</td> 
+  <td class="fieldBody" width="15%">
+EOM
+        $body .= $cgi->popup_menu(-name=>'opt_use_AutoJapaneseTags',
+				  -default=>"$use_AutoJapaneseTags",
+				  -values=>['1','0'],
+				  -labels=>{ '1'=>$msg{'use'},
+					     '0'=>$msg{'dontuse'} }
+	);
+	$body .= <<EOM;
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'use_RSS'}</td>
+  <td class="fieldBody" width="60%">$msg{'use_RSS_exp'}</td> 
+  <td class="fieldBody" width="15%">
+EOM
+        $body .= $cgi->popup_menu(-name=>'opt_use_RSS',
+				  -default=>"$use_RSS",
+				  -values=>['1','0'],
+				  -labels=>{ '1'=>$msg{'use'},
+					     '0'=>$msg{'dontuse'} }
+	);
+	$body .= <<EOM;
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'use_XML'}</td>
+  <td class="fieldBody" width="60%">$msg{'use_XML_exp'}</td> 
+  <td class="fieldBody" width="15%">
+EOM
+        $body .= $cgi->popup_menu(-name=>'opt_use_XML',
+				  -default=>"$use_XML",
+				  -values=>['1','0'],
+				  -labels=>{ '1'=>$msg{'use'},
+					     '0'=>$msg{'dontuse'} }
+	);
+	$body .= <<EOM;
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'use_mimetex'}</td>
+  <td class="fieldBody" width="60%">$msg{'use_mimetex_exp'}</td> 
+  <td class="fieldBody" width="15%">
+EOM
+        $body .= $cgi->popup_menu(-name=>'opt_use_mimetex',
+				  -default=>"$use_mimetex",
+				  -values=>['1','0'],
+				  -labels=>{ '1'=>$msg{'use'},
+					     '0'=>$msg{'dontuse'} }
+	);
+	$body .= <<EOM;
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'set_titleofsite'}</td>
+  <td class="fieldBody" width="60%">$msg{'set_titleofsite_exp'}</td> 
+  <td class="fieldBody" width="15%">
+  <input type="text" name="opt_titleOfSite" value="$titleOfSite"/>
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'set_maintainername'}</td>
+  <td class="fieldBody" width="60%">$msg{'set_maintainername_exp'}</td> 
+  <td class="fieldBody" width="15%">
+  <input type="text" name="opt_maintainerName" value="$maintainerName"/>
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'set_maintaineraddress'}</td>
+  <td class="fieldBody" width="60%">$msg{'set_maintaineraddress_exp'}</td> 
+  <td class="fieldBody" width="15%">
+  <input type="text" name="opt_maintainerAddress" value="$maintainerAddress"/>
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%"></td>
+  <td class="fieldBody" width="60%"></td> 
+  <td class="fieldBody" width="15%">
+  <input type="submit" value="$msg{doEdit}"/>
+  </td>
+</tr>
+</form>
+</table>
+
+<h3>$msg{'texsetting'}</h3>
+<table>
+<form method="POST" action="$scriptName">
+<input type="hidden" name="MODE" value="config2">
+<tr>
+  <td class="fieldHead" width="25%">$msg{'set_texHeader'}</td>
+  <td class="fieldBody" width="75%">$msg{'set_texHeader_exp'}</td> 
+</tr>
+<tr>
+  <td class="fieldBody" width="100%" colspan="2">
+  <textarea rows="20" cols="80" name="opt_texHeader">$texHeader</textarea>
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'set_texFooter'}</td>
+  <td class="fieldBody" width="75%">$msg{'set_texFooter_exp'}</td> 
+</tr>
+<tr>
+  <td class="fieldBody" width="100%" colspan="2">
+  <textarea rows="5" cols="80" name="opt_texFooter">$texFooter</textarea>
+  </td>
+</tr>
+</table>
+<table>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'use_latexpdf'}</td>
+  <td class="fieldBody" width="60%">$msg{'use_latexpdf_exp'}</td> 
+  <td class="fieldBody" width="15%">
+EOM
+        $body .= $cgi->popup_menu(-name=>'opt_use_latexpdf',
+				  -default=>"$use_latexpdf",
+				  -values=>['1','0'],
+				  -labels=>{ '1'=>$msg{'use'},
+					     '0'=>$msg{'dontuse'} }
+	);
+	$body .= <<EOM;
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'set_latexcmd'}</td>
+  <td class="fieldBody" width="60%">$msg{'set_latexcmd_exp'}</td> 
+  <td class="fieldBody" width="15%">
+  <input type="text" name="opt_latexcmd" value="$latexcmd"/>
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'set_dvipdfcmd'}</td>
+  <td class="fieldBody" width="60%">$msg{'set_dvipdfcmd_exp'}</td> 
+  <td class="fieldBody" width="15%">
+  <input type="text" name="opt_dvipdfcmd" value="$dvipdfcmd"/>
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%"></td>
+  <td class="fieldBody" width="75%">
+  <input type="submit" value="$msg{doEdit}"/>
+  </td>
+</tr>
+</form>
+</table>
+
 
 <h3>$msg{'tagsetting'}</h3>
 <table>
@@ -2491,19 +2783,19 @@ sub printHeader {
 			    -value   =>  $session->id(),
 			    -expires =>  '+3h');
     my $head1 = "Set-Cookie: $c\n";
-    if (defined($cgi->param('texname'))) {
+    if ($cgi->param('texname')) {
 	$c = new CGI::Cookie(-name    =>  'texname',
 			    -value   =>  $cgi->param('texname'),
 			    -expires =>  '+300d');
 	$head1 .= "Set-Cookie: $c\n";
     }
-    if (defined($cgi->param('textitle'))) {
+    if ($cgi->param('textitle')) {
 	$c = new CGI::Cookie(-name    =>  'textitle',
 			    -value   =>  $cgi->param('textitle'),
 			    -expires =>  '+300d');
 	$head1 .= "Set-Cookie: $c\n";
     }
-    if (defined($cgi->param('texaffi'))) {
+    if ($cgi->param('texaffi')) {
 	$c = new CGI::Cookie(-name    =>  'texaffi',
 			    -value   =>  $cgi->param('texaffi'),
 			    -expires =>  '+300d');
@@ -2660,7 +2952,7 @@ sub createAList {
 		    if ($mode eq 'list' ) {
 			$ul1 = '<U>'; $ul2 = '</U>';
 		    } else {
-			$ul1 = '\\underline\{'; $ul2 = '\}';
+			$ul1 = '\\underline{'; $ul2 = '}';
 		    }
 		    last;
 		}
@@ -2860,7 +3152,7 @@ sub createAList {
 	}
     }	
 
-    if ($mode eq 'latex') {
+    if ($mode eq 'latex'||$mode eq "PDF") {
 	$aline=~s/\%/\\\%/g;
 	$aline=~s/\_/\\\_/g;
 	$aline=~s/\&/\\\&/g;
@@ -2877,7 +3169,7 @@ sub capitalizePaperTitle {
     my $mode = $session->param('MODE');
 
     # 日本語を含んでいたら数式処理のみ
-    if (&isJapanese($$string) && $mode ne "latex") {
+    if (&isJapanese($$string) && ($mode ne "latex" && $mode ne "PDF")) {
 	if($use_mimetex) {
 	    $$string=~s/\$([^\$]*)\$/<img class="math" src="${MIMETEXPATH}\?\1" \/>/g;
 	} else {
@@ -2892,7 +3184,7 @@ sub capitalizePaperTitle {
 
 	# $$に囲まれた部分はそのまま
 	if ($words[$i]=~/\$([^\$]*)\$/) {
-	    next if ($mode eq "latex") ; 
+	    next if ($mode eq "latex" || $mode eq "PDF") ; 
  	    if($use_mimetex) {
 		$words[$i]=~s/\$([^\$]*)\$/<img class="math" src="${MIMETEXPATH}\?\1" \/>/g;
 	    } else {
@@ -2902,7 +3194,7 @@ sub capitalizePaperTitle {
 	}
 	# {}に囲まれた部分はそのまま
 	if ($words[$i]=~/\{([^\}]*)\}/) {
-	    next if ($mode eq "latex") ; 
+	    next if ($mode eq "latex" || $mode eq "PDF") ; 
 	    $words[$i]=~s/\{([^\}]*)\}/\1/g;
 	    next;
 	}
@@ -3625,6 +3917,36 @@ sub checkNeededField {
     return $err;
 }
 
+sub doLaTeX {
+    my $tex = shift;
+    my $sid = $cgi->param('SID') || $cgi->cookie('SID');
+
+    if ($sid eq "") {
+	return;
+    }
+
+    my $latexfile = $TMPDIR."/".$sid.".tex"; 
+    my $dvifile = $TMPDIR."/".$sid.".dvi"; 
+    my $pdffile = $TMPDIR."/".$sid.".pdf"; 
+    open(LATEX,">".$latexfile);
+    if (utf8::is_utf8($tex)) {
+	print STDERR "[Kocchi 1]";
+	print LATEX Encode::encode('euc-jp',$tex);
+    } else {
+	print STDERR "[Kocchi 2]";
+	print LATEX Encode::from_to($tex,'utf-8','euc-jp');
+    }
+    close(LATEX);
+    system("cd $TMPDIR; $latexcmd $latexfile > /dev/null 2>&1; $latexcmd $latexfile > /dev/null 2>&1; $dvipdfcmd $dvifile > /dev/null 2>&1");
+    open(PDF,$pdffile);
+    my @pdf = <PDF>;
+    close(PDF);
+    system("cd $TMPDIR; rm -f $sid.* > /dev/null 2>&1");
+
+    &clearSessionParams;
+    &printFile('publist.pdf','application/pdf',join('',@pdf));
+}
+
 # 添付ファイルの表示
 sub printFile {
     my ($fname,$mime,$file) = @_;
@@ -3718,6 +4040,27 @@ sub doConfigSetting {
 	&printError('You must login first.');
     }
 
+    my $pwd = $cgi->param('opt_PASSWD');
+    if ($pwd ne "") {
+	#print STDERR "update passwd!: $pwd : ". md5_hex($pwd);
+	&updateOptionsDB('PASSWD',md5_hex($pwd));
+	print $cgi->redirect("$scriptName?LOGIN=off");
+	&clearSessionParams;
+	$dbh->disconnect;    
+	exit(0);
+    }
+    # texHeader, texFooter,
+    my @op = ('titleOfSite','maintainerName','maintainerAddress',
+	      'use_cache','use_DBforSession','use_AutoJapaneseTags','use_RSS',
+	      'use_XML','use_mimetex','texHeader','texFooter','use_latexpdf');
+    foreach (@op) {
+	my $param = $cgi->param('opt_'.$_);
+	if ($param ne "") {
+        # print STDERR "update optionsDB!: $_ : $param";
+	    &updateOptionsDB($_,"$param");
+	}
+    }
+    
     my $tag = $cgi->param('tag');
     if ($tag eq "merge") {
 	# (id, title, title_eを全文献について取得)
@@ -3758,7 +4101,6 @@ sub doConfigSetting {
     }    
     #redirect
     print $cgi->redirect("$scriptName?MODE=config");
-
     &clearSessionParams;
     $dbh->disconnect;    
     exit(0);
@@ -3769,8 +4111,9 @@ sub doConfigSetting {
 sub createTags {
     my ($title,$title_e) = @_;
     my $except = "A|AN|ABOUT|AMONG|AND|AS|AT|BETWEEN|BOTH|BUT|BY|FOR|FROM|IN|INTO|OF|ON|THE|THUS|TO|UNDER|USING|VS|WITH|WITHIN";
-    $except .= "|NEW|BASED|ITS|APPROACH|APPROACHES|METHOD|METHODS|SYSTEM|SYSTEMS";
-
+    $except .= "|NEW|BASED|ITS";
+    $except .= "|PROC.|PROCEEDINGS|JOURNAL|TRANS.|TRANSACTION|TRANSACTIONS|INTERNATIONAL|CONFERENCE|SYNPOSIUM";
+    my $except_ja = "論文|誌|学会誌|予稿|集|会誌|報告|ジャーナル";
     my @t ;
     if (&isJapanese($title)) {
 	if ($use_AutoJapaneseTags) {
@@ -3787,14 +4130,16 @@ sub createTags {
 		    my $str = $n->surface;
 		    if ($str !~ /^[a-zA-Z0-9_\-.,\$]+$/ ) {
 			utf8::decode($str);
-			push(@t,$str);
+			if ($str !~ /^($except_ja)/) {
+			    push(@t,$str);
+			}
 		    }
 		}
 	    } while ($n = $n->next );
 	}
 	$title = $title_e;
     }
-    $title =~s/[{}\$\_\:\'\`\(\)]//g;
+    $title =~s/[{}\$\_\:\'\`\(\)]/ /g;
     foreach (split(/\s+/,$title)) {
 	if ($_ !~ /^($except)$/i && $_ !~ /^-+$/) {
 	    push(@t,lc($_));

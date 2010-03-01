@@ -251,7 +251,51 @@ our %msg = (
     "cachesetting"=>"Cache setting",
     "cache_delete"=>"Expire cache",
     "cache_delete_exp"=>"Force to expire page caches.",
-    
+
+    "optionsetting"=>"Feature settings",
+
+    "use_cache"=>"Page cache",
+    "use_cache_exp"=>"Enables page cache feature.",
+    "use_DBforSession"=>"Session DB",
+    "use_DBforSession_exp"=>"Enables database for session management.",
+    "use_AutoJapaneseTags"=>"Auto generation of Japanese tags",
+    "use_AutoJapaneseTags_exp"=>"Enables auto Japanese tag generation feature. (Requires Text::Mecab module and mecab.)",
+    "use_RSS"=>"RSS feed",
+    "use_RSS_exp"=>"Enables RSS feed feature. (Requires XML::RSS module.)",
+
+    "use_XML"=>"XML output",
+    "use_XML_exp"=>"Enables XML output feature. (Requires XML::Simple module.)",
+
+    "use_mimetex"=>"mimetex",
+    "use_mimetex_exp"=>"Ebables mimetex.cgi. Formulas are shown in TeX format. (Requires mimetex.cgi under lib/ directory.)",
+
+    "set_passwd"=>"Password setting",
+    "set_passwd_exp"=>"Set password for administrator.",
+   "set_titleofsite"=>"Site title",
+    "set_titleofsite_exp"=>"Specify site's title.",
+    "set_maintainername"=>"Maintainer's name",
+    "set_maintainername_exp"=>"Specify maintainer's name.",
+    "set_maintaineraddress"=>"Maintainer's address",
+    "set_maintaineraddress_exp"=>"Specify maintainer's address (URL).",
+
+    "texsetting"=>"LaTeX settings",
+    "set_texHeader"=>"LaTeX header",
+    "set_texHeader_exp"=>"LaTeX document header for LaTeX mode.",
+    "set_texFooter"=>"LaTeX footer",
+    "set_texFooter_exp"=>"LaTeX document footer for LaTeX mode.",
+
+    "adminsetting"=>"Administrator settings",
+
+    "use_latexpdf"=>"PDF online generation",
+    "use_latexpdf_exp"=>"Generate PDF file from LaTeX mode online. To use this mode, specify following two commands to be run on the web server.",
+    "set_latexcmd"=>"LaTeX command",
+    "set_latexcmd_exp"=>"Specify latex command. (ex. platex)",
+    "set_dvipdfcmd"=>"DVIPDF command",
+    "set_dvipdfcmd_exp"=>"Specify command to generate PDF file from DVI. (ex. dvipdfmx -V 4)",
+
+    "use"=>"Use",
+    "dontuse"=>"Don't use",
+
 	);
 
 1;

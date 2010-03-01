@@ -251,6 +251,53 @@ our %msg = (
     "cache_delete"=>"キャッシュ削除",
     "cache_delete_exp"=>"全ページキャッシュを削除します．",
 
+    "optionsetting"=>"機能設定",
+
+    "use_cache"=>"キャッシュの利用",
+    "use_cache_exp"=>"一度表示したクエリの表示が高速になります．",
+
+    "use_DBforSession"=>"セッションDBの利用",
+    "use_DBforSession_exp"=>"セッション遷移にデータベースを利用します．",
+
+    "use_AutoJapaneseTags"=>"日本語タグの自動生成",
+    "use_AutoJapaneseTags_exp"=>"日本語タグの自動生成機能を有効にします．Text::MeCabモジュール，及び，mecabのインストールが必要です．",
+
+    "use_RSS"=>"RSSフィードの生成",
+    "use_RSS_exp"=>"RSSフィードの作成機能を有効にします．XML::RSSモジュールが必要です．",
+
+    "use_XML"=>"XML出力機能",
+    "use_XML_exp"=>"XML出力機能を有効にします．XML::Simpleモジュールが必要です．",
+
+    "use_mimetex"=>"mimetexの利用",
+    "use_mimetex_exp"=>"mimetex.cgiを利用してタイトル中の数式を表示します．mimetex.cgiをlib/下にインストールする必要があります．",
+
+    "set_passwd"=>"パスワード設定",
+    "set_passwd_exp"=>"管理者モードになるためのパスワードを設定します．",
+    "set_titleofsite"=>"サイトタイトル設定",
+    "set_titleofsite_exp"=>"サイトのタイトルを設定します．(通常ウィンドウのバーに表示されます．)",
+    "set_maintainername"=>"管理者名設定",
+    "set_maintainername_exp"=>"管理者の名前を登録します．画面下部に表示されます．",
+    "set_maintaineraddress"=>"管理者アドレス設定",
+    "set_maintaineraddress_exp"=>"管理者のアドレス(URL)を登録します．画面下部に表示されます．E-mailアドレスにしない方が賢明です．",
+
+    "texsetting"=>"LaTeX関連設定",
+    "set_texHeader"=>"LaTeXヘッダ",
+    "set_texHeader_exp"=>"LaTeXモードで使われるLaTeXのヘッダを設定します．",
+    "set_texFooter"=>"LaTeXフッタ",
+    "set_texFooter_exp"=>"LaTeXモードで使われるLaTeXのフッタを設定します．",
+
+    "adminsetting"=>"管理者設定",
+
+    "use_latexpdf"=>"PDFオンライン生成",
+    "use_latexpdf_exp"=>"LaTeXモードからオンラインでPDFを作成します．以下のLaTeXコマンドとDVIPDFコマンドを適切に設定する必要があります．",
+    "set_latexcmd"=>"LaTeXコマンド",
+    "set_latexcmd_exp"=>"サーバ上で呼び出すLaTeXコマンドを指定します．(例: platex)",
+    "set_dvipdfcmd"=>"DVIPDFコマンド",
+    "set_dvipdfcmd_exp"=>"サーバ上で呼び出すPDF生成コマンドを指定します．(例: dvipdfmx -V 4)",
+
+    "use"=>"使用する",
+    "dontuse"=>"使用しない",
+
 );
 
 1;
