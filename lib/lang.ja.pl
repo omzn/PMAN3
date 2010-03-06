@@ -246,6 +246,11 @@ our %msg = (
     "tag_merge"=>"タグの再構築（統合）",
     "tag_merge_exp"=>"全文献のタグを表題から再構築します．現在のタグも保持されます．",
     "merge"=>"再構築(統合)",
+    "tag_remove"=>"特定タグの削除",
+    "tag_remove_exp"=>"スペースで区切ったタグを指定します．タグDBから削除されます．",
+    "addstoptag"=>"除外タグに加える",
+    "tag_stoptaglist"=>"除外タグの編集",
+    "tag_stoptaglist_exp"=>"除外タグに指定された語はタグの自動生成の時に除外されます．",
 
     "cachesetting"=>"キャッシュ設定",
     "cache_delete"=>"キャッシュ削除",
@@ -291,12 +296,16 @@ our %msg = (
     "use_latexpdf"=>"PDFオンライン生成",
     "use_latexpdf_exp"=>"LaTeXモードからオンラインでPDFを作成します．以下のLaTeXコマンドとDVIPDFコマンドを適切に設定する必要があります．",
     "set_latexcmd"=>"LaTeXコマンド",
-    "set_latexcmd_exp"=>"サーバ上で呼び出すLaTeXコマンドを指定します．(例: platex)",
+    "set_latexcmd_exp"=>"サーバ上で呼び出すLaTeXコマンドを指定します．絶対パス推奨．(例: /usr/bin/platex -halt-on-error)",
     "set_dvipdfcmd"=>"DVIPDFコマンド",
-    "set_dvipdfcmd_exp"=>"サーバ上で呼び出すPDF生成コマンドを指定します．(例: dvipdfmx -V 4)",
+    "set_dvipdfcmd_exp"=>"サーバ上で呼び出すPDF生成コマンドを指定します．絶対パス推奨．(例: /usr/bin/dvipdfmx -V 4)",
+
+    "latex_exp"=>"下のフィールドに表示された内容をエディタなどにコピー＆ペーストして，LaTeXをかけてください．<br />オプション設定でPDFのオンライン生成を許可している場合は，上方のどこかにPDFというリンクができています．",
 
     "use"=>"使用する",
     "dontuse"=>"使用しない",
+
+    "notInstalled"=>"未インストール",
 
 );
 

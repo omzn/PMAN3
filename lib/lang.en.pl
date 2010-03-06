@@ -247,6 +247,11 @@ our %msg = (
     "tag_merge"=>"Merge tags",
     "tag_merge_exp"=>"Rebuild tag database for all bibs. Currennt tags remain and merged.",
     "merge"=>"Merge",
+    "tag_remove"=>"Remove tags from DB",
+    "tag_remove_exp"=>"Specify tags separated by space to remove from the tag DB.",
+    "addstoptag"=>"Add stop tags",
+    "tag_stoptaglist"=>"Edit stop tags",
+    "tag_stoptaglist_exp"=>"These words are excluded from auto generation of tags.",
 
     "cachesetting"=>"Cache setting",
     "cache_delete"=>"Expire cache",
@@ -293,8 +298,12 @@ our %msg = (
     "set_dvipdfcmd"=>"DVIPDF command",
     "set_dvipdfcmd_exp"=>"Specify command to generate PDF file from DVI. (ex. dvipdfmx -V 4)",
 
+    "latex_exp"=>"Copy the contents in the following text field and paste it to text editor. <br />If online PDF construction is allowed in this system, you can get PDF file from a link named 'PDF' somewhere in this page.",
+
     "use"=>"Use",
     "dontuse"=>"Don't use",
+
+    "notInstalled"=>"Not installed",
 
 	);
 

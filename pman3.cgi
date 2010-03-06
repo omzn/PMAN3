@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.32 2010/03/01 13:57:21 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.33 2010/03/06 14:40:25 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -62,7 +62,7 @@ our $use_XML = 0;
 our $use_mimetex = 0;
 our $use_latexpdf = 0;
 
-our $latexcmd = "platex";
+our $latexcmd = "platex -halt-on-error";
 our $dvipdfcmd = "dvipdfmx -V 4";
 
 require 'config.pl';
@@ -180,8 +180,6 @@ sub manageSession {
 # CGI
     $cgi->charset('utf-8');
 
-    print STDERR "[Debug 1] Manage session now.\n" if ($debug);
-
     # 短縮パラメータ
     if ($cgi->param("D") ne "") {
 	$cgi->param("MODE","detail");
@@ -210,10 +208,8 @@ sub manageSession {
 	$cgi->param("SEARCH",$param);
     }
 
-    print STDERR "[Debug 2] " if ($debug);
     # CGIで渡ってきた値をutf-8化
     for my $g ($cgi->param) {
-	print STDERR "($g) " if ($debug);
 	if ($g ne 'edit_upfile') { # upfileの破壊を防ぐ
 	    my $param = $cgi->param($g);
 	    if (!utf8::is_utf8($param)) { # utf-8 flagが立ってないやつだけ．
@@ -223,8 +219,6 @@ sub manageSession {
 	}
     }
     # この時点で，$cgiの中身はutf8 flag ON
-    print STDERR "\n" if ($debug);
-    print STDERR "[Debug 3] Manage session now.\n" if ($debug);
 
     my $sid = $cgi->param('SID') || $cgi->cookie('SID') || undef ;
 
@@ -898,6 +892,24 @@ sub updateTagDB {
     }
 }
 
+sub deleteTagDB {
+    my $taglistref = shift;
+    foreach my $tag (@$taglistref) {
+	$tag = $dbh->quote($tag);
+	my $SQL = "DELETE FROM tags WHERE tag=$tag ;";
+	eval {
+	    my $sth = $dbh->do($SQL);
+	    $dbh->commit;
+	};
+	if ($@) { 
+	    $dbh->rollback; $dbh->disconnect; 
+	    my $emsg = "Error while deleting tag from DB.";
+	    $emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
+	    &printError($emsg);
+	}
+    }
+}
+
 sub downloadFileDB {
     my ($id) = @_;
 
@@ -1136,7 +1148,11 @@ sub getCacheFromCDB {
 			 { RaiseError => 1 });
     $cdbh->{sqlite_unicode} = 1;
     $SQL = "SELECT name FROM sqlite_master WHERE type='table'"; 
-    my @dbs = $cdbh->selectrow_array($SQL);
+    my $ref = $cdbh->selectall_arrayref($SQL);
+    my @dbs;
+    foreach (@$ref) {
+	push(@dbs,$_->[0]);
+    }
     if (grep(/^cache$/,@dbs) == ()) {    
 	$SQL = "CREATE TABLE cache(id integer primary key autoincrement, url text not null, page  text);";
 	$cdbh->do($SQL);
@@ -1218,7 +1234,7 @@ sub getOptionsDB {
 	$SQL = "CREATE TABLE config(id integer primary key autoincrement, name text not null, val text not null)";
 	$sth = $odbh->do($SQL);
 	if(!$sth){
-	    print STDERR $odbh->errstr . "\n";
+	    &printError($odbh->errstr);
 	}
 	foreach (keys(%opts)) {
 	    $SQL = "INSERT INTO config VALUES(null,?,?)";
@@ -1936,6 +1952,7 @@ $msg{'texttl'}: <input type="text" name="textitle" size="20" value="$texttl" \><
 <input type="submit" value="$msg{'save'}" />
 </form>
 </div>
+<p>$msg{'latex_exp'}</p>
 <textarea rows="40" cols="80">
 EOM
 
@@ -1944,13 +1961,28 @@ $texHeader
 EOM
 
         my $prevPtype = -1;
+        my $prevYear = 0;
         my $counter = 1;
 	my $s = $session->param('SORT') || "t_descend";
         if ($s !~ /t_/) {
 	    $tex .= "\\begin\{enumerate\}\n";
 	}
+	my $subsec = "";
+	my $yref = "";
 	foreach my $abib (@$bib) {
 	    # カテゴリヘッダ表示
+	    if ($s =~/y_/) {
+		if ($$abib{'year'} != $prevYear) {
+		    $prevYear = $$abib{'year'};
+		    my $py = $prevYear < 9999 ? $prevYear : ($prevYear == 9999 ? $msg{'accepted'} : $msg{'submitted'});
+		    $tex .= "\\end{enumerate}\n" unless ($prevPtype < 0);
+		    $tex .= "\\section{$py}\n";
+		    $counter = 1;
+		    $prevPtype = -1;
+		}
+		$subsec = "sub";
+		$yref = $$abib{'year'}."plus";
+	    }
 	    if ($s =~/t_/) {
 		if ($$abib{'ptype'} != $prevPtype) {
 		    if ($prevPtype >= 0) {
@@ -1958,10 +1990,10 @@ EOM
 		    }
 		    $prevPtype = $$abib{'ptype'};
 		    $tex .= <<EOM;
-\\section\{$ptype{$prevPtype}\}
-\\label\{sec:$prevPtype\}
+\\${subsec}section\{$ptype{$prevPtype}\}
+\\label\{sec:$yref$prevPtype\}
 
-\\renewcommand{\\labelenumi}{[\\ref{sec:$prevPtype}-\\arabic{enumi}]}
+\\renewcommand{\\labelenumi}{[\\ref{sec:$yref$prevPtype}.\\arabic{enumi}]}
 \\begin{enumerate}
 EOM
 		    $counter = 1;
@@ -2409,6 +2441,10 @@ EOM
 #### begin mode = config
     } elsif ($mode eq "config") { 
 
+	my @st;
+	&getStoptagFromDB(\@st);
+	my $stoptags = join(" ",@st);
+	
 	$body .= <<EOM;
 <h3>$msg{'adminsetting'}</h3>
 <table>
@@ -2468,12 +2504,16 @@ EOM
   <td class="fieldBody" width="60%">$msg{'use_AutoJapaneseTags_exp'}</td> 
   <td class="fieldBody" width="15%">
 EOM
+    if (&check_module('Text::MeCab')) {
         $body .= $cgi->popup_menu(-name=>'opt_use_AutoJapaneseTags',
 				  -default=>"$use_AutoJapaneseTags",
 				  -values=>['1','0'],
 				  -labels=>{ '1'=>$msg{'use'},
 					     '0'=>$msg{'dontuse'} }
 	);
+    } else {
+        $body .= "$msg{'notInstalled'}: Text::MeCab";
+    }
 	$body .= <<EOM;
   </td>
 </tr>
@@ -2482,12 +2522,16 @@ EOM
   <td class="fieldBody" width="60%">$msg{'use_RSS_exp'}</td> 
   <td class="fieldBody" width="15%">
 EOM
+    if (&check_module('XML::RSS')) {
         $body .= $cgi->popup_menu(-name=>'opt_use_RSS',
 				  -default=>"$use_RSS",
 				  -values=>['1','0'],
 				  -labels=>{ '1'=>$msg{'use'},
 					     '0'=>$msg{'dontuse'} }
 	);
+    } else {
+        $body .= "$msg{'notInstalled'}: XML::RSS";
+    }
 	$body .= <<EOM;
   </td>
 </tr>
@@ -2496,12 +2540,16 @@ EOM
   <td class="fieldBody" width="60%">$msg{'use_XML_exp'}</td> 
   <td class="fieldBody" width="15%">
 EOM
+    if (&check_module('XML::Simple')) {
         $body .= $cgi->popup_menu(-name=>'opt_use_XML',
 				  -default=>"$use_XML",
 				  -values=>['1','0'],
 				  -labels=>{ '1'=>$msg{'use'},
 					     '0'=>$msg{'dontuse'} }
 	);
+    } else {
+        $body .= "$msg{'notInstalled'}: XML::Simple";
+    }
 	$body .= <<EOM;
   </td>
 </tr>
@@ -2604,7 +2652,8 @@ EOM
 </tr>
 <tr>
   <td class="fieldHead" width="25%"></td>
-  <td class="fieldBody" width="75%">
+  <td class="fieldBody" width="60%"></td>
+  <td class="fieldBody" width="15%">
   <input type="submit" value="$msg{doEdit}"/>
   </td>
 </tr>
@@ -2641,6 +2690,38 @@ EOM
   </td> 
   <td class="fieldBody" width="15%">
     <input type="submit" value="$msg{'rebuild'}" />
+  </td>
+</tr>
+</form>
+<form method="POST" action="$scriptName">
+<input type="hidden" name="MODE" value="config2">
+<tr>
+  <td class="fieldHead" width="25%">
+  <input type="hidden" name="tag" value="remove" />
+      $msg{'tag_remove'}
+  </td>
+  <td class="fieldBody" width="60%">
+  <input name="opt_rmtag" type="text"/><br />$msg{'tag_remove_exp'}
+  </td> 
+  <td class="fieldBody" width="15%">
+    <input type="checkbox" name="opt_addstoptag" value="add" checked id="ast" /><label for="ast">$msg{'addstoptag'}</label><br />
+    <input type="submit" value="$msg{'del'}" />
+  </td>
+</tr>
+</form>
+<form method="POST" action="$scriptName">
+<input type="hidden" name="MODE" value="config2">
+<tr>
+  <td class="fieldHead" width="25%">
+  <input type="hidden" name="tag" value="stoptag" />
+      $msg{'tag_stoptaglist'}
+  </td>
+  <td class="fieldBody" width="60%">
+  <textarea cols="40" rows="5" name="opt_stoptag">$stoptags</textarea>    
+  <br />$msg{'tag_stoptaglist_exp'}
+  </td> 
+  <td class="fieldBody" width="15%">
+    <input type="submit" value="$msg{'doEdit'}" />
   </td>
 </tr>
 </form>
@@ -3917,6 +3998,7 @@ sub checkNeededField {
     return $err;
 }
 
+# LaTeXのオンライン実行
 sub doLaTeX {
     my $tex = shift;
     my $sid = $cgi->param('SID') || $cgi->cookie('SID');
@@ -3930,21 +4012,49 @@ sub doLaTeX {
     my $pdffile = $TMPDIR."/".$sid.".pdf"; 
     open(LATEX,">".$latexfile);
     if (utf8::is_utf8($tex)) {
-	print STDERR "[Kocchi 1]";
 	print LATEX Encode::encode('euc-jp',$tex);
     } else {
-	print STDERR "[Kocchi 2]";
 	print LATEX Encode::from_to($tex,'utf-8','euc-jp');
     }
     close(LATEX);
-    system("cd $TMPDIR; $latexcmd $latexfile > /dev/null 2>&1; $latexcmd $latexfile > /dev/null 2>&1; $dvipdfcmd $dvifile > /dev/null 2>&1");
-    open(PDF,$pdffile);
-    my @pdf = <PDF>;
-    close(PDF);
-    system("cd $TMPDIR; rm -f $sid.* > /dev/null 2>&1");
+    $latexcmd = &shellEsc($latexcmd);
+    $dvipdfcmd = &shellEsc($dvipdfcmd);
 
-    &clearSessionParams;
-    &printFile('publist.pdf','application/pdf',join('',@pdf));
+    my $retval = system("cd $TMPDIR; $latexcmd $latexfile > /dev/null 2>&1");
+    if (!$retval) {
+	$retval = system("cd $TMPDIR; $latexcmd $latexfile > /dev/null 2>&1");
+	if(!$retval) {
+	    $retval = system("cd $TMPDIR; $dvipdfcmd $dvifile > /dev/null 2>&1");
+	    if (!$retval) {
+		open(PDF,$pdffile);
+		my @pdf = <PDF>;
+		close(PDF);
+		system("cd $TMPDIR; rm -f $sid.* > /dev/null 2>&1");
+		&clearSessionParams;
+		&printFile('publist.pdf','application/pdf',join('',@pdf));
+		# will exit in printFile()
+	    } elsif ($retval == 32512) {
+		&printError('An error occurred while generating PDF. <br />Please check if your server has "'.$dvipdfcmd.'".');
+	    } else {
+		&printError('An error occurred while generating PDF with unknown reason.');
+	    }
+	} else {
+	    &printError('An error occurred while typesetting LaTeX.');
+	}
+    } elsif ($retval == 256) {
+	&printError('An error occurred while typesetting LaTeX. <br />Please check LaTeX header and footer carefully if you modified them.');
+    } elsif ($retval == 32512) {
+	&printError('An error occurred in execution of LaTeX. <br />Please check if your specified LaTeX command is correct or PATH is correct.');
+    } else {
+	&printError('An error occurred in execution of LaTeX with unknown reason.');
+    }
+
+}
+
+sub shellEsc {
+  $_ = shift;
+  s/([\&\;\`\'\\\"\|\*\?\~\<\>\^\(\)\[\]\{\}\$\n\r])/\\$1/g;
+  return $_;
 }
 
 # 添付ファイルの表示
@@ -4042,7 +4152,6 @@ sub doConfigSetting {
 
     my $pwd = $cgi->param('opt_PASSWD');
     if ($pwd ne "") {
-	#print STDERR "update passwd!: $pwd : ". md5_hex($pwd);
 	&updateOptionsDB('PASSWD',md5_hex($pwd));
 	print $cgi->redirect("$scriptName?LOGIN=off");
 	&clearSessionParams;
@@ -4057,7 +4166,6 @@ sub doConfigSetting {
     foreach (@op) {
 	my $param = $cgi->param('opt_'.$_);
 	if ($param ne "") {
-        # print STDERR "update optionsDB!: $_ : $param";
 	    &updateOptionsDB($_,"$param");
 	}
     }
@@ -4094,6 +4202,16 @@ sub doConfigSetting {
 	    &updateTagDB( $_->{id}, $new_tags );
 	}
 	&expireCacheFromCDB;
+    } elsif ($tag eq "stoptag") {
+	my @st = split(/\s+/,$cgi->param("opt_stoptag"));
+	&updateStoptagDB(\@st);
+    } elsif ($tag eq "remove") {
+	my @st = split(/\s+/,$cgi->param("opt_rmtag"));
+	if ($cgi->param("opt_addstoptag") eq "add") {
+	    &insertStoptagDB(\@st);
+	}
+	&deleteTagDB(\@st);
+	&expireCacheFromCDB;
     }
 
     my $cache = $cgi->param('cache');
@@ -4107,15 +4225,73 @@ sub doConfigSetting {
     exit(0);
 }
 
+sub updateStoptagDB {
+    my $st = shift;
+    my $SQL = "DELETE FROM stoptag";
+    $dbh->do($SQL);
+    $SQL = "INSERT INTO stoptag VALUES(null,?)";
+    my $sth = $dbh->prepare($SQL);
+    foreach (@$st) {
+	$sth->execute(lc($_));
+    }
+    $dbh->commit;
+}
+
+sub insertStoptagDB {
+    my $st = shift;
+    my $SQL = "INSERT INTO stoptag VALUES(null,?)";
+    my $sth = $dbh->prepare($SQL);
+    foreach (@$st) {
+	$sth->execute(lc($_));
+    }
+    $dbh->commit;
+}
+
+sub getStoptagFromDB {
+    my $ret = shift;
+
+    my $except = "A|AN|ABOUT|AMONG|AND|AS|AT|BETWEEN|BOTH|BUT|BY|FOR|FROM|IN|INTO|OF|ON|THE|THUS|TO|UNDER|USING|VS|WITH|WITHIN";
+    $except .= "|NEW|BASED|ITS";
+    $except .= "|PROC.|PROCEEDINGS|JOURNAL|TRANS.|TRANSACTION|TRANSACTIONS|INTERNATIONAL|CONFERENCE|SYMPOSIUM";
+    $except .= "|論文|誌|学会誌|予稿|集|会誌|報告|ジャーナル";
+
+    # stoptagDBの存在確認 なければ 作る
+    my $SQL = "SELECT name FROM sqlite_master WHERE type='table'"; 
+    my $ref = $dbh->selectall_arrayref($SQL);
+    my @dbs;
+    foreach (@$ref) {
+	push(@dbs,$_->[0]);
+    }
+    my $sth;
+    if (grep(/^stoptag$/,@dbs) == ()) {
+	$SQL = "CREATE TABLE stoptag(id integer primary key autoincrement, name text not null)";
+	$sth = $dbh->do($SQL);
+	if(!$sth){
+	    &printError($dbh->errstr);
+	}
+	$SQL = "INSERT INTO stoptag VALUES(null,?)";
+	$sth = $dbh->prepare($SQL);
+	foreach (split(/\|/,$except)) {
+	    $sth->execute(lc($_));
+	}
+	$dbh->commit;
+    }
+    # stoptag取得
+    $SQL = "SELECT name FROM stoptag;";
+    my $stref = $dbh->selectall_arrayref($SQL);
+    foreach my $stag (@$stref) {
+	push(@$ret,$$stag[0]);
+    }
+    return;
+}
+
 # 与えられたテキストからタグを抽出
 # テキストにはtitleを仮定 
 sub createTags {
     my ($title,$title_e) = @_;
-    my $except = "A|AN|ABOUT|AMONG|AND|AS|AT|BETWEEN|BOTH|BUT|BY|FOR|FROM|IN|INTO|OF|ON|THE|THUS|TO|UNDER|USING|VS|WITH|WITHIN";
-    $except .= "|NEW|BASED|ITS";
-    $except .= "|PROC.|PROCEEDINGS|JOURNAL|TRANS.|TRANSACTION|TRANSACTIONS|INTERNATIONAL|CONFERENCE|SYNPOSIUM";
-    my $except_ja = "論文|誌|学会誌|予稿|集|会誌|報告|ジャーナル";
     my @t ;
+    my @stoptag;
+    &getStoptagFromDB(\@stoptag);
     if (&isJapanese($title)) {
 	if ($use_AutoJapaneseTags) {
 	    if (!utf8::is_utf8($title)) {
@@ -4131,7 +4307,7 @@ sub createTags {
 		    my $str = $n->surface;
 		    if ($str !~ /^[a-zA-Z0-9_\-.,\$]+$/ ) {
 			utf8::decode($str);
-			if ($str !~ /^($except_ja)/) {
+			if (grep(/^$str$/i,@stoptag) == ()) {
 			    push(@t,$str);
 			}
 		    }
@@ -4142,7 +4318,7 @@ sub createTags {
     }
     $title =~s/[{}\$\_\:\'\`\(\)]/ /g;
     foreach (split(/\s+/,$title)) {
-	if ($_ !~ /^($except)$/i && $_ !~ /^-+$/) {
+	if (grep(/^$_$/i,@stoptag) == () && $_ !~ /^-+$/) {
 	    push(@t,lc($_));
 	}
     }
@@ -4261,6 +4437,17 @@ sub uniqArray{
     return(
         keys %hash
     );
+}
+
+sub check_module {
+	my $module = $_[0];	
+	# モジュールが存在すれば読み込む
+	eval "use $module;";
+	if ($@) {
+		return 0;
+	} else {
+		return 1;
+	}
 }
 
 exit(0);
