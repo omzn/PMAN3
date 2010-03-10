@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: install.cgi,v 1.10 2010/03/10 08:10:06 o-mizuno Exp $
+# $Id: install.cgi,v 1.11 2010/03/10 08:14:18 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #
@@ -725,7 +725,7 @@ EOM
 }
 
 sub finish_page {
-    print $cgi->redirect("./pman3.cgi?MODE=config");
+    print $cgi->redirect("./pman3.cgi?LOGIN=on");
     eval {
 	unlink("./install.cgi");
     };
