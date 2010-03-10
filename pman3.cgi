@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.35 2010/03/10 05:42:29 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.36 2010/03/10 06:04:05 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -4307,7 +4307,7 @@ sub createTags {
 		utf8::decode($f[0]);
 		if ($f[0] eq "名詞") {
 		    my $str = $n->surface;
-		    if ($str !~ /^[a-zA-Z0-9_\-.,\$]+$/ ) {
+		    if ($str !~ /^[a-zA-Z0-9_\-.,\$\(\)\:]+$/ ) {
 			utf8::decode($str);
 			if (grep(/^$str$/i,@stoptag) == ()) {
 			    push(@t,$str);
