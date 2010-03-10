@@ -1,17 +1,17 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.33 2010/03/06 14:40:25 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.34 2010/03/10 04:56:56 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
 #              (c) 2002-2010 Osamu Mizuno, All right researved.
 # 
-our $VERSION = "3.1 Beta 8";
+my $VERSION = "3.1 Beta 8";
 # 
 # =================================================================================
 use strict;
 use utf8;
 
-our $debug=0;
+my $debug=0;
 
 use DBI;
 use CGI;
@@ -25,48 +25,45 @@ use Digest::MD5 qw/md5_hex/;
 use MIME::Types qw/by_suffix/;
 use URI::Escape qw/uri_escape_utf8/;
 
-our %bt;
-our %viewMenu;
-our %topMenu;
-our %msg;
+my %bt;
+my %viewMenu;
+my %topMenu;
+my %msg;
 
 #=====================================================
 # Constants
 #=====================================================
-our $LIBDIR = "./lib";
-our $TMPLDIR = "./tmpl";
-our $TMPDIR = "/tmp";
-our $DB = "./db/bibdat.db";
-our $SESS_DB = "./db/sess.db";
-our $CACHE_DB = "./db/cache.db";
-our $OPTIONS_DB = "./db/config.db";
-our $MIMETEXPATH = "$LIBDIR/mimetex.cgi";
+my $LIBDIR = "./lib";
+my $TMPLDIR = "./tmpl";
+my $TMPDIR = "/tmp";
+my $DB = "./db/bibdat.db";
+my $SESS_DB = "./db/sess.db";
+my $CACHE_DB = "./db/cache.db";
+my $OPTIONS_DB = "./db/config.db";
+my $MIMETEXPATH = "$LIBDIR/mimetex.cgi";
 
 #=====================================================
 # Options (can be specified in config.pl)
 #=====================================================
-our $PASSWD;
-our $titleOfSite;
-our $maintainerName;
-our $maintainerAddress;
-our $texHeader1;
-our $texHeader2;
-our $texHeader;
-our $texFooter;
+my $PASSWD;
+my $titleOfSite;
+my $maintainerName;
+my $maintainerAddress;
+my $texHeader;
+my $texFooter;
 
-our $use_cache = 1;
-our $use_DBforSession = 0;
-our $use_AutoJapaneseTags = 0;
-our $use_RSS = 0;
-our $use_XML = 0;
-our $use_mimetex = 0;
-our $use_latexpdf = 0;
+my $use_cache = 1;
+my $use_DBforSession = 0;
+my $use_AutoJapaneseTags = 0;
+my $use_RSS = 0;
+my $use_XML = 0;
+my $use_mimetex = 0;
+my $use_latexpdf = 0;
 
-our $latexcmd = "platex -halt-on-error";
-our $dvipdfcmd = "dvipdfmx -V 4";
+my $latexcmd = "platex -halt-on-error";
+my $dvipdfcmd = "dvipdfmx -V 4";
 
-require 'config.pl';
-our %opts = ( 
+my %opts = ( 
     use_XML              => $use_XML,
     use_RSS              => $use_RSS,
     use_cache            => $use_cache,
@@ -78,9 +75,7 @@ our %opts = (
     titleOfSite          => $titleOfSite,
     maintainerName       => $maintainerName,
     maintainerAddress    => $maintainerAddress,
-    texHeader1           => $texHeader1,
-    texHeader2           => $texHeader2,
-    texHeader            => $texHeader1.$texHeader2,
+    texHeader            => $texHeader,
     texFooter            => $texFooter,
     latexcmd             => $latexcmd,
     dvipdfcmd            => $dvipdfcmd,
@@ -92,27 +87,27 @@ our %opts = (
 #=====================================================
 # Global Variables
 #=====================================================
-our $httpServerName = $ENV{'SERVER_NAME'};
-our $scriptName = $ENV{'SCRIPT_NAME'};
+my $httpServerName = $ENV{'SERVER_NAME'};
+my $scriptName = $ENV{'SCRIPT_NAME'};
 
-our $query = ""; 
-our $cgi = new CGI;
-our $session;
-our $login;
-our %sbk ; 
+my $query = ""; 
+my $cgi = new CGI;
+my $session;
+my $login;
+my %sbk ; 
 
-our $bib;
-our %ptype;
-our @jname;
-our @ptype_order ;
-our @bb_order = ( 'title', 'title_e', 'author', 'author_e', 'editor', 'editor_e', 'key',
+my $bib;
+my %ptype;
+my @jname;
+my @ptype_order ;
+my @bb_order = ( 'title', 'title_e', 'author', 'author_e', 'editor', 'editor_e', 'key',
 		 'journal', 'journal_e', 'booktitle',
 		 'booktitle_e', 'series', 'volume', 'number', 'chapter', 'pages',
 		 'edition', 'school', 'type', 'institution', 'organization',
 		 'publisher', 'publisher_e', 'address', 'month', 'year',
 		 'howpublished', 'acceptance', 'impactfactor', 'url', 'note', 'annote',
 		 'abstract' );
-our %mlist = ("0,en"=>"","0,ja"=>"",
+my %mlist = ("0,en"=>"","0,ja"=>"",
 	     "1,en"=>"January","1,ja"=>"1月","2,en"=>"February","2,ja"=>"2月",
 	     "3,en"=>"March","3,ja"=>"3月","4,en"=>"April","4,ja"=>"4月",
 	     "5,en"=>"May","5,ja"=>"5月","6,en"=>"June","6,ja"=>"6月",
@@ -126,9 +121,9 @@ our %mlist = ("0,en"=>"","0,ja"=>"",
 #=====================================================
 
 use Time::HiRes qw/gettimeofday tv_interval/;
-our $t0 = [Time::HiRes::gettimeofday];
+my $t0 = [Time::HiRes::gettimeofday];
 
-our $dbh = DBI->connect("dbi:SQLite:dbname=$DB", undef, undef, 
+my $dbh = DBI->connect("dbi:SQLite:dbname=$DB", undef, undef, 
 		       {AutoCommit => 0, RaiseError => 1 });
 $dbh->{sqlite_unicode} = 1;
 
@@ -2558,12 +2553,16 @@ EOM
   <td class="fieldBody" width="60%">$msg{'use_mimetex_exp'}</td> 
   <td class="fieldBody" width="15%">
 EOM
+    if (-f $MIMETEXPATH && -x $MIMETEXPATH) {
         $body .= $cgi->popup_menu(-name=>'opt_use_mimetex',
 				  -default=>"$use_mimetex",
 				  -values=>['1','0'],
 				  -labels=>{ '1'=>$msg{'use'},
 					     '0'=>$msg{'dontuse'} }
 	);
+    } else {
+        $body .= "$msg{'notInstalled'}: $MIMETEXPATH";
+    }
 	$body .= <<EOM;
   </td>
 </tr>

@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: install.cgi,v 1.2 2010/03/10 04:56:56 o-mizuno Exp $
+# $Id: install.cgi,v 1.4 2010/03/10 05:01:06 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #
@@ -641,7 +641,7 @@ EOM
 		$doc .= "<p>Error: $@</p>";
 		$err ++;
 	    } else {
-		$doc .= <p> $i 件の業績データを移行しました．</p>
+		$doc .= "<p> $i 件の業績データを移行しました．</p>";
 	    }
 	}
 
@@ -651,7 +651,7 @@ EOM
 	close(OPT,$optionFile);
 	$line =~s/\s*$//;
 	Encode::from_to($line, "euc-jp", "utf-8");
-	%jlist = split(/\t/,$line);
+	my %jlist = split(/\t/,$line);
 
 	foreach (keys(%jlist)) {
 	    my ($num,$lang) = split(/,/,$_);
@@ -668,7 +668,7 @@ EOM
 		$doc .= "<p>Error: $@</p>";
 		$err ++;
 	    } else {
-		$doc .= <p> 業績分類データを移行しました．</p>
+		$doc .= "<p> 業績分類データを移行しました．</p>";
 	    }
 	} 
 	$dbh->disconnect;
