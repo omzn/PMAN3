@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: INSTALL.sh,v 1.5 2010/03/10 06:22:30 o-mizuno Exp $
+# $Id: INSTALL.sh,v 1.6 2010/03/10 08:10:55 o-mizuno Exp $
 
 echo "====================================================================="
 echo "                       PMAN3 installer script"
@@ -7,6 +7,7 @@ echo "====================================================================="
 echo "mkdir db"
 mkdir db
 chmod 777 db
+chmod 777 install.cgi
 echo "Making .htaccess files ..."
 cat <<EOF > .htaccess
 <Files ~ "\.(pl|db|sh)$">

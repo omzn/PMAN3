@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: install.cgi,v 1.9 2010/03/10 05:36:48 o-mizuno Exp $
+# $Id: install.cgi,v 1.10 2010/03/10 08:10:06 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #
@@ -29,6 +29,8 @@ if (&check_module('CGI')) {
 	&third_page;
     } elsif ($cgi->param('FOURTH') eq "go") {
 	&fourth_page;
+    } elsif ($cgi->param('FINISH') eq "go") {
+	&finish_page;
     } else {
 	&first_page;
     }
@@ -231,6 +233,7 @@ Content-Type: text/html; charset=utf-8
 	<h3>初期設定 (2/2)</h3>
         <ul>
 EOM
+    my $err = 0;
     my $dbh;
     unless (-d "./db"){
 	umask(0);
@@ -327,7 +330,8 @@ EOM
 	    chmod(0666,$DB);
         };
 	if ($@) {
-	    $doc .= "</li><pre>$@</pre>";
+	    $doc .= "</li><pre>Error: $@</pre>";
+	    $err++;
 	    unlink($DB);
 	} else {
 	    $doc .= "<li>文献データベースを作成しました．</li>\n";
@@ -354,6 +358,7 @@ EOM
 	    };
 	    if ($@) {
 		$doc .= "</li><pre>$@</pre>";
+		$err++;
 		unlink($SESS_DB);
 	    } else {
 		$doc .= "<li>セッション管理データベースを作成しました．</li>\n";
@@ -439,13 +444,24 @@ EOM
     };
     if ($@) {
 	$doc .= "</li><pre>$@</pre>";
+	$err++;
 	unlink($OPTIONS_DB);
     } else {
 	$doc .= "<li>設定データベースを作成し，初期設定を書き込みました．</li></ul>\n";
     }
 
+    if ($err == 0) {
+	$doc .= <<EOM;
+        <p>インストールは成功しました．</p>
+        <p>PMAN3にてログイン後，オプション設定メニューから各種の設定を変更できます．</p>
+        <p>PMAN3のご利用，誠にありがとうございます．</p>
+        <p class="red">なお，install.cgiは自動的に削除します．<p>
+        <center><a href="./install.cgi?FINISH=go">[PMAN3の起動]</p></center>
+        <p>PMAN2.xからデータを引き継がれる場合はこちらへお進みください．</p>
+        <center><a href="./install.cgi?THIRD=go">[PMAN2からのデータ移行]</p></center>
+EOM
+    }
     $doc .= <<EOM;
-        <table><tr><td><a href="./pman3.cgi">[設定終了→PMANの起動]</a></td><td><a href="./install.cgi?THIRD=go">[PMAN 2.xからの移行]</a></td></tr></table>
         </div>
         <div id="footer">
             <p class="center">
@@ -686,7 +702,7 @@ EOM
         <p>PMAN3にてログイン後，オプション設定メニューから各種の設定を変更できます．</p>
         <p>PMAN3のご利用，誠にありがとうございます．</p>
         <p class="red">なお，install.cgiは自動的に削除します．<p>
-        <center><a href="./pman3.cgi">[PMAN3の起動]</p></center>
+        <center><a href="./install.cgi?FINISH=go">[PMAN3の起動]</p></center>
 EOM
     }
 
@@ -706,6 +722,13 @@ EOM
 
 
 
+}
+
+sub finish_page {
+    print $cgi->redirect("./pman3.cgi?MODE=config");
+    eval {
+	unlink("./install.cgi");
+    };
 }
 
 # 日本語が含まれていれば1
