@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: install.cgi,v 1.5 2010/03/10 05:03:17 o-mizuno Exp $
+# $Id: install.cgi,v 1.6 2010/03/10 05:08:52 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #
@@ -557,7 +557,7 @@ EOM
     if ($csv_path eq "" || $ctg_path eq "" || $pdf_path eq "") {
 	$doc .= "<p>Error: パスは全て指定してください．</p>";
 		$err ++;
-    } elsif (!(-f $csv_path && -f $ctg_path && -f $pdf_path)) {
+    } elsif (!(-f $csv_path && -f $ctg_path && -d $pdf_path)) {
 	$doc .= "<p>Error: ファイルまたはディレクトリが存在しません．</p>";
 		$err ++;
     } else {
