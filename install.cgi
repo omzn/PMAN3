@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: install.cgi,v 1.6 2010/03/10 05:08:52 o-mizuno Exp $
+# $Id: install.cgi,v 1.7 2010/03/10 05:11:56 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #
@@ -599,7 +599,7 @@ EOM
 		if ($values[3]) {
 		    my $refdata =  MIME::Types::by_suffix($values[3]);
 		    my ($mediatype, $encoding) = @$refdata;
-		    $sth = $dbh->prepare("INSERT INTO files VALUES(null,?,?,?,?,?)");
+		    $sth = $dbh->prepare("INSERT INTO files VALUES(null,?,?,?,?,?,null)");
 		    open(IN,"$pdf_path/$values[3]");
 		    binmode(IN);
 		    my $pdf = join('',<IN>);
