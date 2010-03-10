@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.37 2010/03/10 06:05:33 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.38 2010/03/10 06:11:10 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -4320,9 +4320,9 @@ sub createTags {
 	$title = $title_e;
     }
     $title =~s/[{}\$\_\:\'\`\(\)]/ /g;
-    foreach (split(/\s+/,$title)) {
-	if (grep(/^$_$/i,@stoptag) == () && $_ !~ /^-+$/) {
-	    push(@t,lc($_));
+    foreach my $str (split(/\s+/,$title)) {
+	if (grep(/^$str$/i,@stoptag) == () && $str !~ /^-+$/) {
+	    push(@t,lc($str));
 	}
     }
     return join(",",sort(&uniqArray(\@t)));
