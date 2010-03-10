@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.34 2010/03/10 04:56:56 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.35 2010/03/10 05:42:29 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -25,10 +25,13 @@ use Digest::MD5 qw/md5_hex/;
 use MIME::Types qw/by_suffix/;
 use URI::Escape qw/uri_escape_utf8/;
 
-my %bt;
-my %viewMenu;
-my %topMenu;
-my %msg;
+#=====================================================
+# lib/lang.*.plで設定する変数群 (our宣言)
+#=====================================================
+our %bt;
+our %viewMenu;
+our %topMenu;
+our %msg;
 
 #=====================================================
 # Constants
@@ -43,7 +46,7 @@ my $OPTIONS_DB = "./db/config.db";
 my $MIMETEXPATH = "$LIBDIR/mimetex.cgi";
 
 #=====================================================
-# Options (can be specified in config.pl)
+# Options 
 #=====================================================
 my $PASSWD;
 my $titleOfSite;
