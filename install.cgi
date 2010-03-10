@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: install.cgi,v 1.3 2010/03/10 05:00:21 o-mizuno Exp $
+# $Id: install.cgi,v 1.5 2010/03/10 05:03:17 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #
@@ -28,7 +28,7 @@ if (&check_module('CGI')) {
     } elsif ($cgi->param('THIRD') eq "go") {
 	&third_page;
     } elsif ($cgi->param('FOURTH') eq "go") {
-	&third_page;
+	&fourth_page;
     } else {
 	&first_page;
     }
@@ -651,7 +651,7 @@ EOM
 	close(OPT,$optionFile);
 	$line =~s/\s*$//;
 	Encode::from_to($line, "euc-jp", "utf-8");
-	%jlist = split(/\t/,$line);
+	my %jlist = split(/\t/,$line);
 
 	foreach (keys(%jlist)) {
 	    my ($num,$lang) = split(/,/,$_);
