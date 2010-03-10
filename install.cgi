@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: install.cgi,v 1.4 2010/03/10 05:01:06 o-mizuno Exp $
+# $Id: install.cgi,v 1.3 2010/03/10 05:00:21 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #
@@ -651,7 +651,7 @@ EOM
 	close(OPT,$optionFile);
 	$line =~s/\s*$//;
 	Encode::from_to($line, "euc-jp", "utf-8");
-	my %jlist = split(/\t/,$line);
+	%jlist = split(/\t/,$line);
 
 	foreach (keys(%jlist)) {
 	    my ($num,$lang) = split(/,/,$_);
