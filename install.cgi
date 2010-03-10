@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: install.cgi,v 1.7 2010/03/10 05:11:56 o-mizuno Exp $
+# $Id: install.cgi,v 1.8 2010/03/10 05:26:50 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #
@@ -556,14 +556,14 @@ EOM
 
     if ($csv_path eq "" || $ctg_path eq "" || $pdf_path eq "") {
 	$doc .= "<p>Error: パスは全て指定してください．</p>";
-		$err ++;
+	$err ++;
     } elsif (!(-f $csv_path && -f $ctg_path && -d $pdf_path)) {
 	$doc .= "<p>Error: ファイルまたはディレクトリが存在しません．</p>";
 		$err ++;
     } else {
 
 	my $dbh = DBI->connect("dbi:SQLite:dbname=db/bibdat.db", undef, undef, {AutoCommit => 0, RaiseError => 1 });
-	$dbh->{unicode} = 1;
+	$dbh->{sqlite_unicode} = 1;
 
 	my $databaseFile = $csv_path;
 	my @db = ();
@@ -576,7 +576,7 @@ EOM
 	    $tmp =~ s/(?:\x0D\x0A|[\x0D\x0A])?$/,/;
 	    my @values = map {/^"(.*)"$/ ? scalar($_ = $1, s/""/"/g, $_) : $_}
 	    ($tmp =~ /("[^"]*(?:""[^"]*)*"|[^,]*),/g);  #"
-	    print "$i\n";
+#	    print "$i\n";
 
 	    for (my $j=0;$j<=$#values;$j++) {
 		Encode::from_to($values[$j],"euc-jp","utf-8");
