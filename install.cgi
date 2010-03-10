@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: install.cgi,v 1.8 2010/03/10 05:26:50 o-mizuno Exp $
+# $Id: install.cgi,v 1.9 2010/03/10 05:36:48 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #
@@ -526,6 +526,8 @@ sub fourth_page {
     require MIME::Types;
     require Encode;
 
+    my $i = 1;
+
     $doc .= <<EOM;
 Content-Type: text/html; charset=utf-8
 
@@ -568,7 +570,6 @@ EOM
 	my $databaseFile = $csv_path;
 	my @db = ();
 	open(PDB,$databaseFile);
-	my $i = 1;
 	my %a_names;
 
 	while (<PDB>) {
@@ -580,6 +581,7 @@ EOM
 
 	    for (my $j=0;$j<=$#values;$j++) {
 		Encode::from_to($values[$j],"euc-jp","utf-8");
+		utf8::decode($values[$j]);
 	    } 
 
 	    # abstract
@@ -640,8 +642,6 @@ EOM
 		$dbh->rollback; $dbh->disconnect; 
 		$doc .= "<p>Error: $@</p>";
 		$err ++;
-	    } else {
-		$doc .= "<p> $i 件の業績データを移行しました．</p>";
 	    }
 	}
 
@@ -651,6 +651,7 @@ EOM
 	close(OPT,$optionFile);
 	$line =~s/\s*$//;
 	Encode::from_to($line, "euc-jp", "utf-8");
+	utf8::decode($line);
 	my %jlist = split(/\t/,$line);
 
 	foreach (keys(%jlist)) {
@@ -667,8 +668,6 @@ EOM
 		$dbh->rollback; $dbh->disconnect; 
 		$doc .= "<p>Error: $@</p>";
 		$err ++;
-	    } else {
-		$doc .= "<p> 業績分類データを移行しました．</p>";
 	    }
 	} 
 	$dbh->disconnect;
@@ -680,6 +679,8 @@ EOM
 	<p>エラーの原因を取り除いた後，./db/*.dbを全て消去してから，install.cgiを再起動してはじめから設定をしてください．</p>
 EOM
     } else {
+	$doc .= "<p> $i 件の業績データを移行しました．</p>";
+	$doc .= "<p> 業績分類データを移行しました．</p>";
 	$doc .= <<EOM;
         <p>移行手続きは成功しました．</p>
         <p>PMAN3にてログイン後，オプション設定メニューから各種の設定を変更できます．</p>
@@ -707,9 +708,13 @@ EOM
 
 }
 
-# EUC版
+# 日本語が含まれていれば1
 sub isJapanese {
     my ($str) = @_;
+    if (utf8::is_utf8($str)) {
+	Encode::_utf8_off($str); # utf8 flagを落とす
+    }
+    Encode::from_to($str,"utf-8","euc-jp");
     if ($str =~ /[\xA1-\xFE][\xA1-\xFE]/) {
 	return 1;
     } else {
