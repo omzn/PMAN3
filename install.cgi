@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: install.cgi,v 1.11 2010/03/10 08:14:18 o-mizuno Exp $
+# $Id: install.cgi,v 1.12 2010/03/10 11:58:48 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #
@@ -136,6 +136,7 @@ EOM
 </table>
 <h3>初期設定 (1/2)</h3>
 <p>ここで設定した情報は後から設定メニューで変更することもできます．パスワードだけは必ず設定してください．</p>
+<p>PMAN3.0.xをご利用の方も以下の情報を再設定してください．すでに存在するDBはそのまま利用します．</p>
 <table>
 <form method="POST" script="./install.cgi">
 <input type="hidden" name="SECOND" value="go" />
@@ -726,9 +727,6 @@ EOM
 
 sub finish_page {
     print $cgi->redirect("./pman3.cgi?LOGIN=on");
-    eval {
-	unlink("./install.cgi");
-    };
 }
 
 # 日本語が含まれていれば1

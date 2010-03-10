@@ -1,17 +1,18 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.38 2010/03/10 06:11:10 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.39 2010/03/10 11:58:48 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
 #              (c) 2002-2010 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.1 Beta 8";
+my $VERSION = "3.1";
 # 
 # =================================================================================
 use strict;
 use utf8;
 
 my $debug=0;
+unlink('./install.cgi') if (-f './install.cgi');
 
 use DBI;
 use CGI;
