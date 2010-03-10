@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: INSTALL.sh,v 1.7 2010/03/10 08:14:37 o-mizuno Exp $
+# $Id: INSTALL.sh,v 1.8 2010/03/10 12:07:08 o-mizuno Exp $
 
 echo "====================================================================="
 echo "                       PMAN3 installer script"
@@ -12,6 +12,9 @@ chmod 777 install.cgi
       echo "Making .htaccess files ..."
 cat <<EOF > .htaccess
 <Files ~ "\.(pl|db|sh)$">
+deny from all
+</Files>
+<Files ~ "install\.cgi$">
 deny from all
 </Files>
 EOF
