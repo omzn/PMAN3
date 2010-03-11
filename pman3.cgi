@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.42 2010/03/11 03:48:43 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.41 2010/03/11 03:47:36 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -1259,7 +1259,6 @@ sub getOptionsDB {
 
 sub updateOptionsDB {
     my $odbh;
-    my $SQL;
     eval {
 	$odbh = DBI->connect("dbi:SQLite:dbname=$OPTIONS_DB", undef, undef, 
 			     {AutoCommit => 0, RaiseError => 1 });
@@ -1268,7 +1267,7 @@ sub updateOptionsDB {
 	$name = $odbh->quote($name);
 	$val = $odbh->quote($val);
 	
-	$SQL = "UPDATE config SET val=$val WHERE name=$name ;"; 
+	my $SQL = "UPDATE config SET val=$val WHERE name=$name ;"; 
 	$odbh->do($SQL);
 	$odbh->commit;
 	$odbh->disconnect;
