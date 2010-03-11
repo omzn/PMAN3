@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.45 2010/03/11 04:04:39 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.46 2010/03/11 06:33:32 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -1761,6 +1761,11 @@ EOM
 : <a href="$url;LIMIT=10;RSS">RSS</a>
 EOM
     }
+    if ($use_XML) {
+        $message .= <<EOM;
+: <a href="$url;XML">XML</a>
+EOM
+    }
     if ($use_latexpdf && $session->param('MODE') eq "latex") {
         $message .= <<EOM;
 : <a href="$scriptName?MODE=PDF">PDF</a>
@@ -2929,8 +2934,12 @@ sub printHeader {
     my $url = &generateURL;
     $head2 .= <<EOM;
     <META http-equiv="Content-Type" content="text/html; charset=utf-8">
+EOM
+    if ($use_RSS) {
+    $head2 .= <<EOM;
     <link rel="alternate" type="application/rss+xml" title="RSS" href="$url;RSS" />
 EOM
+    }
 
     return ($head1,$head2);
 }
