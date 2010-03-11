@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.40 2010/03/11 03:46:12 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.42 2010/03/11 03:48:43 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -856,7 +856,7 @@ sub getMyTagDB {
 	    push(@tf,$_->{'tag'});
 	    push(@tf,$_->{'count(tag)'});
 	}
-    }
+    };
     if ($@) { 
 	$dbh->rollback; $dbh->disconnect; 
 	my $emsg = "Incomplete query. While getting an top 10 list from tag.";
@@ -1259,6 +1259,7 @@ sub getOptionsDB {
 
 sub updateOptionsDB {
     my $odbh;
+    my $SQL;
     eval {
 	$odbh = DBI->connect("dbi:SQLite:dbname=$OPTIONS_DB", undef, undef, 
 			     {AutoCommit => 0, RaiseError => 1 });
@@ -1267,7 +1268,7 @@ sub updateOptionsDB {
 	$name = $odbh->quote($name);
 	$val = $odbh->quote($val);
 	
-	my $SQL = "UPDATE config SET val=$val WHERE name=$name ;"; 
+	$SQL = "UPDATE config SET val=$val WHERE name=$name ;"; 
 	$odbh->do($SQL);
 	$odbh->commit;
 	$odbh->disconnect;
