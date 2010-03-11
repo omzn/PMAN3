@@ -3,8 +3,10 @@ How to install:
 
 1) Run INSTALL.sh from your shell. 
    (ex. $ sh INSTALL.sh)
+
 2) Next, launch install.cgi from your browser. 
    (ex. Open http://your_site_address/pman3/install.cgi from your browser)
 
+3) After install, remove install.cgi from your server.
 
 by Osamu Mizuno, 2010.
