@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.39 2010/03/10 11:58:48 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.40 2010/03/11 03:46:12 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -13,6 +13,7 @@ use utf8;
 
 my $debug=0;
 unlink('./install.cgi') if (-f './install.cgi');
+print STDERR $!;
 
 use DBI;
 use CGI;
@@ -772,7 +773,6 @@ sub deleteFileDB {
     my $fid = shift;
     my $SQL = "DELETE FROM files WHERE id=\'$fid\' ;";
     eval {
-#	&printError "Error: $@ $SQL";
  	my $sth = $dbh->do($SQL);
 	$dbh->commit;
     };
@@ -790,11 +790,12 @@ sub getTagListDB {
     my @taglist;
 
     my $SQL = "SELECT tag FROM tags WHERE paper_id=$pid;";
-    my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
-    foreach (@$f) {
-	push(@taglist,$_->{'tag'});
-    }
-
+    eval {
+	my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
+	foreach (@$f) {
+	    push(@taglist,$_->{'tag'});
+	}
+    };
     if ($@) { 
 	$dbh->rollback; $dbh->disconnect; 
 	my $emsg = "Incomplete query. While getting a tag list.";
@@ -810,37 +811,37 @@ sub getIdFromTagDB {
     my @idlist;
 
     my $SQL = "SELECT paper_id FROM tags WHERE tag=$tag;";
-    my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
-    foreach (@$f) {
-	push(@idlist,$_->{'paper_id'});
-    }
-
+    eval {
+	my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
+	foreach (@$f) {
+	    push(@idlist,$_->{'paper_id'});
+	}
+    };
     if ($@) { 
 	$dbh->rollback; $dbh->disconnect; 
 	my $emsg = "Incomplete query. While getting an id list from tag.";
 	$emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
 	&printError($emsg);
     }
-
     return join(",",@idlist);
 }
 
 sub getTop10TagDB {
     my @tf;
     my $SQL = "select tag,count(tag) from tags group by tag order by count(tag) desc;";
-    my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
-    foreach (@$f) {
-	push(@tf,$_->{'tag'});
-	push(@tf,$_->{'count(tag)'});
-    }
-
+    eval {
+	my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
+	foreach (@$f) {
+	    push(@tf,$_->{'tag'});
+	    push(@tf,$_->{'count(tag)'});
+	}
+    };
     if ($@) { 
 	$dbh->rollback; $dbh->disconnect; 
 	my $emsg = "Incomplete query. While getting an top 10 list from tag.";
 	$emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
 	&printError($emsg);
     }
-
     return join(",",@tf);
 }
 
@@ -849,19 +850,19 @@ sub getMyTagDB {
     my ($pids) = @_;
     my @tf;
     my $SQL = "SELECT tag,count(tag) FROM tags WHERE paper_id IN ( $pids ) GROUP BY tag ORDER BY count(tag) desc;";
-    my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
-    foreach (@$f) {
-	push(@tf,$_->{'tag'});
-	push(@tf,$_->{'count(tag)'});
+    eval {
+	my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
+	foreach (@$f) {
+	    push(@tf,$_->{'tag'});
+	    push(@tf,$_->{'count(tag)'});
+	}
     }
-
     if ($@) { 
 	$dbh->rollback; $dbh->disconnect; 
 	my $emsg = "Incomplete query. While getting an top 10 list from tag.";
 	$emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
 	&printError($emsg);
     }
-
     return join(",",@tf);
 }
 
@@ -872,17 +873,13 @@ sub updateTagDB {
     eval {
 	my $sth = $dbh->do($SQL);
 	$dbh->commit;
-
 	foreach (split(/[,\s]+/,$tag)) {
 	    $SQL = "INSERT INTO tags VALUES(null,?,?)";
 	    my $sth = $dbh->prepare($SQL);
 	    $sth->execute($pid,$_);
 	}
-
 	$dbh->commit;	  
     };
-
-
     if ($@) { 
 	$dbh->rollback; $dbh->disconnect; 
 	my $emsg = "Incomplete query. While updating tag DB.";
@@ -927,7 +924,6 @@ sub downloadFileDB {
 	$emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
 	&printError($emsg);
     }
-
     return ($ary[0],$ary[1],$ary[2],$ary[3]);
 }
 
@@ -940,18 +936,18 @@ sub getIdFromAuthorsDB {
     if (defined $ord) {
 	$SQL .= " AND author_order='$ord'";
     }
-    my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
-    foreach (@$f) {
-	push(@idlist,$_->{'paper_id'});
-    }
-
+    eval {
+	my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
+	foreach (@$f) {
+	    push(@idlist,$_->{'paper_id'});
+	}
+    };
     if ($@) { 
 	$dbh->rollback; $dbh->disconnect; 
 	my $emsg = "Incomplete query. While getting an id list from authors.";
 	$emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
 	&printError($emsg);
     }
-
     return join(",",@idlist);
 }
 
@@ -959,29 +955,37 @@ sub getAuthorFromAuthorsDB {
     my ($pid,$aulist,$keylist) = @_;
 
     my $SQL = "SELECT author_name,author_key FROM authors WHERE paper_id=$pid ORDER BY author_order";
-    my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
-    foreach (@$f) {
-	push(@$aulist,$_->{'author_name'});
-	push(@$keylist,$_->{'author_key'});
-    }
-}
-
-sub getAuthorListDB {
-    my @al;
-    my $SQL = "SELECT author_name,author_key FROM authors WHERE author_key not null GROUP BY author_name;";
-    my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
-    foreach (@$f) {
-	$_->{'author_name'}=~s/\s//g if (&isJapanese($_->{'author_name'}));
-	push(@al,"\"$_->{'author_name'}\": \"$_->{'author_key'}\"");
-    }
-
+    eval {
+	my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
+	foreach (@$f) {
+	    push(@$aulist,$_->{'author_name'});
+	    push(@$keylist,$_->{'author_key'});
+	}
+    };
     if ($@) { 
 	$dbh->rollback; $dbh->disconnect; 
 	my $emsg = "Incomplete query. While getting author list from authors.";
 	$emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
 	&printError($emsg);
     }
+}
 
+sub getAuthorListDB {
+    my @al;
+    my $SQL = "SELECT author_name,author_key FROM authors WHERE author_key not null GROUP BY author_name;";
+    eval {
+	my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
+	foreach (@$f) {
+	    $_->{'author_name'}=~s/\s//g if (&isJapanese($_->{'author_name'}));
+	    push(@al,"\"$_->{'author_name'}\": \"$_->{'author_key'}\"");
+	}
+    };
+    if ($@) { 
+	$dbh->rollback; $dbh->disconnect; 
+	my $emsg = "Incomplete query. While getting author list from authors.";
+	$emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
+	&printError($emsg);
+    }
     return join(",\n",@al);
 }
 
@@ -993,7 +997,6 @@ sub deleteAuthorDB {
 	my $sth = $dbh->do($SQL);
 	$dbh->commit;
     };
-
     if ($@) { 
 	$dbh->rollback; $dbh->disconnect; 
 	my $emsg = "Incomplete query. While deleting author list.";
@@ -1009,10 +1012,8 @@ sub registAuthorDB {
 	my $SQL = "INSERT INTO authors VALUES(null,?,?,?,?)";
 	my $sth = $dbh->prepare($SQL);
 	$sth->execute($pid,$a_ord,$a_name,$a_name_e);
-
 	$dbh->commit;	  
     };
-
     if ($@) { 
 	$dbh->rollback; $dbh->disconnect; 
 	my $emsg = "Incomplete query. While inserting author list.";
@@ -1038,7 +1039,6 @@ sub add_categoryDB {
 	$sth->execute($maxptype+1,$maxptypeorder+1,($l eq "ja" ? "en" : "ja"),$newcatname);
 	$dbh->commit;
     };
-
     if ($@) { 
 	$dbh->rollback; $dbh->disconnect; 
 	my $emsg = "Incomplete query. While adding a category.";
@@ -1059,7 +1059,6 @@ sub mov_categoryDB {
  	my $sth = $dbh->do($SQL);
 	$dbh->commit;
     };
-
     if ($@) { 
 	$dbh->rollback; $dbh->disconnect; 
 	my $emsg = "Incomplete query. While moving a category.";
@@ -1077,7 +1076,6 @@ sub del_categoryDB {
  	my $sth = $dbh->do($SQL);
 	$dbh->commit;
     };
-
     if ($@) { 
 	$dbh->rollback; $dbh->disconnect; 
 	my $emsg = "Incomplete query. While deleting a category.";
@@ -1100,14 +1098,12 @@ sub ren_categoryDB {
  	my $sth = $dbh->do($SQL);
 	$dbh->commit;
     };
-
     if ($@) { 
 	$dbh->rollback; $dbh->disconnect; 
 	my $emsg = "Incomplete query. While updating a category.";
 	$emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
 	&printError($emsg);
     }
-
 }
 
 sub ord_categoryDB {
@@ -1122,7 +1118,6 @@ sub ord_categoryDB {
  	my $sth = $dbh->do($SQL);
 	$dbh->commit;
     };
-
     if ($@) { 
 	$dbh->rollback; $dbh->disconnect; 
 	my $emsg = "Incomplete query. While reordering a category.";
@@ -1143,35 +1138,34 @@ sub getCacheFromCDB {
     # 非ログイン状態に限り
     my $SQL;
     my $cdbh;
-    $cdbh = DBI->connect("dbi:SQLite:dbname=$CACHE_DB", undef, undef, 
-			 { RaiseError => 1 });
-    $cdbh->{sqlite_unicode} = 1;
-    $SQL = "SELECT name FROM sqlite_master WHERE type='table'"; 
-    my $ref = $cdbh->selectall_arrayref($SQL);
-    my @dbs;
-    foreach (@$ref) {
-	push(@dbs,$_->[0]);
-    }
-    if (grep(/^cache$/,@dbs) == ()) {    
-	$SQL = "CREATE TABLE cache(id integer primary key autoincrement, url text not null, page  text);";
-	$cdbh->do($SQL);
-	$cdbh->commit;
-    }
-
+    eval {
+	$cdbh = DBI->connect("dbi:SQLite:dbname=$CACHE_DB", undef, undef, 
+			     { RaiseError => 1 });
+	$cdbh->{sqlite_unicode} = 1;
+	$SQL = "SELECT name FROM sqlite_master WHERE type='table'"; 
+	my $ref = $cdbh->selectall_arrayref($SQL);
+	my @dbs;
+	foreach (@$ref) {
+	    push(@dbs,$_->[0]);
+	}
+	if (grep(/^cache$/,@dbs) == ()) {    
+	    $SQL = "CREATE TABLE cache(id integer primary key autoincrement, url text not null, page  text);";
+	    $cdbh->do($SQL);
+	    $cdbh->commit;
+	}
+    };
     my $url = $cdbh->quote(&generateURL);
     my @p;
     eval {
 	$SQL = "SELECT page FROM cache WHERE url=$url ;"; 
 	@p = $cdbh->selectrow_array($SQL);
-    };
-    
+    };    
     if ($@) {
 	$cdbh->disconnect;
 	my $emsg = "Error while getting from CDB";
 	$emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
 	&printError($emsg);
     }
-
     $cdbh->disconnect;    
     return $p[0];
 }
@@ -1180,10 +1174,12 @@ sub storeCacheToCDB {
     return if ($login == 1);
     my $h = shift;
     my $d = shift;
- 
-    my $cdbh = DBI->connect("dbi:SQLite:dbname=$CACHE_DB", undef, undef, 
-		       {AutoCommit => 0, RaiseError => 1 });
-    $cdbh->{sqlite_unicode} = 1;
+    my $cdbh;
+    eval {
+	my $cdbh = DBI->connect("dbi:SQLite:dbname=$CACHE_DB", undef, undef, 
+				{AutoCommit => 0, RaiseError => 1 });
+	$cdbh->{sqlite_unicode} = 1;
+    };
     my $url = &generateURL;
     my $SQL = '';
     eval {
@@ -1192,7 +1188,6 @@ sub storeCacheToCDB {
 	$sth->execute($url,$$h.$$d);
 	$cdbh->commit;
     };
-
     if ($@) { 
 	$cdbh->rollback; $cdbh->disconnect; 
 	my $emsg = "Error while inserting CDB.";
@@ -1203,66 +1198,86 @@ sub storeCacheToCDB {
 }
 
 sub expireCacheFromCDB {
-    my $cdbh = DBI->connect("dbi:SQLite:dbname=$CACHE_DB", undef, undef, 
-		       {AutoCommit => 0, RaiseError => 1 });
-    $cdbh->{sqlite_unicode} = 1;
+    my $cdbh;
+    eval {
+	$cdbh = DBI->connect("dbi:SQLite:dbname=$CACHE_DB", undef, undef, 
+			     {AutoCommit => 0, RaiseError => 1 });
+	$cdbh->{sqlite_unicode} = 1;
+    };
     my $SQL = 'DELETE FROM cache;';
     eval {
 	$cdbh->do($SQL);
 	$cdbh->commit;	  
     };
-
     if ($@) { 
 	$cdbh->rollback; $cdbh->disconnect; 
 	my $emsg = "Error while deleting CDB.";
 	$emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
 	&printError($emsg);
     }
-    return;
 }
 
 sub getOptionsDB {
-    my $odbh = DBI->connect("dbi:SQLite:dbname=$OPTIONS_DB", undef, undef, 
-		       {AutoCommit => 0, RaiseError => 1 });
-    $odbh->{sqlite_unicode} = 1;
-
+    my $odbh;
+    eval {
+	$odbh  = DBI->connect("dbi:SQLite:dbname=$OPTIONS_DB", undef, undef, 
+			      {AutoCommit => 0, RaiseError => 1 });
+	$odbh->{sqlite_unicode} = 1;
+    };
     my $SQL = "SELECT name FROM sqlite_master WHERE type='table'"; 
-    my @dbs = $odbh->selectrow_array($SQL);
-    my $sth;
-    if (grep(/^config$/,@dbs) == ()) {
-	$SQL = "CREATE TABLE config(id integer primary key autoincrement, name text not null, val text not null)";
-	$sth = $odbh->do($SQL);
-	if(!$sth){
-	    &printError($odbh->errstr);
+    eval {
+	my @dbs = $odbh->selectrow_array($SQL);
+	my $sth;
+	if (grep(/^config$/,@dbs) == ()) {
+	    $SQL = "CREATE TABLE config(id integer primary key autoincrement, name text not null, val text not null)";
+	    $sth = $odbh->do($SQL);
+	    if(!$sth){
+		&printError($odbh->errstr);
+	    }
+	    foreach (keys(%opts)) {
+		$SQL = "INSERT INTO config VALUES(null,?,?)";
+		$sth = $odbh->prepare($SQL);
+		$sth->execute($_,$opts{$_});
+	    }
+	    $odbh->commit;
 	}
-	foreach (keys(%opts)) {
-	    $SQL = "INSERT INTO config VALUES(null,?,?)";
-	    $sth = $odbh->prepare($SQL);
-	    $sth->execute($_,$opts{$_});
+	# odbhからoption取得
+	$SQL = "SELECT name,val FROM config;";
+	my $optref = $odbh->selectall_arrayref($SQL,{Columns => {}});
+	foreach my $op (@$optref) {
+	    eval "\$$$op{'name'} = \'$$op{'val'}\'";
 	}
-	$odbh->commit;
+	$odbh->disconnect;
+    };
+    if ($@) { 
+	$odbh->rollback; $odbh->disconnect; 
+	my $emsg = "Error while deleting ODB.";
+	$emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
+	&printError($emsg);
     }
-    # odbhからoption取得
-    $SQL = "SELECT name,val FROM config;";
-    my $optref = $odbh->selectall_arrayref($SQL,{Columns => {}});
-    foreach my $op (@$optref) {
-	eval "\$$$op{'name'} = \'$$op{'val'}\'";
-    }
-    $odbh->disconnect;
 }
 
 sub updateOptionsDB {
-    my $odbh = DBI->connect("dbi:SQLite:dbname=$OPTIONS_DB", undef, undef, 
-		       {AutoCommit => 0, RaiseError => 1 });
-    $odbh->{sqlite_unicode} = 1;
-    my ( $name,$val ) = @_;
-    $name = $odbh->quote($name);
-    $val = $odbh->quote($val);
-    
-    my $SQL = "UPDATE config SET val=$val WHERE name=$name ;"; 
-    $odbh->do($SQL);
-    $odbh->commit;
-    $odbh->disconnect;
+    my $odbh;
+    eval {
+	$odbh = DBI->connect("dbi:SQLite:dbname=$OPTIONS_DB", undef, undef, 
+			     {AutoCommit => 0, RaiseError => 1 });
+	$odbh->{sqlite_unicode} = 1;
+	my ( $name,$val ) = @_;
+	$name = $odbh->quote($name);
+	$val = $odbh->quote($val);
+	
+	my $SQL = "UPDATE config SET val=$val WHERE name=$name ;"; 
+	$odbh->do($SQL);
+	$odbh->commit;
+	$odbh->disconnect;
+    };
+    if ($@) { 
+	$odbh->rollback; $odbh->disconnect; 
+	my $emsg = "Error while deleting ODB.";
+	$emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
+	&printError($emsg);
+    }
 }
 
 #=====================================================
