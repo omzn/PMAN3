@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: install.cgi,v 1.14 2010/03/11 03:59:06 o-mizuno Exp $
+# $Id: install.cgi,v 1.15 2010/03/11 04:00:15 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #
@@ -457,9 +457,9 @@ EOM
         <p>PMAN3にてログイン後，オプション設定メニューから各種の設定を変更できます．</p>
         <p>PMAN3のご利用，誠にありがとうございます．</p>
         <p class="red">なお，install.cgiは必ず削除してください．<p>
-        <center><a href="./install.cgi?FINISH=go">[PMAN3の起動]</p></center>
+        <center><a href="./install.cgi?FINISH=go">[PMAN3の起動]</p></a></center>
         <p>PMAN2.xからデータを引き継がれる場合はこちらへお進みください．</p>
-        <center><a href="./install.cgi?THIRD=go">[PMAN2からのデータ移行]</p></center>
+        <center><a href="./install.cgi?THIRD=go">[PMAN2からのデータ移行]</a></p></center>
 EOM
     }
     $doc .= <<EOM;
@@ -703,7 +703,7 @@ EOM
         <p>PMAN3にてログイン後，オプション設定メニューから各種の設定を変更できます．</p>
         <p>PMAN3のご利用，誠にありがとうございます．</p>
         <p class="red">なお，install.cgiは必ず削除してください．<p>
-        <center><a href="./install.cgi?FINISH=go">[PMAN3の起動]</p></center>
+        <center><a href="./install.cgi?FINISH=go">[PMAN3の起動]</a></p></center>
 EOM
     }
 

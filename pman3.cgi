@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.44 2010/03/11 04:03:01 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.45 2010/03/11 04:04:39 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -1174,7 +1174,7 @@ sub storeCacheToCDB {
     my $d = shift;
     my $cdbh;
     eval {
-	my $cdbh = DBI->connect("dbi:SQLite:dbname=$CACHE_DB", undef, undef, 
+	$cdbh = DBI->connect("dbi:SQLite:dbname=$CACHE_DB", undef, undef, 
 				{AutoCommit => 0, RaiseError => 1 });
 	$cdbh->{sqlite_unicode} = 1;
     };
