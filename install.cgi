@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: install.cgi,v 1.15 2010/03/11 04:00:15 o-mizuno Exp $
+# $Id: install.cgi,v 1.16 2010/03/11 04:11:08 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #
@@ -161,15 +161,6 @@ EOM
   セッション遷移にデータベースを利用します．</td> 
   <td class="fieldBody">
   <select name="use_DBforSession" >
-  <option selected="selected" value="1">使用する</option>
-  <option value="0">使用しない</option>
-  </select>  </td>
-</tr>
-<tr>
-  <td class="fieldHead">キャッシュの利用<br />
-  一度表示したクエリの表示が高速になります．</td> 
-  <td class="fieldBody">
-  <select name="use_cache" >
   <option selected="selected" value="1">使用する</option>
   <option value="0">使用しない</option>
   </select>  </td>
@@ -410,7 +401,7 @@ EOM
     my %opts = ( 
 	use_XML              => 0,
 	use_RSS              => 0,
-	use_cache            => $cgi->param('use_cache'),
+	use_cache            => 0, #$cgi->param('use_cache'),
 	use_DBforSession     => $cgi->param('use_DBforSession'),
 	use_AutoJapaneseTags => 0,
 	use_mimetex          => 0,
