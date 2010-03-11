@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.43 2010/03/11 03:55:21 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.44 2010/03/11 04:03:01 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -1187,7 +1187,7 @@ sub storeCacheToCDB {
 	$cdbh->commit;
     };
     if ($@) { 
-	$cdbh->rollback; $cdbh->disconnect; 
+	$cdbh->disconnect; 
 	my $emsg = "Error while inserting CDB.";
 	$emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
 	&printError($emsg);
@@ -1208,7 +1208,7 @@ sub expireCacheFromCDB {
 	$cdbh->commit;	  
     };
     if ($@) { 
-	$cdbh->rollback; $cdbh->disconnect; 
+	$cdbh->disconnect; 
 	my $emsg = "Error while deleting CDB.";
 	$emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
 	&printError($emsg);
@@ -1248,7 +1248,7 @@ sub getOptionsDB {
 	$odbh->disconnect;
     };
     if ($@) { 
-	$odbh->rollback; $odbh->disconnect; 
+	$odbh->disconnect; 
 	my $emsg = "Error while deleting ODB.";
 	$emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
 	&printError($emsg);
