@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: install.cgi,v 1.16 2010/03/11 04:11:08 o-mizuno Exp $
+# $Id: install.cgi,v 1.17 2010/03/13 12:35:57 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #
@@ -7,7 +7,7 @@
 #
 #              (c) 2002-2010 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.1 Beta 8";
+my $VERSION = "3.1";
 # 
 # =================================================================================
 use strict;
@@ -94,6 +94,20 @@ EOM
 <td class="fieldBody">$is_sqlite3</td>
 </tr>
 EOM
+
+    my $chk_perl = "OK: perl 5.8.5以上が利用できます．(インストール済み: $] )";
+    if ( $] < 5.008005) {
+	$chk_perl = '<span class="red"><b>NG: perl 5.8.5以上が必要です．</b></span>';
+	$req ++;
+    }
+    
+    $doc .= <<EOM;
+<tr>
+<td class="fieldHead">perl version</td>
+<td class="fieldBody">$chk_perl</td>
+</tr>
+EOM
+
 
     my @required_modules = (
 	'CGI', 

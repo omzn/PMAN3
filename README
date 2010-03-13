@@ -4,11 +4,13 @@ How to install:
 1) Run INSTALL.sh from your shell. 
    (ex. $ sh INSTALL.sh)
 
+2) Set appropriate path to "perl" at the first line of both pman3.cgi and install.cgi.
+
 2) Next, launch install.cgi from your browser. 
    (ex. Open http://your_site_address/pman3/install.cgi from your browser)
 
 3) After install, remove install.cgi from your server.
 
-Thank you choosing PMAN3.
+Thank you for choosing PMAN3.
 
 by Osamu Mizuno, 2010.

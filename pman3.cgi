@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.46 2010/03/11 06:33:32 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.47 2010/03/13 12:35:57 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -24,14 +24,6 @@ use Encode;
 use Digest::MD5 qw/md5_hex/;
 use MIME::Types qw/by_suffix/;
 use URI::Escape qw/uri_escape_utf8/;
-
-#=====================================================
-# lib/lang.*.plで設定する変数群 (our宣言)
-#=====================================================
-our %bt;
-our %viewMenu;
-our %topMenu;
-our %msg;
 
 #=====================================================
 # Constants
@@ -118,6 +110,13 @@ my %mlist = ("0,en"=>"","0,ja"=>"",
 	     "9,en"=>"September","9,ja"=>"9月","10,en"=>"October","10,ja"=>"10月",
 	     "11,en"=>"November","11,ja"=>"11月","12,en"=>"December","12,ja"=>"12月");
 
+#=====================================================
+# lib/lang.*.plで設定する変数群 (our宣言)
+#=====================================================
+our %bt;
+our %viewMenu;
+our %topMenu;
+our %msg;
 
 #=====================================================
 # Main
@@ -128,7 +127,7 @@ my $t0 = [Time::HiRes::gettimeofday];
 
 my $dbh = DBI->connect("dbi:SQLite:dbname=$DB", undef, undef, 
 		       {AutoCommit => 0, RaiseError => 1 });
-$dbh->{sqlite_unicode} = 1;
+$dbh->{sqlite_unicode} = 1; # これがperl 5.8.5未満では動かない
 
 &manageSession;
 # キャッシュ読み込み処理の実装部
