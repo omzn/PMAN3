@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: install.cgi,v 1.17 2010/03/13 12:35:57 o-mizuno Exp $
+# $Id: install.cgi,v 1.18 2010/03/14 14:25:18 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #
@@ -49,9 +49,27 @@ sub check_module {
 	# モジュールが存在すれば読み込む
 	eval "use $module;";
 	if ($@) {
-		return 0;
+	    return 0;
 	} else {
-		return 1;
+	    return 1;
+	}
+}
+
+sub check_module_ver {
+	my $module = $_[0];	
+	my $ver = $_[1];       
+	# モジュールが存在すれば読み込む
+	eval "use $module;";
+	if ($@) {
+	    return 0;
+	} else {
+	    my $v = $module."::VERSION";
+	    eval "\$v = \$$v;";
+	    if ($v < $ver) {
+		return 0;
+	    } else {
+		return $v;
+	    }
 	}
 }
 
@@ -108,29 +126,28 @@ EOM
 </tr>
 EOM
 
-
-    my @required_modules = (
-	'CGI', 
-	'DBI', 
-	'DBD::SQLite',
-	'CGI::Session',
-	'CGI::Cookie',
-	'HTML::Template',
-	'HTML::Scrubber',
-	'HTML::Entities',
-	'URI::Escape',
-	'Encode',
-	'Digest::MD5',
-	'MIME::Types',
-	'Time::HiRes',
+    my %required_modules = (
+	'CGI' => 0, 
+	'DBI' => 0, 
+	'DBD::SQLite' => 1.29, 
+	'CGI::Session' => 0, 
+	'CGI::Cookie' => 0, 
+	'HTML::Template' => 0, 
+	'HTML::Scrubber' => 0, 
+	'HTML::Entities' => 0, 
+	'URI::Escape' => 0, 
+	'Encode' => 0, 
+	'Digest::MD5' => 0, 
+	'MIME::Types' => 0, 
+	'Time::HiRes' => 0,
     );
     my %installed;
 
-    foreach (@required_modules) {    
-	if (&check_module($_)) {
-	    $installed{$_} = "OK: インストール済";
+    foreach (sort(keys(%required_modules))) {    
+	if (my $v = &check_module_ver($_,$required_modules{$_})) {
+	    $installed{$_} = "OK: インストール済 ($v)";
 	} else {
-	    $installed{$_} = '<span class="red"><b>NG: インストールされていません</b></span>';
+	    $installed{$_} = '<span class="red"><b>NG: インストールされていません (req. $required_modules{$_} > $v)</b></span>';
 	    $req ++;
 	}
 	$doc .= <<EOM;

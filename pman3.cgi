@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.47 2010/03/13 12:35:57 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.48 2010/03/14 14:25:18 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -74,7 +74,6 @@ my %opts = (
     texFooter            => $texFooter,
     latexcmd             => $latexcmd,
     dvipdfcmd            => $dvipdfcmd,
-
     );
 
 &getOptionsDB;
