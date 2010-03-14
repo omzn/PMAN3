@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.48 2010/03/14 14:25:18 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.49 2010/03/14 14:41:44 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -73,7 +73,7 @@ my %opts = (
     texHeader            => $texHeader,
     texFooter            => $texFooter,
     latexcmd             => $latexcmd,
-    dvipdfcmd            => $dvipdfcmd,
+    dvipdfcmd            => $dvipdfcmd
     );
 
 &getOptionsDB;
@@ -1222,7 +1222,11 @@ sub getOptionsDB {
     };
     my $SQL = "SELECT name FROM sqlite_master WHERE type='table'"; 
     eval {
-	my @dbs = $odbh->selectrow_array($SQL);
+	my $ref = $dbh->selectall_arrayref($SQL);
+	my @dbs;
+	foreach (@$ref) {
+	    push(@dbs,$_->[0]);
+	}
 	my $sth;
 	if (grep(/^config$/,@dbs) == ()) {
 	    $SQL = "CREATE TABLE config(id integer primary key autoincrement, name text not null, val text not null)";
