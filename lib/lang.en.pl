@@ -300,6 +300,9 @@ our %msg = (
 
     "latex_exp"=>"Copy the contents in the following text field and paste it to text editor. <br />If online PDF construction is allowed in this system, you can get PDF file from a link named 'PDF' somewhere in this page.",
 
+    'tmpl' => 'Select skin',
+    'tmpl_exp' => "Select your favorite skins.",
+
     "use"=>"Use",
     "dontuse"=>"Don't use",
 
