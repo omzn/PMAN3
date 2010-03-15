@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.49 2010/03/14 14:41:44 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.50 2010/03/15 06:13:43 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -58,6 +58,8 @@ my $use_latexpdf = 0;
 my $latexcmd = "platex -halt-on-error";
 my $dvipdfcmd = "dvipdfmx -V 4";
 
+my $tmpl_name = "default";
+
 my %opts = ( 
     use_XML              => $use_XML,
     use_RSS              => $use_RSS,
@@ -73,7 +75,8 @@ my %opts = (
     texHeader            => $texHeader,
     texFooter            => $texFooter,
     latexcmd             => $latexcmd,
-    dvipdfcmd            => $dvipdfcmd
+    dvipdfcmd            => $dvipdfcmd,
+    tmpl_name            => $tmpl_name
     );
 
 &getOptionsDB;
@@ -1222,7 +1225,7 @@ sub getOptionsDB {
     };
     my $SQL = "SELECT name FROM sqlite_master WHERE type='table'"; 
     eval {
-	my $ref = $dbh->selectall_arrayref($SQL);
+	my $ref = $odbh->selectall_arrayref($SQL);
 	my @dbs;
 	foreach (@$ref) {
 	    push(@dbs,$_->[0]);
@@ -1232,7 +1235,7 @@ sub getOptionsDB {
 	    $SQL = "CREATE TABLE config(id integer primary key autoincrement, name text not null, val text not null)";
 	    $sth = $odbh->do($SQL);
 	    if(!$sth){
-		&printError($odbh->errstr);
+		die($odbh->errstr);
 	    }
 	    foreach (keys(%opts)) {
 		$SQL = "INSERT INTO config VALUES(null,?,?)";
@@ -1241,20 +1244,30 @@ sub getOptionsDB {
 	    }
 	    $odbh->commit;
 	}
-	# odbhからoption取得
-	$SQL = "SELECT name,val FROM config;";
-	my $optref = $odbh->selectall_arrayref($SQL,{Columns => {}});
-	foreach my $op (@$optref) {
-	    eval "\$$$op{'name'} = \'$$op{'val'}\'";
-	}
-	$odbh->disconnect;
     };
-    if ($@) { 
-	$odbh->disconnect; 
-	my $emsg = "Error while deleting ODB.";
-	$emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
-	&printError($emsg);
+
+    # odbhからoption取得
+    foreach my $n (keys(%opts)) {
+	my $nq = $odbh->quote($n);
+	$SQL = "SELECT val FROM config WHERE name=$nq";
+	my @val = $odbh->selectrow_array($SQL);
+	if (@val != ()) {
+	    eval "\$$n = \'$val[0]\';";
+	} else {
+	    $SQL = "INSERT INTO config VALUES(null,?,?)";
+	    my $sth = $odbh->prepare($SQL);
+	    $sth->execute($n,$opts{$n});
+	    $odbh->commit;
+	}
     }
+
+#    $SQL = "SELECT name,val FROM config;";
+#    my $optref = $odbh->selectall_arrayref($SQL,{Columns => {}});
+#    foreach my $op (@$optref) {
+#    	eval "\$$$op{'name'} = \'$$op{'val'}\';";
+#    }
+
+    $odbh->disconnect;
 }
 
 sub updateOptionsDB {
@@ -1294,7 +1307,7 @@ sub printScreen {
 
     my $header; my $htmlh;
     if (defined($cgi->param('STATIC'))) {
-	$document = HTML::Template->new(filename => "$TMPLDIR/static.tmpl");
+	$document = HTML::Template->new(filename => "$TMPLDIR/$tmpl_name/static.tmpl");
 	($header,$htmlh) = &printHeader;    
 	$document->param(CHARSET => $htmlh);
 	$document->param(MAIN_TITLE => $titleOfSite);
@@ -1305,7 +1318,7 @@ sub printScreen {
 	$doc = $document->output;
 
     } elsif (defined($cgi->param('SSI'))) {
-	$document = HTML::Template->new(filename => "$TMPLDIR/none.tmpl");
+	$document = HTML::Template->new(filename => "$TMPLDIR/$tmpl_name/none.tmpl");
 	($header,$htmlh) = &printHeader;    
 	$document->param(CONTENTS=> &printBody);    
 	$doc = $document->output;
@@ -1346,7 +1359,7 @@ sub printScreen {
 	}
 	$doc = $rss->as_string;
     } else {
-	$document = HTML::Template->new(filename => "$TMPLDIR/main.tmpl");
+	$document = HTML::Template->new(filename => "$TMPLDIR/$tmpl_name/main.tmpl");
 
 	($header,$htmlh) = &printHeader;    
 	$document->param(CHARSET => $htmlh);
@@ -1386,7 +1399,7 @@ sub printScreen {
 sub printError {
     my $message = shift;
 
-    my $document = HTML::Template->new(filename => "$TMPLDIR/error.tmpl");
+    my $document = HTML::Template->new(filename => "$TMPLDIR/$tmpl_name/error.tmpl");
     my $l = $session->param('LANG') || "ja";
     require "$LIBDIR/lang.$l.pl";
 
@@ -1401,8 +1414,6 @@ sub printError {
     $document->param(FOOTER=> &printFooter);
 
     my $doc = $document->output;
-#    my $cs = $session->param('CHARSET') || $defaultEncoding;
-#    Encode::from_to($doc, "euc-jp", $cs);
 
     print $header;
     if (utf8::is_utf8($doc)) {
@@ -2492,106 +2503,6 @@ EOM
 <form method="POST" action="$scriptName">
 <input type="hidden" name="MODE" value="config2">
 <tr>
-  <td class="fieldHead" width="25%">$msg{'use_cache'}</td>
-  <td class="fieldBody" width="60%">$msg{'use_cache_exp'}</td> 
-  <td class="fieldBody" width="15%">
-EOM
-        $body .= $cgi->popup_menu(-name=>'opt_use_cache',
-				  -default=>"$use_cache",
-				  -values=>['1','0'],
-				  -labels=>{ '1'=>$msg{'use'},
-					     '0'=>$msg{'dontuse'} }
-	);
-	$body .= <<EOM;
-  </td>
-</tr>
-<tr>
-  <td class="fieldHead" width="25%">$msg{'use_DBforSession'}</td>
-  <td class="fieldBody" width="60%">$msg{'use_DBforSession_exp'}</td> 
-  <td class="fieldBody" width="15%">
-EOM
-        $body .= $cgi->popup_menu(-name=>'opt_use_DBforSession',
-				  -default=>"$use_DBforSession",
-				  -values=>['1','0'],
-				  -labels=>{ '1'=>$msg{'use'},
-					     '0'=>$msg{'dontuse'} }
-	);
-	$body .= <<EOM;
-  </td>
-</tr>
-<tr>
-  <td class="fieldHead" width="25%">$msg{'use_AutoJapaneseTags'}</td>
-  <td class="fieldBody" width="60%">$msg{'use_AutoJapaneseTags_exp'}</td> 
-  <td class="fieldBody" width="15%">
-EOM
-    if (&check_module('Text::MeCab')) {
-        $body .= $cgi->popup_menu(-name=>'opt_use_AutoJapaneseTags',
-				  -default=>"$use_AutoJapaneseTags",
-				  -values=>['1','0'],
-				  -labels=>{ '1'=>$msg{'use'},
-					     '0'=>$msg{'dontuse'} }
-	);
-    } else {
-        $body .= "$msg{'notInstalled'}: Text::MeCab";
-    }
-	$body .= <<EOM;
-  </td>
-</tr>
-<tr>
-  <td class="fieldHead" width="25%">$msg{'use_RSS'}</td>
-  <td class="fieldBody" width="60%">$msg{'use_RSS_exp'}</td> 
-  <td class="fieldBody" width="15%">
-EOM
-    if (&check_module('XML::RSS')) {
-        $body .= $cgi->popup_menu(-name=>'opt_use_RSS',
-				  -default=>"$use_RSS",
-				  -values=>['1','0'],
-				  -labels=>{ '1'=>$msg{'use'},
-					     '0'=>$msg{'dontuse'} }
-	);
-    } else {
-        $body .= "$msg{'notInstalled'}: XML::RSS";
-    }
-	$body .= <<EOM;
-  </td>
-</tr>
-<tr>
-  <td class="fieldHead" width="25%">$msg{'use_XML'}</td>
-  <td class="fieldBody" width="60%">$msg{'use_XML_exp'}</td> 
-  <td class="fieldBody" width="15%">
-EOM
-    if (&check_module('XML::Simple')) {
-        $body .= $cgi->popup_menu(-name=>'opt_use_XML',
-				  -default=>"$use_XML",
-				  -values=>['1','0'],
-				  -labels=>{ '1'=>$msg{'use'},
-					     '0'=>$msg{'dontuse'} }
-	);
-    } else {
-        $body .= "$msg{'notInstalled'}: XML::Simple";
-    }
-	$body .= <<EOM;
-  </td>
-</tr>
-<tr>
-  <td class="fieldHead" width="25%">$msg{'use_mimetex'}</td>
-  <td class="fieldBody" width="60%">$msg{'use_mimetex_exp'}</td> 
-  <td class="fieldBody" width="15%">
-EOM
-    if (-f $MIMETEXPATH && -x $MIMETEXPATH) {
-        $body .= $cgi->popup_menu(-name=>'opt_use_mimetex',
-				  -default=>"$use_mimetex",
-				  -values=>['1','0'],
-				  -labels=>{ '1'=>$msg{'use'},
-					     '0'=>$msg{'dontuse'} }
-	);
-    } else {
-        $body .= "$msg{'notInstalled'}: $MIMETEXPATH";
-    }
-	$body .= <<EOM;
-  </td>
-</tr>
-<tr>
   <td class="fieldHead" width="25%">$msg{'set_titleofsite'}</td>
   <td class="fieldBody" width="60%">$msg{'set_titleofsite_exp'}</td> 
   <td class="fieldBody" width="15%">
@@ -2610,6 +2521,228 @@ EOM
   <td class="fieldBody" width="60%">$msg{'set_maintaineraddress_exp'}</td> 
   <td class="fieldBody" width="15%">
   <input type="text" name="opt_maintainerAddress" value="$maintainerAddress"/>
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'tmpl'}</td>
+  <td class="fieldBody" width="60%">$msg{'tmpl_exp'}</td> 
+  <td class="fieldBody" width="15%">
+EOM
+	$body .= <<EOM;
+<select name="opt_tmpl_name">
+EOM
+        my @tmpls = ();
+        opendir(DIR,$TMPLDIR);
+	while(my $dir = readdir(DIR)){
+	    next if ($dir=~/^\.+$/); 
+	    next if (! -d $TMPLDIR."/".$dir); 
+	    push(@tmpls,$dir);
+	}
+	closedir(DIR);
+        foreach ( @tmpls ) {
+	    my $selected = '';
+	    $selected = "selected" if ($tmpl_name eq $_);
+	    $body .= <<EOM;
+<option value="$_" $selected>$_</option>
+EOM
+        }
+        $body .= <<EOM;
+      </select>
+EOM
+	$body .= <<EOM;
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'use_cache'}</td>
+  <td class="fieldBody" width="60%">$msg{'use_cache_exp'}</td> 
+  <td class="fieldBody" width="15%">
+EOM
+#
+#        $body .= $cgi->popup_menu(-name=>'opt_use_cache',
+#				  -default=>"$use_cache",
+#				  -values=>['1','0'],
+#				  -labels=>{ '1'=>$msg{'use'},
+#					     '0'=>$msg{'dontuse'} }
+#	);
+
+	$body .= <<EOM;
+<select name="opt_use_cache">
+EOM
+        my %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
+        for ( 0 .. 1 ) {
+	    my $selected = '';
+	    $selected = "selected" if ($use_cache == $_);
+	    $body .= <<EOM;
+<option value="$_" $selected>$labels{$_}</option>
+EOM
+        }
+        $body .= <<EOM;
+      </select>
+EOM
+
+
+	$body .= <<EOM;
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'use_DBforSession'}</td>
+  <td class="fieldBody" width="60%">$msg{'use_DBforSession_exp'}</td> 
+  <td class="fieldBody" width="15%">
+EOM
+#        $body .= $cgi->popup_menu(-name=>'opt_use_DBforSession',
+#				  -default=>"$use_DBforSession",
+#				  -values=>['1','0'],
+#				  -labels=>{ '1'=>$msg{'use'},
+#					     '0'=>$msg{'dontuse'} }
+#	);
+	$body .= <<EOM;
+<select name="opt_use_DBforSession">
+EOM
+        %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
+        for ( 0 .. 1 ) {
+	    my $selected = '';
+	    $selected = "selected" if ($use_DBforSession == $_);
+	    $body .= <<EOM;
+<option value="$_" $selected>$labels{$_}</option>
+EOM
+        }
+        $body .= <<EOM;
+      </select>
+EOM
+
+	$body .= <<EOM;
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'use_AutoJapaneseTags'}</td>
+  <td class="fieldBody" width="60%">$msg{'use_AutoJapaneseTags_exp'}</td> 
+  <td class="fieldBody" width="15%">
+EOM
+    if (&check_module('Text::MeCab')) {
+#        $body .= $cgi->popup_menu(-name=>'opt_use_AutoJapaneseTags',
+#				  -default=>"$use_AutoJapaneseTags",
+#				  -values=>['1','0'],
+#				  -labels=>{ '1'=>$msg{'use'},
+#					     '0'=>$msg{'dontuse'} }
+#	);
+
+	$body .= <<EOM;
+<select name="opt_use_AutoJapaneseTags">
+EOM
+        %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
+        for ( 0 .. 1 ) {
+	    my $selected = '';
+	    $selected = "selected" if ($use_AutoJapaneseTags == $_);
+	    $body .= <<EOM;
+<option value="$_" $selected>$labels{$_}</option>
+EOM
+        }
+        $body .= <<EOM;
+      </select>
+EOM
+
+    } else {
+        $body .= "$msg{'notInstalled'}: Text::MeCab";
+    }
+	$body .= <<EOM;
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'use_RSS'}</td>
+  <td class="fieldBody" width="60%">$msg{'use_RSS_exp'}</td> 
+  <td class="fieldBody" width="15%">
+EOM
+    if (&check_module('XML::RSS')) {
+#        $body .= $cgi->popup_menu(-name=>'opt_use_RSS',
+#				  -default=>"$use_RSS",
+#				  -values=>['1','0'],
+#				  -labels=>{ '1'=>$msg{'use'},
+#					     '0'=>$msg{'dontuse'} }
+#	);
+
+	$body .= <<EOM;
+<select name="opt_use_RSS">
+EOM
+        %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
+        for ( 0 .. 1 ) {
+	    my $selected = '';
+	    $selected = "selected" if ($use_RSS == $_);
+	    $body .= <<EOM;
+<option value="$_" $selected>$labels{$_}</option>
+EOM
+        }
+        $body .= <<EOM;
+      </select>
+EOM
+
+    } else {
+        $body .= "$msg{'notInstalled'}: XML::RSS";
+    }
+	$body .= <<EOM;
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'use_XML'}</td>
+  <td class="fieldBody" width="60%">$msg{'use_XML_exp'}</td> 
+  <td class="fieldBody" width="15%">
+EOM
+    if (&check_module('XML::Simple')) {
+#        $body .= $cgi->popup_menu(-name=>'opt_use_XML',
+#				  -default=>"$use_XML",
+#				  -values=>['1','0'],
+#				  -labels=>{ '1'=>$msg{'use'},
+#					     '0'=>$msg{'dontuse'} }
+#	);
+	$body .= <<EOM;
+<select name="opt_use_XML">
+EOM
+        %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
+        for ( 0 .. 1 ) {
+	    my $selected = '';
+	    $selected = "selected" if ($use_XML == $_);
+	    $body .= <<EOM;
+<option value="$_" $selected>$labels{$_}</option>
+EOM
+        }
+        $body .= <<EOM;
+      </select>
+EOM
+    } else {
+        $body .= "$msg{'notInstalled'}: XML::Simple";
+    }
+	$body .= <<EOM;
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'use_mimetex'}</td>
+  <td class="fieldBody" width="60%">$msg{'use_mimetex_exp'}</td> 
+  <td class="fieldBody" width="15%">
+EOM
+    if (-f $MIMETEXPATH && -x $MIMETEXPATH) {
+#        $body .= $cgi->popup_menu(-name=>'opt_use_mimetex',
+#				  -default=>"$use_mimetex",
+#				  -values=>['1','0'],
+#				  -labels=>{ '1'=>$msg{'use'},
+#					     '0'=>$msg{'dontuse'} }
+#	);
+	$body .= <<EOM;
+<select name="opt_use_mimetex">
+EOM
+        %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
+        for ( 0 .. 1 ) {
+	    my $selected = '';
+	    $selected = "selected" if ($use_mimetex == $_);
+	    $body .= <<EOM;
+<option value="$_" $selected>$labels{$_}</option>
+EOM
+        }
+        $body .= <<EOM;
+      </select>
+EOM
+    } else {
+        $body .= "$msg{'notInstalled'}: $MIMETEXPATH";
+    }
+	$body .= <<EOM;
   </td>
 </tr>
 <tr>
@@ -2651,12 +2784,26 @@ EOM
   <td class="fieldBody" width="60%">$msg{'use_latexpdf_exp'}</td> 
   <td class="fieldBody" width="15%">
 EOM
-        $body .= $cgi->popup_menu(-name=>'opt_use_latexpdf',
-				  -default=>"$use_latexpdf",
-				  -values=>['1','0'],
-				  -labels=>{ '1'=>$msg{'use'},
-					     '0'=>$msg{'dontuse'} }
-	);
+#        $body .= $cgi->popup_menu(-name=>'opt_use_latexpdf',
+#				  -default=>"$use_latexpdf",
+#				  -values=>['1','0'],
+#				  -labels=>{ '1'=>$msg{'use'},
+#					     '0'=>$msg{'dontuse'} }
+#	);
+	$body .= <<EOM;
+<select name="opt_use_latexpdf">
+EOM
+        %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
+        for ( 0 .. 1 ) {
+	    my $selected = '';
+	    $selected = "selected" if ($use_latexpdf == $_);
+	    $body .= <<EOM;
+<option value="$_" $selected>$labels{$_}</option>
+EOM
+        }
+        $body .= <<EOM;
+      </select>
+EOM
 	$body .= <<EOM;
   </td>
 </tr>
@@ -4190,7 +4337,7 @@ sub doConfigSetting {
     my @op = ('titleOfSite','maintainerName','maintainerAddress',
 	      'use_cache','use_DBforSession','use_AutoJapaneseTags','use_RSS',
 	      'use_XML','use_mimetex','texHeader','texFooter','use_latexpdf',
-	      'latexcmd','dvipdfcmd');
+	      'latexcmd','dvipdfcmd','tmpl_name');
     foreach (@op) {
 	my $param = $cgi->param('opt_'.$_);
 	if ($param ne "") {

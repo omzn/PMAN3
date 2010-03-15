@@ -9,10 +9,25 @@
 	<link rel="stylesheet" type="text/css" href="tmpl/default/pman.css" />
     </head>
     <body>
+      <div id="topmenu">
+            <TMPL_VAR NAME="TOPMENU">
+      </div>
       <div id="container">
         <div id="header">
 	    <a class="logo" href="http://se.is.kit.ac.jp/~o-mizuno/pman3.html"><img class="logo" src="img/logo.png" /></a>
             <h1><TMPL_VAR NAME="PAGE_TITLE"></h1>
+        </div>
+        <div id="searchmenu">
+            <TMPL_VAR NAME="SEARCHMENU">
+        </div>
+        <div id="searchmenu">
+            <TMPL_VAR NAME="TAGMENU">
+        </div>
+        <div id="searchmenu">
+            <TMPL_VAR NAME="MESSAGEMENU">
+        </div>
+        <div id="viewmenu">
+            <TMPL_VAR NAME="VIEWMENU">
         </div>
         <div id="contents">
             <TMPL_VAR NAME="CONTENTS">
