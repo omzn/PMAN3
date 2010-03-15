@@ -75,14 +75,14 @@ ul li
 }
 
 /* links above the logo */
-#links
+#topmenu
 { padding: 9px 0px 3px 19px;
   width: 742px;
   text-align: right;
   height: 22px;
 }
 
-#links a, #links a:hover{text-decoration: none;}
+#topmenu a, #topmenu a:hover{text-decoration: none;}
 
 /* logo */
 #header
@@ -103,7 +103,7 @@ ul li
 }
 
 /* main content */
-#contents
+#container
 { width: 761px;
   height: auto;
   padding: 0px;
@@ -120,7 +120,7 @@ ul li
 
 #column1 h1{padding: 0px 0px 18px 0px;}
 
-#menu, #addlinks, #past
+#viewmenu
 { position: relative;
   width: 80px;
   float: left;
@@ -128,7 +128,7 @@ ul li
   padding: 8px 0px 0px 0px;
 }
 
-#menu ul, #addlinks ul, #past ul
+#viewmenu ul
 { margin: 0px auto; 
   padding: 0px; 
   list-style: none; 
@@ -136,13 +136,13 @@ ul li
   width: 80px;
 } 
 
-#menu li, #addlinks li, #past li
+#viewmenu li
 { margin: 0px; 
   list-style: none; 
   float: left; 
 } 
 
-#menu li a, #addlinks li a, #past li a 
+#viewmenu li a
 { float: left; 
   height: 14px;
   text-decoration: none; 
@@ -151,23 +151,9 @@ ul li
   border-bottom: 1px solid;
 } 
 
-#menu h1, #addlinks h1, #past h1{padding: 0px 0px 14px 12px;}
-
-.sidebaritem
-{ position: relative;
-  text-align: justify;
-  margin: 0px 0px 15px 0px;
-  padding: 8px 14px 11px 12px;
-  width: 190px;
-  float: left;
-  height: 244px;
-  min-height: 122px;
-}
-
-.sidebaritem[id]{height: auto;}
 
 /* column 2 - page content */
-#column2
+#contents
 { text-align: justify;
   padding: 0px 22px 15px 0px;
   width: 482px;
