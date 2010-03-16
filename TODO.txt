@@ -9,12 +9,9 @@
 ・その表やリストをRTFに書き出せるようにする．(Wordでの利用対策) 
 
 
-
 #・mod_rewriteによる短縮URL機能を追加?
 #  /pman/A/Mizuno/ -> pman.cgi?A=Mizuno
 
-・テンプレートとcssをセットにして「スキン」とする．
-- cssとtmplの置き場所を変えるだけ．
 
 #・iPhone用表示？
 
