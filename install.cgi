@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: install.cgi,v 1.18 2010/03/14 14:25:18 o-mizuno Exp $
+# $Id: install.cgi,v 1.19 2010/03/17 03:27:35 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #
@@ -192,8 +192,8 @@ EOM
   セッション遷移にデータベースを利用します．</td> 
   <td class="fieldBody">
   <select name="use_DBforSession" >
-  <option selected="selected" value="1">使用する</option>
-  <option value="0">使用しない</option>
+  <option value="1">使用する</option>
+  <option selected value="0">使用しない</option>
   </select>  </td>
 </tr>
 EOM
