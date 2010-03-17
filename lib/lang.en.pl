@@ -301,7 +301,7 @@ our %msg = (
     "latex_exp"=>"Copy the contents in the following text field and paste it to text editor. <br />If online PDF construction is allowed in this system, you can get PDF file from a link named 'PDF' somewhere in this page.",
 
     'tmpl' => 'Select skin',
-    'tmpl_exp' => "Select your favorite skins.",
+    'tmpl_exp' => 'Select your favorite skins. You can <a href="http://se.is.kit.ac.jp/~o-mizuno/pman3download.html">download</a> several skins from <a href="http://se.is.kit.ac.jp/~o-mizuno/pman3download.html">PMAN3 website</a>.',
 
     "use"=>"Use",
     "dontuse"=>"Don't use",
