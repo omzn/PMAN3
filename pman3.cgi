@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.50 2010/03/15 06:13:43 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.51 2010/03/17 00:30:16 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -220,6 +220,24 @@ sub manageSession {
     # この時点で，$cgiの中身はutf8 flag ON
 
     my $sid = $cgi->param('SID') || $cgi->cookie('SID') || undef ;
+
+    if ($use_DBforSession) {
+	unless (-f $SESS_DB) {
+	    eval {
+		my $sdbh = DBI->connect("dbi:SQLite:dbname=$SESS_DB", undef, undef, 
+					{AutoCommit => 0, RaiseError => 1 });
+		my $SQL = <<EOM;
+CREATE TABLE sessions (
+id CHAR(32) NOT NULL PRIMARY KEY,
+a_session TEXT NOT NULL);
+EOM
+                $sdbh->do($SQL);
+		$sdbh->commit;
+		$sdbh->disconnect;
+		chmod(0666,$SESS_DB);
+	    };
+	}
+    }
 
     if ($sid) {
         $session = new CGI::Session("driver:File", $sid, {Directory=>$TMPDIR})
@@ -2534,7 +2552,8 @@ EOM
         my @tmpls = ();
         opendir(DIR,$TMPLDIR);
 	while(my $dir = readdir(DIR)){
-	    next if ($dir=~/^\.+$/); 
+	    next if ($dir=~/^\./); 
+	    next if ($dir=~/^CVS/); 
 	    next if (! -d $TMPLDIR."/".$dir); 
 	    push(@tmpls,$dir);
 	}
