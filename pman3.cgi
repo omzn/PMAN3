@@ -1,11 +1,11 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.51 2010/03/17 00:30:16 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.52 2010/03/18 00:31:33 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
 #              (c) 2002-2010 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.1";
+my $VERSION = "3.1.0.1";
 # 
 # =================================================================================
 use strict;
@@ -1215,22 +1215,24 @@ sub storeCacheToCDB {
 }
 
 sub expireCacheFromCDB {
-    my $cdbh;
-    eval {
-	$cdbh = DBI->connect("dbi:SQLite:dbname=$CACHE_DB", undef, undef, 
-			     {AutoCommit => 0, RaiseError => 1 });
-	$cdbh->{sqlite_unicode} = 1;
-    };
-    my $SQL = 'DELETE FROM cache;';
-    eval {
-	$cdbh->do($SQL);
-	$cdbh->commit;	  
-    };
-    if ($@) { 
-	$cdbh->disconnect; 
+    if ($use_cache) {
+	my $cdbh;
+	eval {
+	    $cdbh = DBI->connect("dbi:SQLite:dbname=$CACHE_DB", undef, undef, 
+				 {AutoCommit => 0, RaiseError => 1 });
+	    $cdbh->{sqlite_unicode} = 1;
+	};
+	my $SQL = 'DELETE FROM cache;';
+	eval {
+	    $cdbh->do($SQL);
+	    $cdbh->commit;	  
+	};
+	if ($@) { 
+	    $cdbh->disconnect; 
 	my $emsg = "Error while deleting CDB.";
-	$emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
-	&printError($emsg);
+	    $emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
+	    &printError($emsg);
+	}
     }
 }
 
