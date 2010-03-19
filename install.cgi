@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: install.cgi,v 1.19 2010/03/17 03:27:35 o-mizuno Exp $
+# $Id: install.cgi,v 1.20 2010/03/19 00:34:06 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #
@@ -127,7 +127,7 @@ EOM
 EOM
 
     my %required_modules = (
-	'CGI' => 0, 
+	'CGI' => 3.49, 
 	'DBI' => 0, 
 	'DBD::SQLite' => 1.29, 
 	'CGI::Session' => 0, 

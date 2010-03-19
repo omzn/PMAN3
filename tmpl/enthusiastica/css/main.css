@@ -1,0 +1,153 @@
+/*
+	=====================================
+	project: Enthusiastica
+	author:  Luka Cvrk (www.solucija.com)
+	-------------------------------------
+	2009. Solucija
+	=====================================
+*/
+
+*{
+    margin:0;
+    padding:0;
+}
+:focus,:active {
+    outline:0
+}
+dd {
+    text-indent: -2em; 
+    font-size: 1.2em;
+    margin:0 0px 5px 45px;
+}
+dt {
+    font-weight: bold;
+    font-size: 1.4em;
+    margin:10px 0px 10px 0px;
+}
+ul,ol{
+    list-style:none
+}
+h1,h2,h3,h4,h5,h6,pre,code {
+    font-size:1em;
+}
+a img{
+    border:0
+} 
+body { 
+    font: .75em Tahoma, Arial, Sans-Serif; 
+    background: #eee url(../images/bg.gif) repeat-x; 
+    color: #777; 
+}
+a { 
+    text-decoration: none; 
+    color: #333; 
+}
+a:hover { 
+    color: #666; 
+}
+p  { 
+    margin: 0 0 15px; 
+    line-height: 1.64em; 
+}
+#wrap { 
+    margin: 20px auto 0; 
+    width: 979px; 
+}
+.clear { 
+    clear: both; 
+}
+
+#logo { float: left; margin: 35px 0 0 20px; height: 89px;}
+#logo a:hover { border-bottom: 1px solid #222; }
+#logo p { padding: 2px 0 0 4px; font-size: .9em; color: #555; }
+#logo h1 { font-size: 2.6em; margin: 0; text-shadow: 1px 1px 1px #000; }
+#logo h1 { color: #fff; }
+
+
+#explore { float: right; margin: 130px 5px 0 0; }
+#explore a, #explore a:visited { color: #777; }
+#explore a:hover { color: red; }
+#explore-link { float: left; height: 25px; padding: 9px 0 0 20px; width: 106px; color: #808080; background: url(../images/explore.gif) no-repeat; }
+#explore-link:hover { color: #fff; }
+
+#menu { clear: left; float: left; height: 43px; margin: 0 0 0 10px; background: url(../images/menu.gif) repeat-x; }
+#menu-left { background: url(../images/menu-corners.gif) no-repeat left top; float: left; width: 9px; height: 43px; }
+#menu-right { background: url(../images/menu-corners.gif) no-repeat left bottom; float: right; width: 9px; height: 43px; }
+
+#menu ul { float: left; padding: 7px 0; }
+#menu li { display: inline; text-transform: uppercase; }
+#menu li { float: left; margin: 0 5px 0 0; padding: 12px 0 15px 20px; color: #777; position: relative; z-index: 2; }
+#menu li a { padding: 12px 20px 15px 0; }
+#menu li a:hover, #menu li a:focus { color: #1295E4; }
+#menu li { background: url(../images/tableft.gif) no-repeat; color: #000; font-weight: bold; }
+#menu li a { background: url(../images/tabright.gif) no-repeat right top; }
+		
+#content-top { clear: both; height: 26px; background: url(../images/content-top.gif) no-repeat; position: relative; margin: 0 !important; margin: -14px 0 0; }
+#content-middle { font-size:1.0em; padding: 0 25px 25px; background: url(../images/content-middle.gif) repeat-y; }
+#content-bottom { clear: both; padding: 6px 0 7px; background: url(../images/content-bottom.gif) no-repeat left bottom; }
+#pitch { text-shadow: 1px 1px 1px #3F6AA2; background: url(../images/pitch.jpg) no-repeat; height: 159px; padding: 50px 40px 0 30px; position: relative; margin: 0 -7px 30px; font-size: 1.3em; font-style: italic; color: #fff;  }
+#pitch h1 { float: left; line-height: 1.3em; font-style: normal; font-size: 1.7em; width: 260px; padding: 0 40px 0 0; height: 150px; font-weight: normal; text-transform: uppercase; }
+#pitch h1 span { font-size: 1.2em; text-transform: lowercase; font-size: .6em; font-style: italic; color: #F4EDC1; }
+
+h3 { font-size: 1.3em; font: bold 1.3em Arial; color: #222; margin: 0 0 10px; }
+
+.column { float: left; width: 283px; margin: 0 40px 0 0; line-height: 2.2em; }
+.column.last { margin-right: 0; }
+.column img { padding: 10px; border: 1px solid #ddd; margin: 0 0 5px; }
+.more a { background: url(../images/bullet.gif) no-repeat 0 7px; padding: 0 0 0 8px; color: #672A6D; font-weight: bold; font-size: .9em; }
+	
+#footer { padding: 20px; color: #999; }
+#links { float: right; }
+#links a { margin: 0 0 0 15px; }
+
+
+/* Additional classes */
+
+.yearhead {
+    font-size:1.6em; 
+    font-weight:400; 
+    margin:20px 0 12px 0; 
+    padding: 5px 0 0 0; 
+    width:100%; 
+    border-top: 1px solid #303030;
+}
+
+#logoimg {
+    float: right;
+    position: relative;
+    background-color: transparent;
+}
+.left {float:left; margin:3px 10px 2px 0;}
+.right {float:right; margin:2px 0 2px 10px;}
+.textright {text-align:right; margin:5px 0;}
+.center {text-align:center;}
+.small {font-size:0.8em;}
+.bold {font-weight:700;}
+.timestamp {font-size:1.2em; margin:-5px 0 15px 10px;}
+.timestamp a {font-weight:400;}
+.announce {background-color:#f4f4f4; border-left:4px solid #ccc; clear:left; color:#505050; font-size:0.9em; line-height:1.5em; margin:10px 0 15px; padding:7px 5px 2px 5px; width:126px;}
+.announce p {margin:10px 0 0; padding:0;}
+.postinfo {background-color:#f4f4f4; border-left:4px solid #ccc; color:#606060; font-size:0.9em; line-height:1.4em; margin:1px 0 20px; padding:8px 5px 8px 8px;}
+.clearing {clear:left; margin:0; padding:0; visibility:hidden;}
+.hide {display:none;}
+.fieldHead_N {
+    background-color: #d8a0a0;
+}
+.fieldHead_A {
+    background-color: #d8d8a0;
+}
+.fieldHead_O {
+    background-color: #ffffff;
+}
+.fieldHead {
+    background-color: #ffffff;
+}
+.red, .red a:link, .red a:visited, .red a:hover {
+    color: red;
+}
+
+#smenu {
+    float: left;
+    border: 1px none black;
+    padding: 2px 2px 2px 2px;
+}

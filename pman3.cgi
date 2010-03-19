@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.53 2010/03/19 00:34:06 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.54 2010/03/19 00:35:00 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -11,7 +11,7 @@ my $VERSION = "3.1.0.1";
 use strict;
 use utf8;
 
-my $debug=1;
+my $debug=0;
 
 use DBI;
 use CGI;
@@ -1782,7 +1782,7 @@ EOM
 <li><a href="$scriptName?MODE=delete;ID=$id" onClick="if( !confirm(\'$msg{'deleteConfirm'}\')) {return false;}">$viewMenu{'delete'}</a></li>
 EOM
         }	    
-	$viewmenu .= "<li><br /></li>";
+	#$viewmenu .= "<li class=\"hide\"></li>";
     }
 
     $viewmenu .= <<EOM;
