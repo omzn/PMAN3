@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.52 2010/03/18 00:31:33 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.53 2010/03/19 00:34:06 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -11,7 +11,7 @@ my $VERSION = "3.1.0.1";
 use strict;
 use utf8;
 
-my $debug=0;
+my $debug=1;
 
 use DBI;
 use CGI;
@@ -1327,7 +1327,13 @@ sub printScreen {
 
     my $header; my $htmlh;
     if (defined($cgi->param('STATIC'))) {
-	$document = HTML::Template->new(filename => "$TMPLDIR/$tmpl_name/static.tmpl");
+	eval {
+	    $document = HTML::Template->new(filename => "$TMPLDIR/$tmpl_name/static.tmpl"); 
+	};
+	if ($@) { 
+	    &printError($@);
+	}
+	
 	($header,$htmlh) = &printHeader;    
 	$document->param(CHARSET => $htmlh);
 	$document->param(MAIN_TITLE => $titleOfSite);
@@ -1338,7 +1344,13 @@ sub printScreen {
 	$doc = $document->output;
 
     } elsif (defined($cgi->param('SSI'))) {
-	$document = HTML::Template->new(filename => "$TMPLDIR/$tmpl_name/none.tmpl");
+	eval {
+	    $document = HTML::Template->new(filename => "$TMPLDIR/$tmpl_name/none.tmpl");
+	};
+	if ($@) { 
+	    &printError($@);
+	}
+
 	($header,$htmlh) = &printHeader;    
 	$document->param(CONTENTS=> &printBody);    
 	$doc = $document->output;
@@ -1379,7 +1391,12 @@ sub printScreen {
 	}
 	$doc = $rss->as_string;
     } else {
-	$document = HTML::Template->new(filename => "$TMPLDIR/$tmpl_name/main.tmpl");
+	eval {
+	    $document = HTML::Template->new(filename => "$TMPLDIR/$tmpl_name/main.tmpl");
+	};
+	if ($@) { 
+	    &printError($@);
+	}
 
 	($header,$htmlh) = &printHeader;    
 	$document->param(CHARSET => $htmlh);
@@ -4103,15 +4120,17 @@ sub registEntry {
     }	    
 
     my $fname = $cgi->param('edit_upfile');
+    print STDERR $fname if $debug;
     if ($fname ne "") {
 	my $fh = $cgi->upload('edit_upfile');
 	# MIMEタイプ取得
 	#my $mimetype = $cgi->uploadInfo($fh)->{'Content-Type'};
 	my $refdata = by_suffix($fh);
 	my ($mimetype, $encoding) = @$refdata;
-	my $file_contents = join('',<$fh>);	
+	my $file_contents = join('',<$fh>);
 	my $filedesc = $cgi->param('files_desc_new');
 	if ($file_contents) {
+	    print STDERR "Do insertFileDB now!" if $debug;
 	    my $a = grep(/new/,@faccess) ? 1 : 0;
 	    &insertFileDB($fh,$mimetype,$file_contents,$a,$filedesc);
 	}
