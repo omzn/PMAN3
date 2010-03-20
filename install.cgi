@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: install.cgi,v 1.20 2010/03/19 00:34:06 o-mizuno Exp $
+# $Id: install.cgi,v 1.21 2010/03/20 07:18:32 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #
@@ -748,7 +748,7 @@ EOM
 }
 
 sub finish_page {
-    print $cgi->redirect("./pman3.cgi?LOGIN=on");
+    print $cgi->redirect("./pman3.cgi?MODE=list");
 }
 
 # 日本語が含まれていれば1
