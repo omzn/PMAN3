@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: install.cgi,v 1.21 2010/03/20 07:18:32 o-mizuno Exp $
+# $Id: install.cgi,v 1.22 2010/03/20 07:19:12 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #
@@ -7,7 +7,7 @@
 #
 #              (c) 2002-2010 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.1";
+my $VERSION = "3.1.0.2";
 # 
 # =================================================================================
 use strict;

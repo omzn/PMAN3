@@ -1,11 +1,11 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.54 2010/03/19 00:35:00 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.55 2010/03/20 07:18:44 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
 #              (c) 2002-2010 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.1.0.1";
+my $VERSION = "3.1.0.2";
 # 
 # =================================================================================
 use strict;
@@ -132,6 +132,7 @@ my $dbh = DBI->connect("dbi:SQLite:dbname=$DB", undef, undef,
 $dbh->{sqlite_unicode} = 1; # これがperl 5.8.5未満では動かない
 
 &manageSession;
+&initialLaunch;
 # キャッシュ読み込み処理の実装部
 #   LOGIN状態でない場合のみ．
 #   ここでgenerateURLの内容をキーとしてcacheDBを検索．
@@ -158,6 +159,42 @@ $query = &makeQuery;
 
 $dbh->disconnect;
 exit(0);
+
+#=====================================================
+# 初期起動での誘導
+#=====================================================
+
+sub initialLaunch {
+    my $SQL;
+    my $info;
+    $SQL = "SELECT * FROM ptypes";
+    my $res = $dbh->selectrow_array($SQL);
+    if ($res == ()) {
+	unless ($login) {
+	    $info = << EOM;
+<p><a href="$scriptname?LOGIN=on">ログイン</a></p>
+<p><a href="$scriptname?LOGIN=on">Login</a></p>
+EOM
+            &printInfo($info);
+	} else {
+	    $info = << EOM;
+<p><a href="$scriptname?LOGIN=on">カテゴリ設定</a></p>
+<p><a href="$scriptname?MODE=category">Category setting</a></p>
+EOM
+            &printInfo($info);
+	}
+    } else {
+	$SQL = "SELECT * FROM bib";
+	$res = $dbh->selectrow_array($SQL);
+	if ($res == ()) {
+	    $info = << EOM;
+<p><a href="$scriptname?LOGIN=on">文献追加</a></p>
+<p><a href="$scriptname?MODE=add">Add publication</a></p>
+EOM
+            &printInfo($info);
+	}
+    }
+}
 
 #=====================================================
 # Session 管理
@@ -1243,6 +1280,9 @@ sub getOptionsDB {
 			      {AutoCommit => 0, RaiseError => 1 });
 	$odbh->{sqlite_unicode} = 1;
     };
+    if ($@) {
+	&printError($@);
+    }
     my $SQL = "SELECT name FROM sqlite_master WHERE type='table'"; 
     eval {
 	my $ref = $odbh->selectall_arrayref($SQL);
@@ -1265,6 +1305,9 @@ sub getOptionsDB {
 	    $odbh->commit;
 	}
     };
+    if ($@) {
+	&printError($@);
+    }
 
     # odbhからoption取得
     foreach my $n (keys(%opts)) {
@@ -1437,7 +1480,14 @@ sub printError {
     my $message = shift;
 
     my $document = HTML::Template->new(filename => "$TMPLDIR/$tmpl_name/error.tmpl");
-    my $l = $session->param('LANG') || "ja";
+    
+    my $l;
+    eval {
+	$l = $session->param('LANG') || "ja";
+    };
+    if ($@) {
+	$l = "en";
+    }
     require "$LIBDIR/lang.$l.pl";
 
     my ($header,$htmlh) = &printHeader;    
@@ -1450,6 +1500,49 @@ sub printError {
     $document->param(CONTENTS=> $message);    
     $document->param(FOOTER=> &printFooter);
 
+    my $doc = $document->output;
+
+    print $header;
+    if (utf8::is_utf8($doc)) {
+	print encode('utf-8', $doc);
+    } else {
+	print $doc;
+    }
+
+    $dbh->disconnect;
+    exit(0);
+}
+
+# 初期ガイド表示
+sub printInfo {
+    my $message = shift;
+    my $document = HTML::Template->new(filename => "$TMPLDIR/$tmpl_name/main.tmpl");
+    
+    my $l;
+    eval {
+	$l = $session->param('LANG') || "ja";
+    };
+    if ($@) {
+	$l = "en";
+    }
+    require "$LIBDIR/lang.$l.pl";
+
+    my ($header,$htmlh) = &printHeader;    
+    $document->param(CHARSET => $htmlh);
+    
+    $document->param(MAIN_TITLE => $titleOfSite);
+    $document->param(PAGE_TITLE => "Initial Setup");
+    
+    $document->param(TOPMENU => "");
+    $document->param(SEARCHMENU => "");
+    $document->param(VIEWMENU => "");
+    
+    $document->param(TAGMENU => "");
+    $document->param(MESSAGEMENU => "no bib is registered.");
+    
+    $document->param(CONTENTS=> $message);    
+    $document->param(FOOTER=> &printFooter);
+    
     my $doc = $document->output;
 
     print $header;
