@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: install.cgi,v 1.23 2010/03/20 07:22:50 o-mizuno Exp $
+# $Id: install.cgi,v 1.24 2010/03/20 11:45:45 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #
@@ -85,7 +85,7 @@ Content-Type: text/html; charset=utf-8
     <META http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta http-equiv="Pragma" content="no-cache"> 
     <meta http-equiv="Content-Style-Type" content="text/css" />
-    <link rel="stylesheet" type="text/css" href="css/pman.css" />
+    <link rel="stylesheet" type="text/css" href="tmpl/default/pman.css" />
     </head>
     <body>
       <div id="container">
@@ -243,7 +243,7 @@ Content-Type: text/html; charset=utf-8
     <META http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta http-equiv="Pragma" content="no-cache"> 
     <meta http-equiv="Content-Style-Type" content="text/css" />
-    <link rel="stylesheet" type="text/css" href="css/pman.css" />
+    <link rel="stylesheet" type="text/css" href="tmpl/default/pman.css" />
     </head>
     <body>
       <div id="container">
@@ -508,7 +508,7 @@ Content-Type: text/html; charset=utf-8
     <META http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta http-equiv="Pragma" content="no-cache"> 
     <meta http-equiv="Content-Style-Type" content="text/css" />
-    <link rel="stylesheet" type="text/css" href="css/pman.css" />
+    <link rel="stylesheet" type="text/css" href="tmpl/default/pman.css" />
     </head>
     <body>
       <div id="container">
@@ -575,7 +575,7 @@ Content-Type: text/html; charset=utf-8
     <META http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta http-equiv="Pragma" content="no-cache"> 
     <meta http-equiv="Content-Style-Type" content="text/css" />
-    <link rel="stylesheet" type="text/css" href="css/pman.css" />
+    <link rel="stylesheet" type="text/css" href="tmpl/default/pman.css" />
     </head>
     <body>
       <div id="container">
