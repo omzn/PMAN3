@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.62 2010/03/20 15:32:28 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.63 2010/03/20 15:39:07 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -1610,7 +1610,7 @@ EOM
 EOM
     }
     $topmenu .= <<EOM;
-  Help: <a class="toptab" href="http://www-ise4.ist.osaka-u.ac.jp/~o-mizuno/pman3help.html">$topMenu{'help'}</a><span class="hide"> | </span>
+  Help: <a class="toptab" href="http://se.is.kit.ac.jp/~o-mizuno/pman3help.html">$topMenu{'help'}</a><span class="hide"> | </span>
   </p>
 EOM
 
@@ -3240,7 +3240,7 @@ sub printFooter {
     $footer .=<<EOM;
 <p class="center">
 This site is maintained by <a href="$maintainerAddress">$maintainerName</a>.<br />
-<a href="http://www-ise4.ist.osaka-u.ac.jp/~o-mizuno/pman3.html">PMAN $VERSION</a> - Paper MANagement system / (C) 2002-2010, <a href="http://www-ise4.ist.osaka-u.ac.jp/~o-mizuno/">Osamu Mizuno</a> / All rights reserved.
+<a href="http://se.is.kit.ac.jp/~o-mizuno/pman3.html">PMAN $VERSION</a> - Paper MANagement system / (C) 2002-2010, <a href="http://se.is.kit.ac.jp/~o-mizuno/">Osamu Mizuno</a> / All rights reserved.
 <br />
 Time to show this page: $drawingTime seconds.
 </p>
