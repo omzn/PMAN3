@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.60 2010/03/20 11:29:30 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.61 2010/03/20 13:52:07 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -127,9 +127,13 @@ our %msg;
 use Time::HiRes qw/gettimeofday tv_interval/;
 my $t0 = [Time::HiRes::gettimeofday];
 
-my $dbh = DBI->connect("dbi:SQLite:dbname=$DB", undef, undef, 
-		       {AutoCommit => 0, RaiseError => 1 });
-$dbh->{sqlite_unicode} = 1; # これがperl 5.8.5未満では動かない
+my $dbh;
+eval {
+    $dbh  = DBI->connect("dbi:SQLite:dbname=$DB", undef, undef, 
+			 {AutoCommit => 0, RaiseError => 1 });
+    $dbh->{sqlite_unicode} = 1; # これがperl 5.8.5未満では動かない
+};
+&printError('Database not found. Run install.cgi first.') if ($@);
 
 &manageSession;
 &initialLaunch;
@@ -1267,6 +1271,7 @@ sub expireCacheFromCDB {
 				 {AutoCommit => 0, RaiseError => 1 });
 	    $cdbh->{sqlite_unicode} = 1;
 	};
+	return if ($@);
 	my $SQL = 'DELETE FROM cache;';
 	eval {
 	    $cdbh->do($SQL);
