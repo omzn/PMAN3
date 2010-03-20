@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.59 2010/03/20 07:47:10 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.60 2010/03/20 11:29:30 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -172,7 +172,8 @@ sub initialLaunch {
     if ($res == ()) {
 	unless ($login) {
 	    $info = <<EOM;
-<p>ログインしてください</p>
+<p>初期設定のために，ログインしてください．</p>
+<p>Please login for your initial setup.</p>
 <p class="login">
 <form action="$scriptName" method="POST">
 Password: 
@@ -185,8 +186,8 @@ EOM
 	}
 	if ($session->param('MODE') ne "category") {
 	    $info = <<EOM;
-<p><a href="$scriptName?MODE=category">カテゴリ設定</a></p>
-<p><a href="$scriptName?MODE=category">Category setting</a></p>
+<p>カテゴリが設定されていません．「<a href="$scriptName?MODE=category">カテゴリ設定</a>」へ移動してください．</p>
+<p>No category is found. Please go to <a href="$scriptName?MODE=category">category setting</a>.</p>
 EOM
             &printInfo($info);
 	}
@@ -195,8 +196,8 @@ EOM
 	$res = $dbh->selectrow_array($SQL);
 	if ($res == () && $session->param('MODE') ne "add") {
 	    $info = <<EOM;
-<p><a href="$scriptName?MODE=add">文献追加</a></p>
-<p><a href="$scriptName?MODE=add">Add publication</a></p>
+<p>文献が１つも登録されていません．「<a href="$scriptName?MODE=add">文献追加</a>」から文献を登録してください．</p>
+<p>No publication is registered. Please go to <a href="$scriptName?MODE=add">add publication</a>.</p>
 EOM
             &printInfo($info);
 	}
