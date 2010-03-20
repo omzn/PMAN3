@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.58 2010/03/20 07:36:19 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.59 2010/03/20 07:47:10 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -183,7 +183,7 @@ Password:
 EOM
             &printInfo($info);
 	}
-	if ($cgi->param('MODE') ne "category") {
+	if ($session->param('MODE') ne "category") {
 	    $info = <<EOM;
 <p><a href="$scriptName?MODE=category">カテゴリ設定</a></p>
 <p><a href="$scriptName?MODE=category">Category setting</a></p>
@@ -193,7 +193,7 @@ EOM
     } else {
 	$SQL = "SELECT * FROM bib";
 	$res = $dbh->selectrow_array($SQL);
-	if ($res == () && $cgi->param('MODE') ne "add") {
+	if ($res == () && $session->param('MODE') ne "add") {
 	    $info = <<EOM;
 <p><a href="$scriptName?MODE=add">文献追加</a></p>
 <p><a href="$scriptName?MODE=add">Add publication</a></p>
