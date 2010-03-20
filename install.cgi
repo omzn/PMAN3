@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: install.cgi,v 1.25 2010/03/20 11:46:58 o-mizuno Exp $
+# $Id: install.cgi,v 1.26 2010/03/20 15:32:28 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #
@@ -61,14 +61,14 @@ sub check_module_ver {
 	# モジュールが存在すれば読み込む
 	eval "use $module;";
 	if ($@) {
-	    return 0;
+	    return (0,-1);
 	} else {
 	    my $v = $module."::VERSION";
 	    eval "\$v = \$$v;";
 	    if ($v < $ver) {
-		return 0;
+		return (0,$v);
 	    } else {
-		return $v;
+		return (1,$v);
 	    }
 	}
 }
@@ -144,11 +144,17 @@ EOM
     my %installed;
 
     foreach (sort(keys(%required_modules))) {    
-	if (my $v = &check_module_ver($_,$required_modules{$_})) {
+	my ($isreq,$v) = &check_module_ver($_,$required_modules{$_});
+	if ($isreq) {
 	    $installed{$_} = "OK: インストール済 ($v)";
 	} else {
-	    $installed{$_} = "<span class=\"red\"><b>NG: インストールされていません (req. $required_modules{$_} > $v)</b></span>";
-	    $req ++;
+	    if ($v < 0) {
+		$installed{$_} = "<span class=\"red\"><b>NG: インストールされていません </b></span>";
+		$req ++;
+	    } else {
+		$installed{$_} = "<span class=\"red\"><b>NG: モジュールのバージョンが古いです (req. $required_modules{$_} > inst. $v)</b></span>";
+		$req ++;
+	    }
 	}
 	$doc .= <<EOM;
 <tr>

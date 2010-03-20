@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.61 2010/03/20 13:52:07 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.62 2010/03/20 15:32:28 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -1293,9 +1293,7 @@ sub getOptionsDB {
 			      {AutoCommit => 0, RaiseError => 1 });
 	$odbh->{sqlite_unicode} = 1;
     };
-    if ($@) {
-	&printError($@);
-    }
+    &printError($@) if ($@) ;
     my $SQL = "SELECT name FROM sqlite_master WHERE type='table'"; 
     eval {
 	my $ref = $odbh->selectall_arrayref($SQL);
@@ -1318,9 +1316,7 @@ sub getOptionsDB {
 	    $odbh->commit;
 	}
     };
-    if ($@) {
-	&printError($@);
-    }
+    &printError($@) if ($@);
 
     # odbhからoption取得
     foreach my $n (keys(%opts)) {
@@ -1386,9 +1382,7 @@ sub printScreen {
 	eval {
 	    $document = HTML::Template->new(filename => "$TMPLDIR/$tmpl_name/static.tmpl"); 
 	};
-	if ($@) { 
-	    &printError($@);
-	}
+	&printError($@) if ($@);
 	
 	($header,$htmlh) = &printHeader;    
 	$document->param(CHARSET => $htmlh);
