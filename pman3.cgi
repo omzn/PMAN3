@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.56 2010/03/20 07:25:11 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.58 2010/03/20 07:36:19 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -172,24 +172,31 @@ sub initialLaunch {
     if ($res == ()) {
 	unless ($login) {
 	    $info = <<EOM;
-<p><a href="$scriptname?LOGIN=on">ログイン</a></p>
-<p><a href="$scriptname?LOGIN=on">Login</a></p>
+<p>ログインしてください</p>
+<p class="login">
+<form action="$scriptName" method="POST">
+Password: 
+<input type="password" name="PASSWD" size="20" />
+<input type="submit" value="Login" />
+</form>
+</p>
 EOM
             &printInfo($info);
-	} else {
+	}
+	if ($cgi->param('MODE') ne "category") {
 	    $info = <<EOM;
-<p><a href="$scriptname?LOGIN=on">カテゴリ設定</a></p>
-<p><a href="$scriptname?MODE=category">Category setting</a></p>
+<p><a href="$scriptName?MODE=category">カテゴリ設定</a></p>
+<p><a href="$scriptName?MODE=category">Category setting</a></p>
 EOM
             &printInfo($info);
 	}
     } else {
 	$SQL = "SELECT * FROM bib";
 	$res = $dbh->selectrow_array($SQL);
-	if ($res == ()) {
+	if ($res == () && $cgi->param('MODE') ne "add") {
 	    $info = <<EOM;
-<p><a href="$scriptname?LOGIN=on">文献追加</a></p>
-<p><a href="$scriptname?MODE=add">Add publication</a></p>
+<p><a href="$scriptName?MODE=add">文献追加</a></p>
+<p><a href="$scriptName?MODE=add">Add publication</a></p>
 EOM
             &printInfo($info);
 	}
