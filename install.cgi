@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: install.cgi,v 1.24 2010/03/20 11:45:45 o-mizuno Exp $
+# $Id: install.cgi,v 1.25 2010/03/20 11:46:58 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #
@@ -147,7 +147,7 @@ EOM
 	if (my $v = &check_module_ver($_,$required_modules{$_})) {
 	    $installed{$_} = "OK: インストール済 ($v)";
 	} else {
-	    $installed{$_} = '<span class="red"><b>NG: インストールされていません (req. $required_modules{$_} > $v)</b></span>';
+	    $installed{$_} = "<span class=\"red\"><b>NG: インストールされていません (req. $required_modules{$_} > $v)</b></span>";
 	    $req ++;
 	}
 	$doc .= <<EOM;
