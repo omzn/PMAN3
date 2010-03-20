@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: install.cgi,v 1.22 2010/03/20 07:19:12 o-mizuno Exp $
+# $Id: install.cgi,v 1.23 2010/03/20 07:22:50 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #
@@ -220,8 +220,7 @@ EOM
         </div>
         <div id="footer">
             <p class="center">
-PMAN3 is created by <a href="http://se.is.kit.ac.jp/~o-mizuno/">o-mizuno</a>.<br />
-<a href="http://www-ise4.ist.osaka-u.ac.jp/~o-mizuno/pman3.html">PMAN 3.1</a> - Paper MANagement system / (C) 2002-2010, <a href="http://se.is.kit.ac.jp/~o-mizuno/">Osamu Mizuno</a> / All rights reserved.
+<a href="http://se.is.kit.ac.jp/~o-mizuno/pman3.html">PMAN $VERSION</a> - Paper MANagement system / (C) 2002-2010, <a href="http://se.is.kit.ac.jp/~o-mizuno/">Osamu Mizuno</a> / All rights reserved.
 </p>
         </div>
       </div>
@@ -488,8 +487,7 @@ EOM
         </div>
         <div id="footer">
             <p class="center">
-PMAN3 is created by <a href="http://se.is.kit.ac.jp/~o-mizuno/">o-mizuno</a>.<br />
-<a href="http://www-ise4.ist.osaka-u.ac.jp/~o-mizuno/pman3.html">PMAN 3.1</a> - Paper MANagement system / (C) 2002-2010, <a href="http://se.is.kit.ac.jp/~o-mizuno/">Osamu Mizuno</a> / All rights reserved.
+<a href="http://se.is.kit.ac.jp/~o-mizuno/pman3.html">PMAN $VERSION</a> - Paper MANagement system / (C) 2002-2010, <a href="http://se.is.kit.ac.jp/~o-mizuno/">Osamu Mizuno</a> / All rights reserved.
 </p>
         </div>
       </div>
@@ -549,8 +547,7 @@ Content-Type: text/html; charset=utf-8
         </div>
         <div id="footer">
             <p class="center">
-PMAN3 is created by <a href="http://se.is.kit.ac.jp/~o-mizuno/">o-mizuno</a>.<br />
-<a href="http://www-ise4.ist.osaka-u.ac.jp/~o-mizuno/pman3.html">PMAN 3.1</a> - Paper MANagement system / (C) 2002-2010, <a href="http://se.is.kit.ac.jp/~o-mizuno/">Osamu Mizuno</a> / All rights reserved.
+<a href="http://se.is.kit.ac.jp/~o-mizuno/pman3.html">PMAN $VERSION</a> - Paper MANagement system / (C) 2002-2010, <a href="http://se.is.kit.ac.jp/~o-mizuno/">Osamu Mizuno</a> / All rights reserved.
 </p>
         </div>
       </div>
@@ -733,8 +730,7 @@ EOM
         </div>
         <div id="footer">
             <p class="center">
-PMAN3 is created by <a href="http://se.is.kit.ac.jp/~o-mizuno/">o-mizuno</a>.<br />
-<a href="http://www-ise4.ist.osaka-u.ac.jp/~o-mizuno/pman3.html">PMAN 3.1</a> - Paper MANagement system / (C) 2002-2010, <a href="http://se.is.kit.ac.jp/~o-mizuno/">Osamu Mizuno</a> / All rights reserved.
+<a href="http://se.is.kit.ac.jp/~o-mizuno/pman3.html">PMAN $VERSION</a> - Paper MANagement system / (C) 2002-2010, <a href="http://se.is.kit.ac.jp/~o-mizuno/">Osamu Mizuno</a> / All rights reserved.
 </p>
         </div>
       </div>

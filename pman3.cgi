@@ -1,11 +1,11 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.55 2010/03/20 07:18:44 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.57 2010/03/20 07:26:20 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
 #              (c) 2002-2010 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.1.0.2";
+my $VERSION = "3.1";
 # 
 # =================================================================================
 use strict;
@@ -171,15 +171,15 @@ sub initialLaunch {
     my $res = $dbh->selectrow_array($SQL);
     if ($res == ()) {
 	unless ($login) {
-	    $info = << EOM;
-<p><a href="$scriptname?LOGIN=on">ログイン</a></p>
-<p><a href="$scriptname?LOGIN=on">Login</a></p>
+	    $info = <<EOM;
+<p><a href="$scriptName?LOGIN=on">ログイン</a></p>
+<p><a href="$scriptName?LOGIN=on">Login</a></p>
 EOM
             &printInfo($info);
 	} else {
-	    $info = << EOM;
-<p><a href="$scriptname?LOGIN=on">カテゴリ設定</a></p>
-<p><a href="$scriptname?MODE=category">Category setting</a></p>
+	    $info = <<EOM;
+<p><a href="$scriptName?LOGIN=on">カテゴリ設定</a></p>
+<p><a href="$scriptName?MODE=category">Category setting</a></p>
 EOM
             &printInfo($info);
 	}
@@ -187,9 +187,9 @@ EOM
 	$SQL = "SELECT * FROM bib";
 	$res = $dbh->selectrow_array($SQL);
 	if ($res == ()) {
-	    $info = << EOM;
-<p><a href="$scriptname?LOGIN=on">文献追加</a></p>
-<p><a href="$scriptname?MODE=add">Add publication</a></p>
+	    $info = <<EOM;
+<p><a href="$scriptName?LOGIN=on">文献追加</a></p>
+<p><a href="$scriptName?MODE=add">Add publication</a></p>
 EOM
             &printInfo($info);
 	}
