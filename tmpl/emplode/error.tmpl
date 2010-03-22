@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title><TMPL_VAR NAME="MAIN_TITLE"></title>
+    <TMPL_VAR NAME="CHARSET">
+      <meta http-equiv="Pragma" content="no-cache"> 
+      <meta http-equiv="Content-Style-Type" content="text/css" />
+      <link rel="stylesheet" type="text/css" href="tmpl/emplode/style.css" />
+  </head>
+  <body>
+    <div id="header">
+      <div class="center_wrapper">
+	<div id="toplinks">
+	  <div id="toplinks_inner">
+            <TMPL_VAR NAME="TOPMENU">
+	  </div>
+	</div>
+	<div class="clearer">&nbsp;</div>
+        <div id="site_title">
+	    <a class="logoimg" href="http://se.is.kit.ac.jp/~o-mizuno/pman3.html"><img class="logo" src="img/logo.png" /></a>
+            <h1><a href="#">Error</a></h1>
+        </div>
+      </div>
+    </div>
+
+    <div id="navigation">
+      <div class="center_wrapper">
+        <TMPL_VAR NAME="VIEWMENU">
+	  <div class="clearer">&nbsp;</div>
+      </div>
+    </div>
+
+    <div id="main_wrapper_outer">
+      <div id="main_wrapper_inner">
+	<div class="center_wrapper">
+	  <div class="left" id="main">
+	    <div id="main_content">
+              <TMPL_VAR NAME="CONTENTS">
+	    </div>
+	  </div>
+	  <div class="right" id="sidebar">
+	    <div id="sidebar_content">
+	    </div>
+	  </div>
+	  <div class="clearer">&nbsp;</div>
+	</div>
+      </div>
+    </div>
+    <div id="footer">
+      <div class="center_wrapper">
+	<div class="left">
+            <TMPL_VAR NAME="FOOTER">
+	</div>
+	<div class="right">
+	  <a href="http://templates.arcsin.se/">Website template</a> by <a href="http://arcsin.se/">Arcsin</a> 
+	</div>
+	<div class="clearer">&nbsp;</div>
+      </div>
+    </div>
+  </body>
+</html>
