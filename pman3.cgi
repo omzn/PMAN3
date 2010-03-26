@@ -1,11 +1,11 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.63 2010/03/20 15:39:07 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.64 2010/03/26 07:17:55 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
 #              (c) 2002-2010 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.1";
+my $VERSION = "3.1.1";
 # 
 # =================================================================================
 use strict;
@@ -36,6 +36,7 @@ my $SESS_DB = "./db/sess.db";
 my $CACHE_DB = "./db/cache.db";
 my $OPTIONS_DB = "./db/config.db";
 my $MIMETEXPATH = "$LIBDIR/mimetex.cgi";
+my $IMGTEXPATH = "$LIBDIR/imgtex.fcgi";
 
 #=====================================================
 # Options 
@@ -53,6 +54,7 @@ my $use_AutoJapaneseTags = 0;
 my $use_RSS = 0;
 my $use_XML = 0;
 my $use_mimetex = 0;
+my $use_imgtex = 0;
 my $use_latexpdf = 0;
 
 my $latexcmd = "platex -halt-on-error";
@@ -67,6 +69,7 @@ my %opts = (
     use_DBforSession     => $use_DBforSession,
     use_AutoJapaneseTags => $use_AutoJapaneseTags,
     use_mimetex          => $use_mimetex,
+    use_imgtex           => $use_imgtex,
     use_latexpdf         => $use_latexpdf,
     PASSWD               => $PASSWD,
     titleOfSite          => $titleOfSite,
@@ -97,13 +100,13 @@ my $bib;
 my %ptype;
 my @jname;
 my @ptype_order ;
-my @bb_order = ( 'title', 'title_e', 'author', 'author_e', 'editor', 'editor_e', 'key',
-		 'journal', 'journal_e', 'booktitle',
-		 'booktitle_e', 'series', 'volume', 'number', 'chapter', 'pages',
-		 'edition', 'school', 'type', 'institution', 'organization',
-		 'publisher', 'publisher_e', 'address', 'month', 'year',
-		 'howpublished', 'acceptance', 'impactfactor', 'url', 'note', 'annote',
-		 'abstract' );
+my @bb_order = ( 'title', 'title_e', 'author', 'author_e', 'editor', 
+		 'editor_e', 'key', 'journal', 'journal_e', 'booktitle',
+		 'booktitle_e', 'series', 'volume', 'number', 'chapter', 
+		 'pages', 'edition', 'school', 'type', 'institution', 
+		 'organization', 'publisher', 'publisher_e', 'address', 'month', 
+		 'year', 'howpublished', 'acceptance', 'impactfactor', 'url', 
+		 'note', 'annote', 'abstract' );
 my %mlist = ("0,en"=>"","0,ja"=>"",
 	     "1,en"=>"January","1,ja"=>"1月","2,en"=>"February","2,ja"=>"2月",
 	     "3,en"=>"March","3,ja"=>"3月","4,en"=>"April","4,ja"=>"4月",
@@ -2192,10 +2195,31 @@ EOM
     } elsif ($mode eq "table") {
 	my $lang=$session->param('LANG') || 'ja';
 
-#	$body .= <<EOM;
-#<table class="opttable">
-#</table>
-#EOM
+	$body .= <<EOM;
+<table class="tableview" id="opttable">
+<form action="$scriptName" method="POST">
+EOM
+        my @bbs = @bb_order;
+	unshift(@bbs,"ptype");
+	unshift(@bbs,"style");
+	unshift(@bbs,"id");
+	for (0..$#bbs) {
+	    if ($_ % 6 == 0) {
+		$body .= "<tr>";
+	    }
+	    my $txt = $msg{"Head_".$bbs[$_]};
+	    $body .= <<EOM;
+<td><input type="checkbox" name="TOPT" id="topt$_" value="$bbs[$_]"><label for="topt$_">$txt</label></td>
+EOM
+	    if ($_ % 6 == 5) {
+		$body .= "</tr>";
+	    }
+	} 
+	$body .= <<EOM;
+</form>
+</table>
+<br />
+EOM
 
 	$body .= <<EOM;
 <table class="tableview" id="bibtable">
@@ -2847,6 +2871,38 @@ EOM
 EOM
     } else {
         $body .= "$msg{'notInstalled'}: XML::Simple";
+    }
+	$body .= <<EOM;
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'use_imgtex'}</td>
+  <td class="fieldBody" width="60%">$msg{'use_imgtex_exp'}</td> 
+  <td class="fieldBody" width="15%">
+EOM
+    if (-f $IMGTEXPATH && -x $IMGTEXPATH) {
+#        $body .= $cgi->popup_menu(-name=>'opt_use_mimetex',
+#				  -default=>"$use_mimetex",
+#				  -values=>['1','0'],
+#				  -labels=>{ '1'=>$msg{'use'},
+#					     '0'=>$msg{'dontuse'} }
+#	);
+	$body .= <<EOM;
+<select name="opt_use_imgtex">
+EOM
+        %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
+        for ( 0 .. 1 ) {
+	    my $selected = '';
+	    $selected = "selected" if ($use_imgtex == $_);
+	    $body .= <<EOM;
+<option value="$_" $selected>$labels{$_}</option>
+EOM
+        }
+        $body .= <<EOM;
+      </select>
+EOM
+    } else {
+        $body .= "$msg{'notInstalled'}: $IMGTEXPATH";
     }
 	$body .= <<EOM;
   </td>
@@ -3564,8 +3620,10 @@ sub capitalizePaperTitle {
 
     # 日本語を含んでいたら数式処理のみ
     if (&isJapanese($$string) && ($mode ne "latex" && $mode ne "PDF")) {
-	if($use_mimetex) {
+	if ($use_mimetex) {
 	    $$string=~s/\$([^\$]*)\$/<img class="math" src="${MIMETEXPATH}\?\1" \/>/g;
+	} elsif ($use_imgtex) {
+	    $$string=~s/\$([^\$]*)\$/<img class="math" src="${IMGTEXPATH}\?{\$\1\$}" \/>/g;
 	} else {
 	    $$string=~s/\$([^\$]*)\$/\1/g;
 	}
@@ -3581,6 +3639,8 @@ sub capitalizePaperTitle {
 	    next if ($mode eq "latex" || $mode eq "PDF") ; 
  	    if($use_mimetex) {
 		$words[$i]=~s/\$([^\$]*)\$/<img class="math" src="${MIMETEXPATH}\?\1" \/>/g;
+ 	    } elsif($use_imgtex) {
+		$words[$i]=~s/\$([^\$]*)\$/<img class="math" src="${IMGTEXPATH}\?{\$\1\$}" \/>/g;
 	    } else {
 		$words[$i]=~s/\$([^\$]*)\$/\1/g;
 	    }
@@ -3687,7 +3747,12 @@ EOM
 		  )
 	) {
 	$vl=~s/\n/<br \/>/ig;
-	$vl=~s/\$([^\$]*)\$/<img class="math" src="${MIMETEXPATH}\?\1" \/>/g if ($use_mimetex);
+	if ($use_mimetex) {
+	    $vl=~s/\$([^\$]*)\$/<img class="math" src="${MIMETEXPATH}\?\1" \/>/g 
+	} elsif ($use_imgtex) {
+	    $vl=~s/\$([^\$]*)\$/<img class="math" src="${IMGTEXPATH}\?{\$\1\$}" \/>/g 
+        } else {
+	}
 	$ent .= <<EOM;
 <tr>
   <td class="fieldHead">
@@ -4476,7 +4541,8 @@ sub doConfigSetting {
     # texHeader, texFooter,
     my @op = ('titleOfSite','maintainerName','maintainerAddress',
 	      'use_cache','use_DBforSession','use_AutoJapaneseTags','use_RSS',
-	      'use_XML','use_mimetex','texHeader','texFooter','use_latexpdf',
+	      'use_XML','use_mimetex','use_imgtex','texHeader','texFooter',
+	      'use_latexpdf',
 	      'latexcmd','dvipdfcmd','tmpl_name');
     foreach (@op) {
 	my $param = $cgi->param('opt_'.$_);

@@ -276,6 +276,9 @@ our %msg = (
     "use_mimetex"=>"mimetexの利用",
     "use_mimetex_exp"=>"mimetex.cgiを利用してタイトル中の数式を表示します．mimetex.cgiをlib/下にインストールする必要があります．",
 
+    "use_imgtex"=>"imgtexの利用 [EXPERIMENTAL]",
+    "use_imgtex_exp"=>"imgtex.fcgiを利用してタイトル中の数式を表示します．imgtex.fcgiをlib/下にインストールする必要があります．また，imgtex.fcgiがご利用の環境で適切に動作するように設定する必要があります．",
+
     "set_passwd"=>"パスワード設定",
     "set_passwd_exp"=>"管理者モードになるためのパスワードを設定します．",
     "set_titleofsite"=>"サイトタイトル設定",

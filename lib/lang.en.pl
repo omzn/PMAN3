@@ -269,10 +269,13 @@ our %msg = (
     "use_RSS_exp"=>"Enables RSS feed feature. (Requires XML::RSS module.)",
 
     "use_XML"=>"XML output",
-    "use_XML_exp"=>"Enables XML output feature. (Requires XML::Simple module.)",
+    "use_XML_exp"=>"Enable XML output feature. (Requires XML::Simple module.)",
 
     "use_mimetex"=>"mimetex",
-    "use_mimetex_exp"=>"Ebables mimetex.cgi. Formulas are shown in TeX format. (Requires mimetex.cgi under lib/ directory.)",
+    "use_mimetex_exp"=>"Ebable mimetex.cgi. Formulas are shown in TeX format. (Requires mimetex.cgi under lib/ directory.)",
+
+    "use_imgtex"=>"imgtex [EXPERIMENTAL]",
+    "use_imgtex_exp"=>"Ebable imgtex.fcgi. Formulas are shown in TeX format. (Requires imgtex.fcgi under lib/ directory. You may need to modify imgtex.fcgi for your environment. )",
 
     "set_passwd"=>"Password setting",
     "set_passwd_exp"=>"Set password for administrator.",
