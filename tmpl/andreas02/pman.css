@@ -260,3 +260,6 @@ input,select,textarea {
 .ptd {
     border-right: 1px solid #f0f0f0;
 }
+img.math {
+    text-align: center;
+}
