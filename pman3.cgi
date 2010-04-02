@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.64 2010/03/26 07:17:55 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.65 2010/04/02 15:43:26 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -2248,6 +2248,7 @@ EOM
 			     $$abib{'author_e'}	: $$abib{'author'})) ;
 	    for (0..$#aa) {
 		my $enc = uri_escape_utf8($aa[$_]);
+		$enc=~s/\"/\%34/g;
 		my $htmenc = HTML::Entities::encode($aa[$_]);
 		$aa[$_] = "<a title=\"$htmenc\" href=\"$scriptName?A=$enc\">$aa[$_]</a>";
 	    }
@@ -3373,6 +3374,7 @@ sub createAList {
 	}	#追加(keyがあればそちらで検索) by Manabe
 	$enc =~s/(^\s*|\s*$)//;
 	$enc = uri_escape_utf8($enc);
+	$enc=~s/\"/\%34/g;
 
 	# 下線処理 (始)
 	my $ul1 = '';
@@ -3419,7 +3421,7 @@ sub createAList {
 		    if (!$isJ) {
 			my @newas;
 			foreach (split(/\s+/,$as[1])) { # First内をスペース分割
-			    $_=~s/^(.).*$/\U$1\./; # 頭文字だけ残す
+			    $_=~s/^([^a-zA-Z]*[a-zA-Z][^a-zA-Z\.]*).*$/\U$1\./; # 頭文字だけ残す
 			    push(@newas,$_);
 			}
 			$as[1]=join(' ',@newas);
@@ -3436,7 +3438,8 @@ sub createAList {
 		    if (!$isJ) {
 			my @newas;
 			foreach (split(/\s+/,$as[2])) {
-			    $_=~s/^(.).*$/\U$1\./;
+			    $_=~s/^([^a-zA-Z]*[a-zA-Z][^a-zA-Z\.]*).*$/\U$1\./; # 頭文字だけ残す
+#			    $_=~s/^(.).*$/\U$1\./;
 			    push(@newas,$_);
 			}
 			$as[2]=join(' ',@newas);
@@ -3456,7 +3459,8 @@ sub createAList {
 		if (!$isJ) { # First Last -> Last
 		    my @newas;
 		    foreach (@as) {
-			$_=~s/^(.).*$/\U$1\./;
+			$_=~s/^([^a-zA-Z]*[a-zA-Z][^a-zA-Z\.]*).*$/\U$1\./; # 頭文字だけ残す
+			#$_=~s/^(.).*$/\U$1\./;
 			push(@newas,$_);
 		    }
 		    $authors[$_] = join(" ",(@newas,$lastname));
