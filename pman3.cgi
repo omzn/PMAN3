@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.66 2010/04/02 22:23:04 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.67 2010/04/03 01:17:31 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -3478,11 +3478,11 @@ sub createAList {
 	    $authors[$_] =~s/\\\`\{?([A-Za-z])\}?/\&\1grave;/g;
 	    $authors[$_] =~s/\\\~\{?([A-Za-z])\}?/\&\1tilde;/g;
 	    $authors[$_] =~s/\\\v\{?C\}?/\&\#268;/g;
-	    $authors[$_] =~s/\\\v\{?c\}?/\&\#269;/g;
-	    $authors[$_] =~s/\\\v\{?S\}?/\&\#352;/g;
-	    $authors[$_] =~s/\\\v\{?s\}?/\&\#353;/g;
-	    $authors[$_] =~s/\\\v\{?Z\}?/\&\#381;/g;
-	    $authors[$_] =~s/\\\v\{?z\}?/\&\#382;/g;
+	    $authors[$_] =~s/\\v\{?c\}?/\&\#269;/g;
+	    $authors[$_] =~s/\\v\{?S\}?/\&\#352;/g;
+	    $authors[$_] =~s/\\v\{?s\}?/\&\#353;/g;
+	    $authors[$_] =~s/\\v\{?Z\}?/\&\#381;/g;
+	    $authors[$_] =~s/\\v\{?z\}?/\&\#382;/g;
 	    $authors[$_] =~s/\&Cacute;/\&\#262;/g;
 	    $authors[$_] =~s/\&Sacute;/\&\#346;/g;
 	    $authors[$_] =~s/\&Nacute;/\&\#323;/g;
