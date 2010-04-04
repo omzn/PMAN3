@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.67 2010/04/03 01:17:31 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.68 2010/04/04 09:02:58 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -4708,7 +4708,7 @@ sub createTags {
 	}
 	$title = $title_e;
     }
-    $title =~s/[{}\$\_\:\'\`\(\)]/ /g;
+    $title =~s/[{}\$\_\:\'\`\(\)\\]/ /g;
     foreach my $str (split(/\s+/,$title)) {
 	if (grep(/^$str$/i,@stoptag) == () && $str !~ /^-+$/) {
 	    push(@t,lc($str));
