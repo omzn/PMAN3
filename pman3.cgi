@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.68 2010/04/04 09:02:58 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.69 2010/04/04 23:21:29 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -149,12 +149,11 @@ if ($use_cache) {
     if ($page) {
 	my $dt = Time::HiRes::tv_interval($t0);
 	$page =~ s/Time to show this page: [\d\.]+ seconds\./Time to show this page: $dt seconds\. (cached)/;
-
-	if (utf8::is_utf8($page)) {
-	    print encode('utf-8', $page);
-	} else {
+#	if (utf8::is_utf8($page)) {
+#	    print encode('utf-8', $page);
+#	} else {
 	    print $page;
-	}
+#	}
 	exit 0;
     }
 }
@@ -1471,6 +1470,9 @@ sub printScreen {
 	$doc = $document->output;
 	if ($use_cache) {
 	    # $header と $doc をDBに保存．
+	    if (utf8::is_utf8($doc)) {
+		$doc = encode('utf-8', $doc);
+	    }
 	    &storeCacheToCDB(\$header,\$doc);
 	}
     }
