@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.70 2010/04/05 02:19:59 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.71 2010/04/05 03:17:16 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -4710,8 +4710,11 @@ sub createTags {
 	}
 	$title = $title_e;
     }
+    # 英語部分
+    use Text::English;
     $title =~s/[\[\]{}\$\_\:\'\`\(\)\\]/ /g;
-    foreach my $str (split(/\s+/,$title)) {
+    my @words = Text::English::stem(split(/\s+/,$title));
+    foreach my $str (@words) {
 	if (grep(/^$str$/i,@stoptag) == () && $str !~ /^-+$/) {
 	    push(@t,lc($str));
 	}
