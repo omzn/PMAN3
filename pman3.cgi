@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.71 2010/04/05 03:17:16 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.72 2010/04/23 12:51:55 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -669,7 +669,6 @@ sub insertDB {
 	my $maxid = $dbh->selectrow_array($SQL);
 	$session->param('ID',$maxid);
 
-	$dbh->commit;	  
     }; 
 
     if ($@) { 
@@ -1416,7 +1415,7 @@ sub printScreen {
 	my $bibhash;
 	$bibhash->{'bib'} = [@$bib];
 
-	$doc = XMLout($bibhash,XMLDecl => 1,NoAttr => 1,RootName => 'bibs');
+	$doc = XML::Simple::XMLout($bibhash,XMLDecl => 1,NoAttr => 1,RootName => 'bibs');
 
     } elsif ($use_RSS && defined($cgi->param('RSS'))) {
 	require XML::RSS;
@@ -4711,9 +4710,10 @@ sub createTags {
 	$title = $title_e;
     }
     # 英語部分
-    use Text::English;
+    #use Text::English;
     $title =~s/[\[\]{}\$\_\:\'\`\(\)\\]/ /g;
-    my @words = Text::English::stem(split(/\s+/,$title));
+    my @words = split(/\s+/,$title);
+    #my @words = Text::English::stem(split(/\s+/,$title));
     foreach my $str (@words) {
 	if (grep(/^$str$/i,@stoptag) == () && $str !~ /^-+$/) {
 	    push(@t,lc($str));
