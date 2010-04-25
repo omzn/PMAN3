@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.83 2010/04/25 10:53:15 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.84 2010/04/25 10:53:52 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -4418,10 +4418,10 @@ sub doLaTeX {
 	if(!$retval) {
 	    $retval = system("cd $TMPDIR; $dvipdfcmd $dvifile > /dev/null 2>&1");
 	    if (!$retval) {
-		open(PDF,$pdffile);
+		open(PDF,$TMPDIR."/".$pdffile);
 		my @pdf = <PDF>;
 		close(PDF);
-		#system("cd $TMPDIR; rm -f $sid.* > /dev/null 2>&1");
+		system("cd $TMPDIR; rm -f $sid.* > /dev/null 2>&1");
 		&clearSessionParams;
 		&printFile('publist.pdf','application/pdf',join('',@pdf));
 		# will exit in printFile()
