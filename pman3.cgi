@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.72 2010/04/23 12:51:55 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.73 2010/04/25 06:38:04 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -368,6 +368,7 @@ sub clearSessionParams {
 	$session->clear();
 	$session->flush();
 	foreach (keys(%sbk)) {
+	    next if ($_=~/^_SESSION_/);
 	    $session->param($_,$sbk{$_});
 	}
 	return;
