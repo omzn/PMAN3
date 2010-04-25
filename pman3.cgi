@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.81 2010/04/25 10:46:44 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.82 2010/04/25 10:51:44 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -4399,10 +4399,10 @@ sub doLaTeX {
 	return;
     }
 
-    my $latexfile = $TMPDIR."/".$sid.".tex"; 
-    my $dvifile = $TMPDIR."/".$sid.".dvi"; 
-    my $pdffile = $TMPDIR."/".$sid.".pdf"; 
-    open(LATEX,">".$latexfile);
+    my $latexfile = $sid.".tex"; 
+    my $dvifile = $sid.".dvi"; 
+    my $pdffile = $sid.".pdf"; 
+    open(LATEX,">".$TMPDIR."/".$latexfile);
     if (utf8::is_utf8($tex)) {
 	print LATEX Encode::encode('euc-jp',$tex);
     } else {
