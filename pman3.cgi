@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.80 2010/04/25 07:03:58 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.81 2010/04/25 10:46:44 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -30,7 +30,7 @@ use URI::Escape qw/uri_escape_utf8/;
 #=====================================================
 my $LIBDIR = "./lib";
 my $TMPLDIR = "./tmpl";
-my $TMPDIR = "/tmp";
+my $TMPDIR = "./tmp";
 my $DB = "./db/bibdat.db";
 my $SESS_DB = "./db/sess.db";
 my $CACHE_DB = "./db/cache.db";

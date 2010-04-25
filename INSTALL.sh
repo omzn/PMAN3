@@ -1,12 +1,14 @@
 #!/bin/bash
-# $Id: INSTALL.sh,v 1.12 2010/03/17 03:35:19 o-mizuno Exp $
+# $Id: INSTALL.sh,v 1.13 2010/04/25 10:46:44 o-mizuno Exp $
 
 echo "====================================================================="
 echo "                       PMAN3 installer script"
 echo "====================================================================="
-echo "mkdir db"
+echo "mkdir db & tmp"
 mkdir db
 chmod 777 db
+mkdir tmp
+chmod 777 tmp
 chmod 777 install.cgi
 
       echo "Making .htaccess files ..."
