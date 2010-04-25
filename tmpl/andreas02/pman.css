@@ -117,7 +117,7 @@ ul.view li {
     margin:0 0 3px 0; 
     padding:0 0 0 0;}
 ul.view li a{
-    background:#f0f0f0 url(images/corner.gif) top right no-repeat; 
+    background:#f0f0f0;
     border:none; 
     display:block; 
     margin:5px 10px 5px 0px; 
@@ -126,7 +126,7 @@ ul.view li a{
     width:39px;
 }
 ul.view li a:hover {
-    background:#e0e0e0 url(images/corner.gif) top right no-repeat; 
+    background:#e0e0e0 ;
     border:none; 
     text-decoration:none;
 }
