@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.75 2010/04/25 06:52:31 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.76 2010/04/25 06:53:54 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -1429,7 +1429,7 @@ sub printScreen {
 	$rss->channel(
 	    title => "PMAN3 RSS",
 	    link => "http://$httpServerName$url",
-	    description => "Search result of PMAN3",
+	    description => "Search result of PMAN3"
 	    );
 	foreach (@$bib) {
 	    my $id = $_->{'id'};
@@ -1438,7 +1438,7 @@ sub printScreen {
 	    $rss->add_item(
 		title => "[$ptype{$_->{'ptype'}}] $_->{'title'}",
 		link => "http://$httpServerName$scriptName?D=$id",
-		description => "$aline",
+		description => "$aline"
 		);
 	}
 	$doc = $rss->as_string;
