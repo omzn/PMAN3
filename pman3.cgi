@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.76 2010/04/25 06:53:54 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.77 2010/04/25 06:54:48 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -1424,7 +1424,7 @@ sub printScreen {
 	    -type => 'application/rss+xml',
 	    -charset => 'utf-8'	
 	    );
-	my $rss = XML::RSS->new({version => "2.0" , encode_output => 0});
+	my $rss = XML::RSS->new((version => "2.0" , encode_output => 0));
 	my $url = &generateURL;
 	$rss->channel(
 	    title => "PMAN3 RSS",
