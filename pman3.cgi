@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.84 2010/04/25 10:53:52 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.85 2010/04/25 12:26:47 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -2080,6 +2080,10 @@ EOM
 	my $texaff = $cgi->param("texaffi") || $cgi->cookie("texaffi") ;
 	my $texttl = $cgi->param("textitle") || $cgi->cookie("textitle") ;
 	my $texnme = $cgi->param("texname") || $cgi->cookie("texname") ;
+
+	my $texaff =~s/[\\\{\}]//g;
+	my $texttl =~s/[\\\{\}]//g;
+	my $texnme =~s/[\\\{\}]//g;
 
 	utf8::decode($texaff)  if (!utf8::is_utf8($texaff)) ;
 	utf8::decode($texttl)  if (!utf8::is_utf8($texttl)) ;
