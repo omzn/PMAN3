@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.87 2010/04/27 04:32:12 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.89 2010/04/27 04:37:33 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -17,7 +17,7 @@ use DBI;
 use CGI;
 use CGI::Session;
 use CGI::Cookie;
-use HTML::Template::Pro;
+use HTML::Template;
 use HTML::Scrubber;
 use HTML::Entities;
 use Encode;
@@ -1477,8 +1477,6 @@ sub printScreen {
 	$document->param(CONTENTS=> &printBody);    
 	$document->param(FOOTER=> &printFooter);
 	
-	$t2 = Time::HiRes::tv_interval($t0);
-
 	$doc = $document->output;
 	if ($use_cache) {
 	    # $header と $doc をDBに保存．
