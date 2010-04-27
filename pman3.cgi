@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.88 2010/04/27 04:33:08 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.87 2010/04/27 04:32:12 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -1477,6 +1477,8 @@ sub printScreen {
 	$document->param(CONTENTS=> &printBody);    
 	$document->param(FOOTER=> &printFooter);
 	
+	$t2 = Time::HiRes::tv_interval($t0);
+
 	$doc = $document->output;
 	if ($use_cache) {
 	    # $header と $doc をDBに保存．
