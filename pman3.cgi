@@ -1,11 +1,11 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.86 2010/04/25 13:32:07 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.88 2010/04/27 04:33:08 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
 #              (c) 2002-2010 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.1.1";
+my $VERSION = "3.1.2";
 # 
 # =================================================================================
 use strict;
@@ -17,7 +17,7 @@ use DBI;
 use CGI;
 use CGI::Session;
 use CGI::Cookie;
-use HTML::Template;
+use HTML::Template::Pro;
 use HTML::Scrubber;
 use HTML::Entities;
 use Encode;
@@ -57,8 +57,8 @@ my $use_mimetex = 0;
 my $use_imgtex = 0;
 my $use_latexpdf = 0;
 
-my $latexcmd = "platex -halt-on-error";
-my $dvipdfcmd = "dvipdfmx -V 4";
+my $latexcmd = "/usr/bin/platex -halt-on-error";
+my $dvipdfcmd = "/usr/bin/dvipdfmx -V 4";
 
 my $tmpl_name = "default";
 
@@ -97,6 +97,7 @@ my $login;
 my %sbk ; 
 
 my $bib;
+my %authors_hash;
 my %ptype;
 my @jname;
 my @ptype_order ;
@@ -160,9 +161,14 @@ if ($use_cache) {
 $query = &makeQuery;
 &getDataDB($query);
 &getPtypeDB;
+#my $t1 = Time::HiRes::tv_interval($t0);
+#my $t2;
+#my ($tt1,$tt2,$tt3,$tt4);
 &printScreen;
+#my $t3 = Time::HiRes::tv_interval($t0);
 &clearSessionParams;
-
+#printf STDERR "[TIME] DB:%3.2f s, Format:%3.2f s, Write:%3.2f s",$t1, $t2-$t1, $t3-$t2 ;
+#printf STDERR "[TIME FORMAT] %3.2f s, %3.2f s, %3.2f s, %3.2f s",$tt1,$tt2,$tt3,$tt4;
 $dbh->disconnect;
 exit(0);
 
@@ -597,6 +603,14 @@ sub getDataDB {
 	foreach (@$jnl) {
 	    push(@jname,$$_{'journal'});
 	}
+
+	$SQL = "SELECT paper_id,author_name,author_key FROM authors WHERE paper_id IN ( SELECT id FROM bib,ptypes $q ) ORDER BY paper_id,author_order";
+	my $a_ref = $dbh->selectall_arrayref($SQL,{Columns => {}});
+	foreach (@$a_ref) {
+	    push(@{$authors_hash{$_->{'paper_id'}}->{'author_name'}},$_->{'author_name'});
+	    push(@{$authors_hash{$_->{'paper_id'}}->{'author_key'}},$_->{'author_key'});
+	}
+
     };
     
     if ($@) {
@@ -1019,25 +1033,6 @@ sub getIdFromAuthorsDB {
     return join(",",@idlist);
 }
 
-sub getAuthorFromAuthorsDB {
-    my ($pid,$aulist,$keylist) = @_;
-
-    my $SQL = "SELECT author_name,author_key FROM authors WHERE paper_id=$pid ORDER BY author_order";
-    eval {
-	my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
-	foreach (@$f) {
-	    push(@$aulist,$_->{'author_name'});
-	    push(@$keylist,$_->{'author_key'});
-	}
-    };
-    if ($@) { 
-	$dbh->rollback; $dbh->disconnect; 
-	my $emsg = "Incomplete query. While getting author list from authors.";
-	$emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
-	&printError($emsg);
-    }
-}
-
 sub getAuthorListDB {
     my @al;
     my $SQL = "SELECT author_name,author_key FROM authors WHERE author_key not null GROUP BY author_name;";
@@ -1419,6 +1414,21 @@ sub printScreen {
 	$doc = XML::Simple::XMLout($bibhash,XMLDecl => 1,NoAttr => 1,RootName => 'bibs');
 
     } elsif ($use_RSS && defined($cgi->param('RSS'))) {
+
+	my %check ;
+	my @opt = $cgi->param('OPT');
+	if (@opt != ()) {
+	    foreach (@opt) {
+		$check{$_} = "checked" if ($_);
+	    }	
+	} else {
+	    @opt = ('underline','abbrev','shortvn','jcr','note');
+	    foreach (@opt) {
+		$check{$_} = $cgi->cookie($_) if (defined($cgi->cookie($_)));
+	    }
+#	    $session->param('OPT',keys(%check));
+	}
+
 	require XML::RSS;
 	$header =  $cgi->header(
 	    -type => 'application/rss+xml',
@@ -1434,7 +1444,7 @@ sub printScreen {
 	foreach (@$bib) {
 	    my $id = $_->{'id'};
 	    my $aline;
-	    &createAList(\$aline,$_);
+	    &createAList(\$aline,\%check,$mode,$_);
 	    $rss->add_item(
 		title => "[$ptype{$_->{'ptype'}}] $_->{'title'}",
 		link => "http://$httpServerName$scriptName?D=$id",
@@ -2062,9 +2072,9 @@ EOM
 	    $body .= "<dd><a href=\"$scriptName?D=$$abib{'id'}\">\[$counter\]</a> ";
 	    # リスト1行生成
 	    if  (!defined($cgi->param('SSI')) && !defined($cgi->param('STATIC'))) {
-		&createAList(\$body,$abib,"$scriptName?","$scriptName?")."</dd>\n";
+		&createAList(\$body,\%check,$mode,$abib,"$scriptName?","$scriptName?")."</dd>\n";
 	    } else {
-		&createAList(\$body,$abib)."</dd>\n";
+		&createAList(\$body,\%check,$mode,$abib)."</dd>\n";
 		
 	    }	    
 	    $counter ++;
@@ -2178,7 +2188,7 @@ EOM
 	    }
 	    $tex .= "\\item\n";
 	    # リスト1行生成
-	    &createAList(\$tex,$abib);
+	    &createAList(\$tex,\%check,$mode,$abib);
 	    $tex .= "\n";
 	    $counter ++;
 	}
@@ -3314,24 +3324,27 @@ EOM
 }
 
 sub createAList {
-    my ($rbody,$ent,$alink,$tlink) = @_;
-
-    my $mode = $cgi->param('MODE') || $session->param('MODE') || 'list';
-
-    my %check;
-    my @opt = $cgi->param('OPT');
-    if (@opt != ()) {
-	foreach (@opt) {
-	    $check{$_} = 'checked' if ($_);
-	}	
-    } else {
-	@opt = ('underline','abbrev','shortvn','jcr','note');
-	foreach (@opt) {
-	    $check{$_} = $cgi->cookie($_) if (defined($cgi->cookie($_)));
-	}
+#    my $tt0 = [Time::HiRes::gettimeofday];
+    my ($rbody,$chk,$mode,$ent,$alink,$tlink) = @_;
+#    my $mode = $cgi->param('MODE') || $session->param('MODE') || 'list';
+    my %check = %{$chk};
+#    my @opt = $cgi->param('OPT');
+#    if (@opt != ()) {
+#	foreach (@opt) {
+#	    $check{$_} = 'checked' if ($_);
+#	}	
+#    } else {
+#	@opt = ('underline','abbrev','shortvn','jcr','note');
+#	foreach (@opt) {
+#	    $check{$_} = $cgi->cookie($_) if (defined($cgi->cookie($_)));
+#	}
 #	$session->param('OPT',keys(%check));
-    }
+#    }
 
+################################
+#    $tt1 += Time::HiRes::tv_interval($tt0);
+#    $tt0 = [Time::HiRes::gettimeofday];
+################################
     # 英語モード判定
     my $lang = $cgi->param('LANG') || $session->param('LANG') || "ja";
 
@@ -3345,30 +3358,20 @@ sub createAList {
     ## DBを使って書き直し． <- これが遅い？？
 
     my @authors; my @keys;
-    # replacement
-#    my $tmp_a = $lang eq 'en' && $$ent{'author_e'} ne '' ? 
-#	$$ent{'author_e'}: $$ent{'author'};
-#    my $tmp_k = $$ent{'key'};
-
-#    if ($tmp_a =~/\s+and\s+/) {
-#	@authors = split(/\s+and\s+/,$tmp_a) ;
-#    } else {
-#	@authors = split(/\s*,\s*/,$tmp_a) ;
-#    }
-#    if ($tmp_k =~/\s+and\s+/) {
-#	@keys = split(/\s+and\s+/,$tmp_k) ;
-#    } else {
-#	@keys = split(/\s*,\s*/,$tmp_k) ;
-#    }
-    &getAuthorFromAuthorsDB($$ent{'id'},\@authors,\@keys);
-
+    @authors = @{$authors_hash{"$$ent{'id'}"}->{'author_name'}};
+    @keys = @{$authors_hash{"$$ent{'id'}"}->{'author_key'}};
     my $astr = join(',',@authors);
     my $isJA = &isJapanese($astr) ;
     # keysを使うか，authorを使うか．
     if ($lang eq 'en' && $isJA && @keys) {
 	@authors = @keys;
     }
-    
+
+################################
+#    $tt2 += Time::HiRes::tv_interval($tt0);
+#    $tt0 = [Time::HiRes::gettimeofday];
+################################
+
     # 個々の著者について繰り返し (このへん時間かかるだろ〜)
     for (0..$#authors) {
 	my $enc = $authors[$_];
@@ -3419,7 +3422,7 @@ sub createAList {
 	# 下線処理 (終)
 
 	# 略称作成 (始)
-	my $isJ = &isJapanese($authors[$_]);
+	my $isJ = $isJA; #&isJapanese($authors[$_]);
 	if ($authors[$_]=~/,/) {
 	    my @as = split(/\s*,\s*/,$authors[$_]);
 	    if ($#as == 1) { # Last, First -> First Last
@@ -3478,22 +3481,24 @@ sub createAList {
 	# 略称作成 (終)
 
 	if ($alink ne '') {
-	    $authors[$_] =~s/\\ss\{?\}?/\&szlig;/g;
-	    $authors[$_] =~s/\\\"\{?([A-Za-z])\}?/\&\1uml;/g;
-	    $authors[$_] =~s/\\\'\{?([A-Za-z])\}?/\&\1acute;/g;
-	    $authors[$_] =~s/\\\`\{?([A-Za-z])\}?/\&\1grave;/g;
-	    $authors[$_] =~s/\\\~\{?([A-Za-z])\}?/\&\1tilde;/g;
-	    $authors[$_] =~s/\\\v\{?C\}?/\&\#268;/g;
-	    $authors[$_] =~s/\\v\{?c\}?/\&\#269;/g;
-	    $authors[$_] =~s/\\v\{?S\}?/\&\#352;/g;
-	    $authors[$_] =~s/\\v\{?s\}?/\&\#353;/g;
-	    $authors[$_] =~s/\\v\{?Z\}?/\&\#381;/g;
-	    $authors[$_] =~s/\\v\{?z\}?/\&\#382;/g;
-	    $authors[$_] =~s/\&Cacute;/\&\#262;/g;
-	    $authors[$_] =~s/\&Sacute;/\&\#346;/g;
-	    $authors[$_] =~s/\&Nacute;/\&\#323;/g;
-	    $authors[$_] =~s/\&Zacute;/\&\#377;/g;
-	    # see http://www.thesauruslex.com/typo/eng/enghtml.htm
+	    if ($authors[$_]=~/\\/) {
+		$authors[$_] =~s/\\ss\{?\}?/\&szlig;/g;
+		$authors[$_] =~s/\\\"\{?([A-Za-z])\}?/\&\1uml;/g;
+		$authors[$_] =~s/\\\'\{?([A-Za-z])\}?/\&\1acute;/g;
+		$authors[$_] =~s/\\\`\{?([A-Za-z])\}?/\&\1grave;/g;
+		$authors[$_] =~s/\\\~\{?([A-Za-z])\}?/\&\1tilde;/g;
+		$authors[$_] =~s/\\\v\{?C\}?/\&\#268;/g;
+		$authors[$_] =~s/\\v\{?c\}?/\&\#269;/g;
+		$authors[$_] =~s/\\v\{?S\}?/\&\#352;/g;
+		$authors[$_] =~s/\\v\{?s\}?/\&\#353;/g;
+		$authors[$_] =~s/\\v\{?Z\}?/\&\#381;/g;
+		$authors[$_] =~s/\\v\{?z\}?/\&\#382;/g;
+		$authors[$_] =~s/\&Cacute;/\&\#262;/g;
+		$authors[$_] =~s/\&Sacute;/\&\#346;/g;
+		$authors[$_] =~s/\&Nacute;/\&\#323;/g;
+		$authors[$_] =~s/\&Zacute;/\&\#377;/g;
+		# see http://www.thesauruslex.com/typo/eng/enghtml.htm
+	    }
 	    $authors[$_] = "<a href=\"".$alink."A=$enc\">$ul1$authors[$_]$ul2</a>";
 	} else {
 	    $authors[$_] = "$ul1$authors[$_]$ul2";
@@ -3568,6 +3573,11 @@ sub createAList {
     
     my $pub = ($lang eq "en" && $$ent{'publisher_e'} ne "") ? "$$ent{'publisher_e'},":"$$ent{'publisher'},";
     
+################################
+#    $tt3 += Time::HiRes::tv_interval($tt0);
+#    $tt0 = [Time::HiRes::gettimeofday];
+################################
+
 # 各文献スタイルに応じた出力生成
     my $aline = "$strauth, ";
 
@@ -3625,6 +3635,9 @@ sub createAList {
     }
     $$rbody .= $aline;
     
+################################
+#    $tt4 += Time::HiRes::tv_interval($tt0);
+################################
 #    return $aline;
 }
 
