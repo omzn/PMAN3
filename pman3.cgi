@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.89 2010/04/27 04:37:33 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.90 2010/05/04 12:00:07 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -1441,10 +1441,12 @@ sub printScreen {
 	    link => "http://$httpServerName$url",
 	    description => "Search result of PMAN3"
 	    );
+	my $lang = $cgi->param('LANG') || $session->param('LANG') || "ja";
+	my $mmode = $cgi->param('MENU') || $session->param('MENU');
 	foreach (@$bib) {
 	    my $id = $_->{'id'};
 	    my $aline;
-	    &createAList(\$aline,\%check,$mode,$_);
+	    &createAList(\$aline,\%check,$mode,$mmode,$lang,$_);
 	    $rss->add_item(
 		title => "[$ptype{$_->{'ptype'}}] $_->{'title'}",
 		link => "http://$httpServerName$scriptName?D=$id",
@@ -1476,6 +1478,8 @@ sub printScreen {
 
 	$document->param(CONTENTS=> &printBody);    
 	$document->param(FOOTER=> &printFooter);
+
+	#$t2 = Time::HiRes::tv_interval($t0);
 	
 	$doc = $document->output;
 	if ($use_cache) {
@@ -2047,6 +2051,9 @@ EOM
 <dl>
 EOM
 
+        my $lang = $cgi->param('LANG') || $session->param('LANG') || "ja";
+	my $mmode = $cgi->param('MENU') || $session->param('MENU');
+
         my $prevPtype = -1;
         my $prevYear = -1;
 	my $counter = 1;
@@ -2072,9 +2079,9 @@ EOM
 	    $body .= "<dd><a href=\"$scriptName?D=$$abib{'id'}\">\[$counter\]</a> ";
 	    # リスト1行生成
 	    if  (!defined($cgi->param('SSI')) && !defined($cgi->param('STATIC'))) {
-		&createAList(\$body,\%check,$mode,$abib,"$scriptName?","$scriptName?")."</dd>\n";
+		&createAList(\$body,\%check,$mode,$mmode,$lang,$abib,"$scriptName?","$scriptName?")."</dd>\n";
 	    } else {
-		&createAList(\$body,\%check,$mode,$abib)."</dd>\n";
+		&createAList(\$body,\%check,$mode,$mmode,$lang,$abib)."</dd>\n";
 		
 	    }	    
 	    $counter ++;
@@ -2147,6 +2154,9 @@ EOM
 $texHeader
 EOM
 
+        my $lang = $cgi->param('LANG') || $session->param('LANG') || "ja";
+	my $mmode = $cgi->param('MENU') || $session->param('MENU');
+
         my $prevPtype = -1;
         my $prevYear = 0;
         my $counter = 1;
@@ -2188,7 +2198,7 @@ EOM
 	    }
 	    $tex .= "\\item\n";
 	    # リスト1行生成
-	    &createAList(\$tex,\%check,$mode,$abib);
+	    &createAList(\$tex,\%check,$mode,$mmode,$lang,$abib);
 	    $tex .= "\n";
 	    $counter ++;
 	}
@@ -2271,7 +2281,7 @@ EOM
 	    $body .= join(", ",@aa);
 	    my $t = $lang eq 'en' && $$abib{'title_e'} ne '' ? $$abib{'title_e'} 
 		: $$abib{'title'};
-	    &capitalizePaperTitle(\$t);
+	    &capitalizePaperTitle(\$t,$mode);
 	    my $esct = 	HTML::Entities::encode($t);
 	    $body .= <<EOM;
 <br /></td>
@@ -3325,7 +3335,7 @@ EOM
 
 sub createAList {
 #    my $tt0 = [Time::HiRes::gettimeofday];
-    my ($rbody,$chk,$mode,$ent,$alink,$tlink) = @_;
+    my ($rbody,$chk,$mode,$mmode,$lang,$ent,$alink,$tlink) = @_;
 #    my $mode = $cgi->param('MODE') || $session->param('MODE') || 'list';
     my %check = %{$chk};
 #    my @opt = $cgi->param('OPT');
@@ -3346,12 +3356,12 @@ sub createAList {
 #    $tt0 = [Time::HiRes::gettimeofday];
 ################################
     # 英語モード判定
-    my $lang = $cgi->param('LANG') || $session->param('LANG') || "ja";
+    # my $lang = $cgi->param('LANG') || $session->param('LANG') || "ja";
 
     # タイトルの処理
     #   英語モードならtitle_e利用だけど，title_eが無ければtitle
     my $t = ($lang eq "en" && $$ent{'title_e'} ne "") ? $$ent{'title_e'} : $$ent{'title'};
-    &capitalizePaperTitle(\$t);
+    &capitalizePaperTitle(\$t,$mode);
     $t = ($tlink ne "" ? "<a href=\"".$tlink."D=$$ent{'id'}\">$t</a>" : $t);
 
     # 著者の処理
@@ -3391,7 +3401,7 @@ sub createAList {
 	my $a = $authors[$_];
 	my $k = $keys[$_];
 
-	my $mmode = $cgi->param('MENU') || $session->param('MENU');
+	#my $mmode = $cgi->param('MENU') || $session->param('MENU');
 	if ($check{'underline'} ne '') {
 	    my @al;
 	    my @loop = ('');
@@ -3643,9 +3653,9 @@ sub createAList {
 
 sub capitalizePaperTitle {
     my $string = shift; 
+    my $mode = shift;
     my $alwaysLower = "A|AN|ABOUT|AMONG|AND|AS|AT|BETWEEN|BOTH|BUT|BY|FOR|FROM|IN|INTO|OF|ON|THE|THUS|TO|UNDER|WITH|WITHIN";
 
-    my $mode = $session->param('MODE');
 
     # 日本語を含んでいたら数式処理のみ
     if (&isJapanese($$string) && ($mode ne "latex" && $mode ne "PDF")) {
