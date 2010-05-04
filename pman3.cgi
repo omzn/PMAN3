@@ -1,11 +1,11 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.90 2010/05/04 12:00:07 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.91 2010/05/04 12:34:31 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
 #              (c) 2002-2010 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.1.2";
+my $VERSION = "3.1.2a";
 # 
 # =================================================================================
 use strict;
@@ -17,7 +17,7 @@ use DBI;
 use CGI;
 use CGI::Session;
 use CGI::Cookie;
-use HTML::Template;
+use HTML::Template::Pro;
 use HTML::Scrubber;
 use HTML::Entities;
 use Encode;
@@ -161,14 +161,21 @@ if ($use_cache) {
 $query = &makeQuery;
 &getDataDB($query);
 &getPtypeDB;
-#my $t1 = Time::HiRes::tv_interval($t0);
-#my $t2;
-#my ($tt1,$tt2,$tt3,$tt4);
+################################[TIME]
+my $t1 = Time::HiRes::tv_interval($t0);
+my $t2;
+my ($tt1,$tt2,$tt3,$tt4);
+################################[TIME]
 &printScreen;
-#my $t3 = Time::HiRes::tv_interval($t0);
+################################[TIME]
+my $t3;
+$t3 = Time::HiRes::tv_interval($t0);
+################################[TIME]
 &clearSessionParams;
+################################[TIME]
 #printf STDERR "[TIME] DB:%3.2f s, Format:%3.2f s, Write:%3.2f s",$t1, $t2-$t1, $t3-$t2 ;
 #printf STDERR "[TIME FORMAT] %3.2f s, %3.2f s, %3.2f s, %3.2f s",$tt1,$tt2,$tt3,$tt4;
+################################[TIME]
 $dbh->disconnect;
 exit(0);
 
@@ -429,7 +436,7 @@ sub makeQuery {
 	my $id = $session->param('ID');
 	if ($id=~/^\d+$/) {
 	    $id = $dbh->quote($id);
-	    return ("WHERE ID=$id AND ptype=pt_type AND pt_lang=$l;");
+	    return ("WHERE ID=$id AND ptype=pt_type AND pt_lang=$l");
 	} else {
 	    $session->clear("ID");
 	    &printError('"ID" must be an integer.');
@@ -1371,6 +1378,7 @@ sub printScreen {
 
     my $document;
     my $mode = $session->param('MODE') || $session->param('prevMODE') || "list";
+    my $lang = $cgi->param('LANG') || $session->param('LANG') || "ja";
 
     my $doc;
 
@@ -1386,7 +1394,7 @@ sub printScreen {
 	$document->param(MAIN_TITLE => $titleOfSite);
 	$document->param(PAGE_TITLE => $msg{"Title_$mode"});
 	$document->param(CONTENTS=> &printBody);    
-	$document->param(FOOTER=> &printFooter);#
+	$document->param(FOOTER=> &printFooter);
 
 	$doc = $document->output;
 
@@ -1479,7 +1487,9 @@ sub printScreen {
 	$document->param(CONTENTS=> &printBody);    
 	$document->param(FOOTER=> &printFooter);
 
-	#$t2 = Time::HiRes::tv_interval($t0);
+#######################[TIME]
+	$t2 = Time::HiRes::tv_interval($t0);
+#######################[TIME]
 	
 	$doc = $document->output;
 	if ($use_cache) {
@@ -2018,6 +2028,7 @@ EOM
 
 	my %check;
 	my @opt = $cgi->param('OPT');
+	my $lang = $cgi->param('LANG') || $session->param('LANG') || "ja";
 	if (@opt != ()) {
 	    foreach (@opt) {
 		$check{$_} = "checked" if ($_);
@@ -2119,6 +2130,7 @@ EOM
 	    }
 #	    $session->param('OPT',keys(%check));
 	}
+	my $lang = $cgi->param('LANG') || $session->param('LANG') || "ja";
 
 
 	$texHeader =~s/myName\}\{\}/myName\}\{$texnme\}/;
@@ -3334,39 +3346,27 @@ EOM
 }
 
 sub createAList {
-#    my $tt0 = [Time::HiRes::gettimeofday];
-    my ($rbody,$chk,$mode,$mmode,$lang,$ent,$alink,$tlink) = @_;
-#    my $mode = $cgi->param('MODE') || $session->param('MODE') || 'list';
-    my %check = %{$chk};
-#    my @opt = $cgi->param('OPT');
-#    if (@opt != ()) {
-#	foreach (@opt) {
-#	    $check{$_} = 'checked' if ($_);
-#	}	
-#    } else {
-#	@opt = ('underline','abbrev','shortvn','jcr','note');
-#	foreach (@opt) {
-#	    $check{$_} = $cgi->cookie($_) if (defined($cgi->cookie($_)));
-#	}
-#	$session->param('OPT',keys(%check));
-#    }
+################################[TIME]
+    my $tt0 = [Time::HiRes::gettimeofday];
+################################[TIME]
 
-################################
-#    $tt1 += Time::HiRes::tv_interval($tt0);
-#    $tt0 = [Time::HiRes::gettimeofday];
-################################
-    # 英語モード判定
-    # my $lang = $cgi->param('LANG') || $session->param('LANG') || "ja";
+    my ($rbody,$chk,$mode,$mmode,$lang,$ent,$alink,$tlink) = @_;
+    my %check = %{$chk};
 
     # タイトルの処理
     #   英語モードならtitle_e利用だけど，title_eが無ければtitle
     my $t = ($lang eq "en" && $$ent{'title_e'} ne "") ? $$ent{'title_e'} : $$ent{'title'};
     &capitalizePaperTitle(\$t,$mode);
+
+
     $t = ($tlink ne "" ? "<a href=\"".$tlink."D=$$ent{'id'}\">$t</a>" : $t);
 
-    # 著者の処理
-    ## DBを使って書き直し． <- これが遅い？？
+################################[TIME]
+    $tt1 += Time::HiRes::tv_interval($tt0);
+    $tt0 = [Time::HiRes::gettimeofday];
+################################[TIME]
 
+    # 著者の処理
     my @authors; my @keys;
     @authors = @{$authors_hash{"$$ent{'id'}"}->{'author_name'}};
     @keys = @{$authors_hash{"$$ent{'id'}"}->{'author_key'}};
@@ -3377,10 +3377,6 @@ sub createAList {
 	@authors = @keys;
     }
 
-################################
-#    $tt2 += Time::HiRes::tv_interval($tt0);
-#    $tt0 = [Time::HiRes::gettimeofday];
-################################
 
     # 個々の著者について繰り返し (このへん時間かかるだろ〜)
     for (0..$#authors) {
@@ -3516,6 +3512,11 @@ sub createAList {
     }
     # 個々の著者の処理終わり
 
+################################[TIME]
+    $tt2 += Time::HiRes::tv_interval($tt0);
+    $tt0 = [Time::HiRes::gettimeofday];
+################################[TIME]
+
     # 著者の並びを生成
     my $strauth = '';
     if ($#authors > 1) { # 著者が3人以上
@@ -3583,10 +3584,10 @@ sub createAList {
     
     my $pub = ($lang eq "en" && $$ent{'publisher_e'} ne "") ? "$$ent{'publisher_e'},":"$$ent{'publisher'},";
     
-################################
-#    $tt3 += Time::HiRes::tv_interval($tt0);
-#    $tt0 = [Time::HiRes::gettimeofday];
-################################
+################################[TIME]
+    $tt3 += Time::HiRes::tv_interval($tt0);
+    $tt0 = [Time::HiRes::gettimeofday];
+################################[TIME]
 
 # 各文献スタイルに応じた出力生成
     my $aline = "$strauth, ";
@@ -3645,17 +3646,15 @@ sub createAList {
     }
     $$rbody .= $aline;
     
-################################
-#    $tt4 += Time::HiRes::tv_interval($tt0);
-################################
-#    return $aline;
+################################[TIME]
+    $tt4 += Time::HiRes::tv_interval($tt0);
+################################[TIME]
 }
 
 sub capitalizePaperTitle {
     my $string = shift; 
     my $mode = shift;
     my $alwaysLower = "A|AN|ABOUT|AMONG|AND|AS|AT|BETWEEN|BOTH|BUT|BY|FOR|FROM|IN|INTO|OF|ON|THE|THUS|TO|UNDER|WITH|WITHIN";
-
 
     # 日本語を含んでいたら数式処理のみ
     if (&isJapanese($$string) && ($mode ne "latex" && $mode ne "PDF")) {
