@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.93 2010/05/26 06:22:23 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.94 2010/05/26 06:23:14 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
@@ -17,7 +17,7 @@ use DBI;
 use CGI;
 use CGI::Session;
 use CGI::Cookie;
-use HTML::Template::Pro;
+use HTML::Template;
 use HTML::Scrubber;
 use HTML::Entities;
 use Encode;
