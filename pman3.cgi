@@ -1,11 +1,11 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.92 2010/05/05 01:42:46 o-mizuno Exp $
+# $Id: pman3.cgi,v 1.93 2010/05/26 06:22:23 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
 #              (c) 2002-2010 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.1.2a";
+my $VERSION = "3.2 beta build 20100526";
 # 
 # =================================================================================
 use strict;
@@ -17,7 +17,7 @@ use DBI;
 use CGI;
 use CGI::Session;
 use CGI::Cookie;
-use HTML::Template;
+use HTML::Template::Pro;
 use HTML::Scrubber;
 use HTML::Entities;
 use Encode;
@@ -1449,12 +1449,12 @@ sub printScreen {
 	    link => "http://$httpServerName$url",
 	    description => "Search result of PMAN3"
 	    );
-	my $lang = $cgi->param('LANG') || $session->param('LANG') || "ja";
-	my $mmode = $cgi->param('MENU') || $session->param('MENU');
+	my $ssp = $session->param_hashref();
+	#my $lang = $cgi->param('LANG') || $session->param('LANG') || "ja";
 	foreach (@$bib) {
 	    my $id = $_->{'id'};
 	    my $aline;
-	    &createAList(\$aline,\%check,$mode,$mmode,$lang,$_);
+	    &createAList(\$aline,\%check,$ssp,$_);
 	    $rss->add_item(
 		title => "[$ptype{$_->{'ptype'}}] $_->{'title'}",
 		link => "http://$httpServerName$scriptName?D=$id",
@@ -2062,8 +2062,7 @@ EOM
 <dl>
 EOM
 
-        my $lang = $cgi->param('LANG') || $session->param('LANG') || "ja";
-	my $mmode = $cgi->param('MENU') || $session->param('MENU');
+	my $ssp = $session->param_hashref();
 
         my $prevPtype = -1;
         my $prevYear = -1;
@@ -2090,9 +2089,9 @@ EOM
 	    $body .= "<dd><a href=\"$scriptName?D=$$abib{'id'}\">\[$counter\]</a> ";
 	    # リスト1行生成
 	    if  (!defined($cgi->param('SSI')) && !defined($cgi->param('STATIC'))) {
-		&createAList(\$body,\%check,$mode,$mmode,$lang,$abib,"$scriptName?","$scriptName?")."</dd>\n";
+		&createAList(\$body,\%check,$ssp,$abib,"$scriptName?","$scriptName?")."</dd>\n";
 	    } else {
-		&createAList(\$body,\%check,$mode,$mmode,$lang,$abib)."</dd>\n";
+		&createAList(\$body,\%check,$ssp,$abib)."</dd>\n";
 		
 	    }	    
 	    $counter ++;
@@ -2130,8 +2129,6 @@ EOM
 	    }
 #	    $session->param('OPT',keys(%check));
 	}
-	my $lang = $cgi->param('LANG') || $session->param('LANG') || "ja";
-
 
 	$texHeader =~s/myName\}\{\}/myName\}\{$texnme\}/;
 	$texHeader =~s/myAffiliation\}\{\}/myAffiliation\}\{$texaff\}/;
@@ -2166,8 +2163,8 @@ EOM
 $texHeader
 EOM
 
-        my $lang = $cgi->param('LANG') || $session->param('LANG') || "ja";
-	my $mmode = $cgi->param('MENU') || $session->param('MENU');
+
+	my $ssp = $session->param_hashref();
 
         my $prevPtype = -1;
         my $prevYear = 0;
@@ -2210,7 +2207,7 @@ EOM
 	    }
 	    $tex .= "\\item\n";
 	    # リスト1行生成
-	    &createAList(\$tex,\%check,$mode,$mmode,$lang,$abib);
+	    &createAList(\$tex,\%check,$ssp,$abib);
 	    $tex .= "\n";
 	    $counter ++;
 	}
@@ -2233,31 +2230,31 @@ EOM
     } elsif ($mode eq "table") {
 	my $lang=$session->param('LANG') || 'ja';
 
-	$body .= <<EOM;
-<table class="tableview" id="opttable">
-<form action="$scriptName" method="POST">
-EOM
-        my @bbs = @bb_order;
-	unshift(@bbs,"ptype");
-	unshift(@bbs,"style");
-	unshift(@bbs,"id");
-	for (0..$#bbs) {
-	    if ($_ % 6 == 0) {
-		$body .= "<tr>";
-	    }
-	    my $txt = $msg{"Head_".$bbs[$_]};
-	    $body .= <<EOM;
-<td><input type="checkbox" name="TOPT" id="topt$_" value="$bbs[$_]"><label for="topt$_">$txt</label></td>
-EOM
-	    if ($_ % 6 == 5) {
-		$body .= "</tr>";
-	    }
-	} 
-	$body .= <<EOM;
-</form>
-</table>
-<br />
-EOM
+#	$body .= <<EOM;
+#<table class="tableview" id="opttable">
+#<form action="$scriptName" method="POST">
+#EOM
+#        my @bbs = @bb_order;
+#	unshift(@bbs,"ptype");
+#	unshift(@bbs,"style");
+#	unshift(@bbs,"id");
+#	for (0..$#bbs) {
+#	    if ($_ % 6 == 0) {
+#		$body .= "<tr>";
+#	    }
+#	    my $txt = $msg{"Head_".$bbs[$_]};
+#	    $body .= <<EOM;
+#<td><input type="checkbox" name="TOPT" id="topt$_" value="$bbs[$_]"><label for="topt$_">$txt</label></td>
+#EOM
+#	    if ($_ % 6 == 5) {
+#		$body .= "</tr>";
+#	    }
+#	} 
+#	$body .= <<EOM;
+#</form>
+#</table>
+#<br />
+#EOM
 
 	$body .= <<EOM;
 <table class="tableview" id="bibtable">
@@ -2527,7 +2524,18 @@ EOM
 </tr>
 EOM
         foreach (@bb_order) {
-	    $body .= &editEntry($$abib{'style'},$_,$$abib{$_}) ;
+	    # author, key, author_eだったら，authors_hashを使って第3引数を構成．
+	    my $vl;
+	    if ($_ eq "author") {
+		my @as = @{$authors_hash{"$$abib{'id'}"}->{'author_name'}};
+		$vl = join(",",@as);
+	    } elsif ($_ eq "key" || $_ eq "author_e" ) {
+		my @ks = @{$authors_hash{"$$abib{'id'}"}->{'author_key'}};
+		$vl = join(",",@ks);
+	    } else {
+		$vl = $$abib{$_};
+	    }	    
+	    $body .= &editEntry($$abib{'style'},$_,$vl) ;
         }
 
 
@@ -3350,8 +3358,12 @@ sub createAList {
     my $tt0 = [Time::HiRes::gettimeofday];
 ################################[TIME]
 
-    my ($rbody,$chk,$mode,$mmode,$lang,$ent,$alink,$tlink) = @_;
+    my ($rbody,$chk,$ssp,$ent,$alink,$tlink) = @_;
     my %check = %{$chk};
+
+    my $lang = $ssp->{'LANG'} || "ja";
+    my $mode = $ssp->{'MODE'};
+    my $mmode = $ssp->{'MENU'} ;
 
     # タイトルの処理
     #   英語モードならtitle_e利用だけど，title_eが無ければtitle
@@ -3407,9 +3419,9 @@ sub createAList {
 		push(@loop,3);
 	    }
 	    foreach (@loop) {
-		my $f = $cgi->param("FROM$_") || $session->param("FROM$_");
+		my $f = $ssp->{"FROM$_"};
 		if ($f eq 'author') {
-		    my $s = $cgi->param("SEARCH$_") || $session->param("SEARCH$_");
+		    my $s = $ssp->{"SEARCH$_"};
 		    push(@al,split(/\s+/,$s));
 		}
 	    }
@@ -3929,6 +3941,7 @@ EOM
     } elsif (grep(/^$fld$/,( 
 		      "author"
 		  ) ) ) {
+
 	if ($isNeed ne "I") {
 	$ent .= <<EOM;
 <tr>

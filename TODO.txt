@@ -6,6 +6,12 @@
 
 ・その表やリストをRTFに書き出せるようにする．(Wordでの利用対策) 
 
+・統計モード (現在の検索結果に対して)
+  - 年別業績数の推移 (種類の積み上げグラフ)
+  - 頻出著者 Best 10 -? pie chart
+  - 頻出tag  Best 10 -> pie chart
+
+
 #・mod_rewriteによる短縮URL機能を追加?
 #  /pman/A/Mizuno/ -> pman.cgi?A=Mizuno
 #・iPhone用表示？
