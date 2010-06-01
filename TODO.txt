@@ -22,7 +22,6 @@ Idea...
   - 頻出著者 Best 10 -? pie chart
   - 頻出tag  Best 10 -> pie chart
 
-
 #・mod_rewriteによる短縮URL機能を追加?
 #  /pman/A/Mizuno/ -> pman.cgi?A=Mizuno
 

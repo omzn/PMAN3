@@ -7,11 +7,15 @@
 #
 #              (c) 2002-2010 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.1.0.2";
+my $VERSION = "3.2 beta";
 # 
 # =================================================================================
+BEGIN {
+    unshift(@INC,"./lib");
+}
 use strict;
 use utf8;
+
 
 my $doc;
 my $cgi;
@@ -140,6 +144,7 @@ EOM
 	'Digest::MD5' => 0, 
 	'MIME::Types' => 0, 
 	'Time::HiRes' => 0,
+	'BibTeX::Parser' => 0,
     );
     my %installed;
 

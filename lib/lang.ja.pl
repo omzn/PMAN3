@@ -29,6 +29,7 @@ our %viewMenu = (
     "table"=>"　表　",
     "latex"=>"LaTeX",
     "add"=>"追　加",
+    "bib"=>"Bib追加",
     "edit"=>"編　集",
     "delete"=>"削　除",
     );

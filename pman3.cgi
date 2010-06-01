@@ -8,6 +8,10 @@
 my $VERSION = "3.2 beta build 20100526";
 # 
 # =================================================================================
+BEGIN {
+    unshift(@INC, './lib');
+}
+
 use strict;
 use utf8;
 
@@ -351,6 +355,9 @@ EOM
     if (defined($session->param('MODE')) && $session->param('MODE') eq "add2" ) {
 	&registEntry();
     }
+    if (defined($session->param('MODE')) && $session->param('MODE') eq "bib2" ) {
+	&registEntryByBib();
+    }
     if (defined($session->param('MODE')) && $session->param('MODE') eq "delete" ) {
 	&deleteEntry();
     }
@@ -397,7 +404,7 @@ sub clearSessionParams {
     if ($mode eq "delete") {
 	$session->clear('ID');
 	$session->clear('MODE');
-    } elsif ($mode eq "add2" || $mode eq "edit2") {
+    } elsif ($mode eq "add2" || $mode eq "edit2" || $mode eq "bib2") {
 	$session->clear('MODE');
     } elsif ($mode eq "filedelete") {
 	$session->clear('MODE');
@@ -1899,6 +1906,7 @@ EOM
 	my $id = $session->param('ID');
 	$viewmenu .= <<EOM;
 <li><a href="$scriptName?MODE=add">$viewMenu{'add'}</a></li>
+<li><a href="$scriptName?MODE=bib">$viewMenu{'bib'}</a></li>
 EOM
         if ($mode eq "detail") {
 	    $viewmenu .= <<EOM;
@@ -1925,7 +1933,7 @@ EOM
 }
 
 sub printMessageMenu {
-    return if ($session->param('MODE') =~ /(add|category|config)/);
+    return if ($session->param('MODE') =~ /(bib|add|category|config)/);
     my $message;
 
     my $numOfBib = $#$bib + 1;
@@ -1957,7 +1965,7 @@ EOM
 
 # 頻出タグを表示するメニュー
 sub printTagMenu {
-    return if ($session->param('MODE') =~ /(detail|edit|add|category|config)/);
+    return if ($session->param('MODE') =~ /(detail|edit|add|bib|category|config)/);
     my @idlist;
     foreach (@$bib) {
 	push(@idlist,$_->{'id'});
@@ -1996,6 +2004,7 @@ sub printBody {
     # EDIT 判定
     if (($session->param('MODE') eq "edit" || 
 	 $session->param('MODE') eq "add" || 
+	 $session->param('MODE') eq "bib" || 
 	 $session->param('MODE') eq "category" ||
 	 $session->param('MODE') eq "config" )
 	&& $login != 1) {
@@ -2018,7 +2027,7 @@ EOM
         return $body;
     }
 
-    if (@$bib == () && !( $mode eq "add" || $mode eq "category" || $mode eq "config")) {
+    if (@$bib == () && !( $mode eq "add" || $mode eq "bib" || $mode eq "category" || $mode eq "config")) {
 	$body .= "<p>$msg{'nothingfound'}</p>";
 	return $body;
     }
@@ -2677,6 +2686,84 @@ EOM
 </form>
 EOM
 #### end mode = add
+#### begin mode = bib
+    } elsif ($mode eq "bib") {
+
+	$body .= <<EOM;
+<table>
+<tr>
+  <td class="fieldHead">$msg{'category'}</td>
+  <td class="fieldBody">
+<form name="edit" enctype="multipart/form-data" method="POST" action="$scriptName">
+<input type="hidden" name="MODE" value="bib2">
+EOM
+        my $pt = 0;
+
+	$body .= $cgi->popup_menu(-name=>'edit_ptype',
+				  -values=>[@ptype_order],
+				  -default=>$pt,
+				  -labels=>\%ptype);
+
+	$body .= <<EOM;
+  </td>
+</tr>
+EOM
+	$body .= <<EOM;
+<tr>
+  <td class="fieldHead_O">$msg{'tags'}</td>
+  <td class="fieldBody">
+  <input name="edit_tags" type="text" size="80" value="" /><br />
+EOM
+	my $tlist = &getTop10TagDB;
+	my @tl; my $x=0;
+	foreach (split(/,/,$tlist)) {
+	    push(@tl,$_) if ($x % 2 == 0);
+	    $x++;
+	}
+	$body .= $cgi->popup_menu(-name=>'tagpop',
+				  -values=>["",sort(@tl)],
+				  -onChange=>'var taglist=edit.edit_tags.value.split(" "); taglist.push(edit.tagpop.options[edit.tagpop.selectedIndex].value); edit.edit_tags.value = taglist.join(" ");',
+				  -default=>""
+	);
+
+	$body .= <<EOM;
+  </td>
+</tr>
+EOM
+
+######### textareaにてbibを入力
+	$body .= <<EOM;
+<tr>
+  <td class="fieldHead">BiB</td>
+  <td class="fieldBody">
+  <textarea name="edit_bibentry" cols="60" rows="20">
+  </textarea>
+  </td>
+</tr>
+EOM
+#########
+
+	$body .= <<EOM;
+<tr>
+  <td class="fieldHead_O">$msg{'efile'}</td>
+  <td class="fieldBody">
+EOM
+	$body .= <<EOM;
+<table><tr><td>$msg{'uploadfile'}: <input name="edit_upfile" type="file" /> </td>
+<td>$msg{'filedesc'}: <input name="files_desc_new" type="text" /> </td>
+<td><input type="checkbox" name="files_faccess" value="new" id="chknew"/><label for="chknew">$msg{'faccess'}</label></td>
+</tr></table>
+</td>
+</tr>
+<tr>
+  <td class="fieldHead" colspan="2">
+  <input type="submit" value="$msg{'doEdit'}" />
+  </td>
+</tr>
+</table>
+</form>
+EOM
+#### end mode = bib
 #### begin mode = config
     } elsif ($mode eq "config") { 
 
@@ -3501,10 +3588,10 @@ sub createAList {
 	if ($alink ne '') {
 	    if ($authors[$_]=~/\\/) {
 		$authors[$_] =~s/\\ss\{?\}?/\&szlig;/g;
-		$authors[$_] =~s/\\\"\{?([A-Za-z])\}?/\&\1uml;/g;
-		$authors[$_] =~s/\\\'\{?([A-Za-z])\}?/\&\1acute;/g;
-		$authors[$_] =~s/\\\`\{?([A-Za-z])\}?/\&\1grave;/g;
-		$authors[$_] =~s/\\\~\{?([A-Za-z])\}?/\&\1tilde;/g;
+		$authors[$_] =~s/\\\"\{?\\?([A-Za-z])\}?/\&\1uml;/g;
+		$authors[$_] =~s/\\\'\{?\\?([A-Za-z])\}?/\&\1acute;/g;
+		$authors[$_] =~s/\\\`\{?\\?([A-Za-z])\}?/\&\1grave;/g;
+		$authors[$_] =~s/\\\~\{?\\?([A-Za-z])\}?/\&\1tilde;/g;
 		$authors[$_] =~s/\\\v\{?C\}?/\&\#268;/g;
 		$authors[$_] =~s/\\v\{?c\}?/\&\#269;/g;
 		$authors[$_] =~s/\\v\{?S\}?/\&\#352;/g;
@@ -3656,6 +3743,9 @@ sub createAList {
 	$aline=~s/\_/\\\_/g;
 	$aline=~s/\&/\\\&/g;
     }
+
+
+
     $$rbody .= $aline;
     
 ################################[TIME]
@@ -4361,6 +4451,166 @@ sub registEntry {
     $dbh->disconnect;
     exit(0);
 }
+
+# BiBからのエントリ登録
+sub registEntryByBib {
+    if ($login != 1) {
+	&printError('You must login first.');
+    }
+    my $sess_params = $session->param_hashref();
+    my %params;
+    foreach my $p (grep(/edit_/,keys(%$sess_params))) {
+	$$sess_params{$p} = &htmlScrub($$sess_params{$p});
+    }
+
+    my $mode = $session->param('MODE');
+    my $bibent = $session->param('edit_bibentry');
+    #write DB
+    use BibTeX::Parser;
+    use BibTeX::Parser::Author;
+    use IO::String;
+    # Create parser object ...
+    my $bibh = IO::String->new($bibent);
+    my $parser = BibTeX::Parser->new($bibh);
+
+    my $first_id = -1;
+    # ... and iterate over entries
+    while (my $entry = $parser->next ) {
+	if ($entry->parse_ok) {
+	    next if ($entry->field('author') eq "");
+	    next if ($entry->field('title') eq "");
+	    
+	    my $pages = $entry->field('pages');
+	    $pages =~s/\-\-/\-/g;
+	    
+	    my @authors = split(/\s+and\s+/,$entry->field('author')); 
+	    my @author;
+	    foreach (@authors) {
+		my ($f,$v,$l,$j) = BibTeX::Parser::Author->split($_);
+		my $a = $f if ($f ne "");
+		$a .= " ".$v if ($v ne "");
+		$a .= " ".$l if ($l ne "");
+		$a .= " ".$j if ($j ne "");
+		push(@author,$a);
+	    } 
+	    my $comma_author = join(",",@author);
+	    my @editors = split(/\s+and\s+/,$entry->field('editor')); 
+	    my @editor;
+	    foreach (@editors) {
+		my ($f,$v,$l,$j) = BibTex::Parser::Author->split($_);
+		my $a = $f if ($f ne "");
+		$a .= " ".$v if ($v ne "");
+		$a .= " ".$l if ($l ne "");
+		$a .= " ".$j if ($j ne "");
+		push(@author,$a);
+	    } 
+	    my $comma_editor = join(",",@editor);
+	    my $url = $entry->field('doi') || $entry->field('url');
+	    my @v = (lc($entry->type), $$sess_params{'edit_ptype'}, $comma_author,
+		     $comma_editor, $entry->field('key'), $entry->field('title'),
+		     $entry->field('journal'),$entry->field('booktitle'),$entry->field('series'),
+		     $entry->field('volume'),$entry->field('number'),$entry->field('chapter'),
+		     $pages,$entry->field('edition'),$entry->field('school'),
+		     $entry->field('type'),$entry->field('institution'),$entry->field('organization'),
+		     $entry->field('publisher'),$entry->field('address'),$entry->field('month'),
+		     $entry->field('year'),$entry->field('howpublished'),$entry->field('note'),
+		     $entry->field('annote'),$entry->field('abstract'),"",
+		     "","","",
+		     "","","",
+		     "",$entry->field('doi')
+		);
+	    
+	    my $sth;
+	    eval {
+		$sth = $dbh->prepare("INSERT INTO bib VALUES(null,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+		$sth->execute(@v);
+	    };
+	    if ($@) { 
+		$dbh->rollback; $dbh->disconnect; 
+		&printError("Error: $@");
+	    }
+
+	    my $maxid = $dbh->selectrow_array("SELECT MAX(id) FROM bib;");
+	    $first_id = $maxid if ($first_id == -1);
+
+	    my $tags = $cgi->param('edit_tags');
+	    if ($tags eq "") {
+		$tags = &createTags($entry->field('title'),"");
+	    } else {
+		$tags .= ",".&createTags($entry->field('title'),"");
+	    }
+	    if (!utf8::is_utf8($tags)) {
+		utf8::decode($tags);
+	    }
+	    &updateTagDB($maxid,$tags);
+
+	    for (my $j=0; $j<=$#author; $j++) {
+		my $a = $author[$j];
+		eval {
+		    $sth = $dbh->prepare("INSERT INTO authors VALUES(null,?,?,?,?)");
+		    $sth ->execute($maxid,$j,$a,$a); 
+		};
+		if ($@) { 
+		    $dbh->rollback; $dbh->disconnect; 
+		    &printError("Error: $@");
+		}
+	    }
+	} else {
+	    # warn "Error parsing file: " . $entry->error;
+	}
+    }
+    $dbh->commit;
+	    
+    #attachments 1番目の文献にのみ添付する．それ以外には添付しない．
+    my %efiles;
+    my @faccess = $cgi->param('files_faccess');
+    &getFileListDB($first_id,\%efiles);
+
+    if (keys(%efiles)) {
+	foreach (sort(grep(/,access/,keys(%efiles)))) {
+	    $_=~/^(\d+),/;
+	    my $fid = $1;
+	    my $access = 0;
+	    $access = 1 if (grep(/^$fid$/,@faccess));
+	    &changeAccessFileDB($fid,$access);
+	}
+
+	foreach (sort(grep(/,file_desc/,keys(%efiles)))) {
+	    $_=~/^(\d+),/;
+	    my $fid = $1;
+	    my $desc = $cgi->param("files_desc_$fid");
+	    if ($desc ne "") {
+		&changeDescFileDB($fid,$desc);
+	    }
+	}
+    }	    
+
+    my $fname = $cgi->param('edit_upfile');
+    print STDERR $fname if $debug;
+    if ($fname ne "") {
+	my $fh = $cgi->upload('edit_upfile');
+	# MIMEタイプ取得
+	#my $mimetype = $cgi->uploadInfo($fh)->{'Content-Type'};
+	my $refdata = by_suffix($fh);
+	my ($mimetype, $encoding) = @$refdata;
+	my $file_contents = join('',<$fh>);
+	my $filedesc = $cgi->param('files_desc_new');
+	if ($file_contents) {
+	    print STDERR "Do insertFileDB now!" if $debug;
+	    my $a = grep(/new/,@faccess) ? 1 : 0;
+	    &insertFileDB($fh,$mimetype,$file_contents,$a,$filedesc);
+	}
+    }
+    $session->clear([grep(/edit_/,keys(%$sess_params))]);
+    $session->clear([grep(/files_/,keys(%$sess_params))]);
+
+    &expireCacheFromCDB;
+    #redirect
+    print $cgi->redirect("$scriptName?MODE=detail");
+    $dbh->disconnect;
+    exit(0);
+}
+
 
 # 必須フィールドをチェック
 sub checkNeededField {

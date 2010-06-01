@@ -29,6 +29,7 @@ our %viewMenu = (
     "table"=> "Table",
     "latex"=> "LaTeX",
     "add"=>   "Add",
+    "bib"=>   "Add bib",
     "edit"=>  "Edit",
     "delete"=>"Delete",
     );
