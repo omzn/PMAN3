@@ -221,6 +221,7 @@ our %msg = (
         "Title_detail"=>"Detail of a publication",
         "Title_edit"=>"Edit a publication",
         "Title_add"=>"Add a publication",
+        "Title_bib"=>"Add publications from bib",
         "Title_category"=>"Modify categories",
 
         "deleteConfirm"=>"Are you sure to delete this publication?",

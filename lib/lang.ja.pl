@@ -220,6 +220,7 @@ our %msg = (
         "Title_detail"=>"研究業績の詳細",
         "Title_edit"=>"研究業績の編集",
         "Title_add"=>"研究業績を追加",
+        "Title_bib"=>"Bibから一括追加",
         "Title_category"=>"分類の設定",
 
         "deleteConfirm"=>"この文献を削除してもよろしいですか？",
