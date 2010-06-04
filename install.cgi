@@ -16,6 +16,24 @@ BEGIN {
 use strict;
 use utf8;
 
+my %required_modules = (
+    'CGI' => 3.49, 
+    'DBI' => 0, 
+    'DBD::SQLite' => 1.29, 
+    'CGI::Session' => 0, 
+    'CGI::Cookie' => 0, 
+    'HTML::Template' => 0, 
+    'HTML::Scrubber' => 0, 
+    'HTML::Entities' => 0, 
+    'URI::Escape' => 0, 
+    'Encode' => 0, 
+    'Digest::MD5' => 0, 
+    'MIME::Types' => 0, 
+    'Time::HiRes' => 0,
+    'BibTeX::Parser' => 0,
+    'BibTeX::Parser::Author' => 0,
+    'IO::String' => 0
+    );
 
 my $doc;
 my $cgi;
@@ -130,22 +148,6 @@ EOM
 </tr>
 EOM
 
-    my %required_modules = (
-	'CGI' => 3.49, 
-	'DBI' => 0, 
-	'DBD::SQLite' => 1.29, 
-	'CGI::Session' => 0, 
-	'CGI::Cookie' => 0, 
-	'HTML::Template' => 0, 
-	'HTML::Scrubber' => 0, 
-	'HTML::Entities' => 0, 
-	'URI::Escape' => 0, 
-	'Encode' => 0, 
-	'Digest::MD5' => 0, 
-	'MIME::Types' => 0, 
-	'Time::HiRes' => 0,
-	'BibTeX::Parser' => 0,
-    );
     my %installed;
 
     foreach (sort(keys(%required_modules))) {    

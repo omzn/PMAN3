@@ -5,7 +5,7 @@
 #                               
 #              (c) 2002-2010 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.2 beta build 20100526";
+my $VERSION = "3.2 beta build 2010.06.02";
 # 
 # =================================================================================
 BEGIN {
@@ -28,6 +28,9 @@ use Encode;
 use Digest::MD5 qw/md5_hex/;
 use MIME::Types qw/by_suffix/;
 use URI::Escape qw/uri_escape_utf8/;
+use IO::String;
+use BibTeX::Parser;
+use BibTeX::Parser::Author;
 
 #=====================================================
 # Constants
@@ -2736,8 +2739,7 @@ EOM
 <tr>
   <td class="fieldHead">BiB</td>
   <td class="fieldBody">
-  <textarea name="edit_bibentry" cols="60" rows="20">
-  </textarea>
+  <textarea name="edit_bibentry" cols="60" rows="20"></textarea>
   </td>
 </tr>
 EOM
@@ -3742,9 +3744,9 @@ sub createAList {
 	$aline=~s/\%/\\\%/g;
 	$aline=~s/\_/\\\_/g;
 	$aline=~s/\&/\\\&/g;
+    } else {
+	$aline=~s/\\\s+/ /;
     }
-
-
 
     $$rbody .= $aline;
     
@@ -4093,9 +4095,7 @@ EOM
   $msg{"Head_$fld"} $ndd
   </td>
   <td class="fieldBody">
-<textarea name="edit_$fld" rows="10" cols="80">
-$vl
-</textarea>
+<textarea name="edit_$fld" rows="10" cols="80">$vl</textarea>
   $msg{"Exp_$fld"}
   </td> 
 </tr>
@@ -4466,9 +4466,6 @@ sub registEntryByBib {
     my $mode = $session->param('MODE');
     my $bibent = $session->param('edit_bibentry');
     #write DB
-    use BibTeX::Parser;
-    use BibTeX::Parser::Author;
-    use IO::String;
     # Create parser object ...
     my $bibh = IO::String->new($bibent);
     my $parser = BibTeX::Parser->new($bibh);
@@ -4485,25 +4482,32 @@ sub registEntryByBib {
 	    
 	    my @authors = split(/\s+and\s+/,$entry->field('author')); 
 	    my @author;
-	    foreach (@authors) {
-		my ($f,$v,$l,$j) = BibTeX::Parser::Author->split($_);
-		my $a = $f if ($f ne "");
-		$a .= " ".$v if ($v ne "");
-		$a .= " ".$l if ($l ne "");
-		$a .= " ".$j if ($j ne "");
-		push(@author,$a);
-	    } 
+	    eval {
+		foreach (@authors) {
+		    my ($f,$v,$l,$j) = BibTeX::Parser::Author->split($_);
+		    my $a;
+		    $a = $f if ($f ne "");
+		    $a .= " ".$v if ($v ne "");
+		    $a .= " ".$l if ($l ne "");
+		    $a .= " ".$j if ($j ne "");
+		    push(@author,$a) if ($a);
+		} 
+	    };
 	    my $comma_author = join(",",@author);
 	    my @editors = split(/\s+and\s+/,$entry->field('editor')); 
 	    my @editor;
-	    foreach (@editors) {
-		my ($f,$v,$l,$j) = BibTex::Parser::Author->split($_);
-		my $a = $f if ($f ne "");
-		$a .= " ".$v if ($v ne "");
-		$a .= " ".$l if ($l ne "");
-		$a .= " ".$j if ($j ne "");
-		push(@author,$a);
-	    } 
+	    eval {
+		foreach (@editors) {
+		    my ($f,$v,$l,$j) = BibTeX::Parser::Author->split($_);
+		    my $a;
+		    $a = $f if ($f ne "");
+		    $a .= " ".$v if ($v ne "");
+		    $a .= " ".$l if ($l ne "");
+		    $a .= " ".$j if ($j ne "");
+		    push(@editor,$a) if ($a);
+		} 
+	    };
+	    next if ($@);
 	    my $comma_editor = join(",",@editor);
 	    my $url = $entry->field('doi') || $entry->field('url');
 	    my @v = (lc($entry->type), $$sess_params{'edit_ptype'}, $comma_author,
@@ -4517,7 +4521,7 @@ sub registEntryByBib {
 		     $entry->field('annote'),$entry->field('abstract'),"",
 		     "","","",
 		     "","","",
-		     "",$entry->field('doi')
+		     "",$url
 		);
 	    
 	    my $sth;
@@ -4530,9 +4534,10 @@ sub registEntryByBib {
 		&printError("Error: $@");
 	    }
 
-	    my $maxid = $dbh->selectrow_array("SELECT MAX(id) FROM bib;");
+	    my $maxid = $dbh->selectrow_array("SELECT MAX(id) FROM bib");
 	    $first_id = $maxid if ($first_id == -1);
 
+	    # Tagの登録
 	    my $tags = $cgi->param('edit_tags');
 	    if ($tags eq "") {
 		$tags = &createTags($entry->field('title'),"");
@@ -4544,6 +4549,7 @@ sub registEntryByBib {
 	    }
 	    &updateTagDB($maxid,$tags);
 
+	    # AuthorsDBへの登録
 	    for (my $j=0; $j<=$#author; $j++) {
 		my $a = $author[$j];
 		eval {
@@ -4606,7 +4612,7 @@ sub registEntryByBib {
 
     &expireCacheFromCDB;
     #redirect
-    print $cgi->redirect("$scriptName?MODE=detail");
+    print $cgi->redirect("$scriptName?D=$first_id");
     $dbh->disconnect;
     exit(0);
 }
@@ -4979,7 +4985,7 @@ sub createTags {
 	    if (!utf8::is_utf8($title)) {
 		utf8::decode($title);
 	    }
-	    $title =~s/[{}\$\_\:\'\`\(\)]/ /g;
+	    $title =~s/[{}\$\_\:\'\`\(\)\"]/ /g;
 	    require Text::MeCab;
 	    my $m = Text::MeCab->new();
 	    my $n = $m->parse($title);
@@ -5001,7 +5007,7 @@ sub createTags {
     }
     # 英語部分
     #use Text::English;
-    $title =~s/[\[\]{}\$\_\:\'\`\(\)\\]/ /g;
+    $title =~s/[\[\]{}\$\_\:\'\`\(\)\\\"]/ /g;
     my @words = split(/\s+/,$title);
     #my @words = Text::English::stem(split(/\s+/,$title));
     foreach my $str (@words) {
