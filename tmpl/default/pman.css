@@ -99,3 +99,15 @@ img.math {
 .red, .red a:link, .red a:visited, .red a:hover {
     color: red;
 }
+
+pre {
+  white-space: -moz-pre-wrap; /* Mozilla */
+  white-space: -pre-wrap;     /* Opera 4-6 */
+  white-space: -o-pre-wrap;   /* Opera 7 */
+  white-space: pre-wrap;      /* CSS3 */
+  word-wrap: break-word;      /* IE 5.5+ */
+}
+
+.bibent {
+    width: 100%;
+}

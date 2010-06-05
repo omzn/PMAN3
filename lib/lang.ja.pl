@@ -28,6 +28,7 @@ our %viewMenu = (
     "list"=>"リスト",
     "table"=>"　表　",
     "latex"=>"LaTeX",
+    "bbl"=>"BibTeX",
     "add"=>"追　加",
     "bib"=>"Bib追加",
     "edit"=>"編　集",
@@ -216,7 +217,8 @@ our %msg = (
          
         "Title_list"=>"研究業績リスト",
         "Title_table"=>"研究業績表",
-        "Title_latex"=>"LaTeX用研究業績リスト",
+        "Title_latex"=>"LaTeX研究業績リスト",
+        "Title_bbl"=>"BibTeXリスト",
         "Title_detail"=>"研究業績の詳細",
         "Title_edit"=>"研究業績の編集",
         "Title_add"=>"研究業績を追加",

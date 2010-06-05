@@ -1612,7 +1612,7 @@ sub printMenu {
     # 言語・詳細
     my $topmenu = "<p>";
 
-    if (grep(/^$mode$/,('list','table','latex'))) {
+    if (grep(/^$mode$/,('list','table','latex','bbl'))) {
 
 	my $tabsimple = $mmode eq "simple" ? "activetoptab" : "toptab";
 	my $tabdetail = $mmode eq "detail" ? "activetoptab" : "toptab";
@@ -1656,7 +1656,7 @@ EOM
     # 検索メニュー
     my $searchmenu;
 
-    if (grep(/^$mode$/,('list','table','latex'))) {
+    if (grep(/^$mode$/,('list','table','latex','bbl'))) {
 	$searchmenu .= <<EOM;
 <script type="text/javascript">
 function clearFormAll() {
@@ -1929,6 +1929,7 @@ EOM
 <li><a href="$scriptName?MODE=list">$viewMenu{'list'}</a></li>
 <li><a href="$scriptName?MODE=table">$viewMenu{'table'}</a></li>
 <li><a href="$scriptName?MODE=latex">$viewMenu{'latex'}</a></li>
+<li><a href="$scriptName?MODE=list">$viewMenu{'bbl'}</a></li>
 </ul>
 EOM
 
@@ -2000,7 +2001,7 @@ sub printBody {
     my $lmode = $session->param('LOGIN') || "off";
     $session->clear('LOGIN');
 
-    if ($mode eq "list" || $mode eq "latex" || $mode eq "table") {
+    if ($mode eq "list" || $mode eq "latex" || $mode eq "table" || $mode eq "bbl") {
 	$session->param('prevMODE',$mode);
     }
 
@@ -2113,6 +2114,19 @@ EOM
 </dl>
 EOM
 #### end mode = list
+#### begin mode = bbl
+    } elsif ($mode eq "bbl") {
+	$body .= <<EOM;
+<pre class="bibent">
+EOM
+	foreach my $abib (@$bib) {
+	    $body .= &genBib($abib);
+	    $body .= "\n";
+	}
+	$body .= <<EOM;
+</pre>
+EOM
+#### end mode = bbl
 #### begin mode = latex
     } elsif ($mode eq "latex" || $mode eq "PDF") {
 
@@ -2455,19 +2469,20 @@ EOM
 <tr>
   <td class="fieldHead">$msg{'Head_bibent'}</td>
   <td class="fieldBody">
-  <dl class="bibent">
+  <pre class="bibent">
 EOM
-        $body .= "<dt>\@$$abib{'style'}\{paper$$abib{'id'},</dt>";
 
-	foreach (@bb_order) {
-	    my $aline = "<dd>".&createAbibEntry($$abib{'style'},$_,$$abib{$_});
-	    $aline=~s/\n/<\/dd>/g;
-	    $body .= $aline;
-	}
-        $body .= "<dt>\}</dt>";
+        $body .= &genBib($abib); 
+	#"<dt>\@$$abib{'style'}\{paper$$abib{'id'},</dt>";
+	#foreach (@bb_order) {
+	#    my $aline = "<dd>".&createAbibEntry($$abib{'style'},$_,$$abib{$_});
+	#    $aline=~s/\n/<\/dd>/g;
+	#    $body .= $aline;
+	#}
+        #$body .= "<dt>\}</dt>";
 
 	$body .= <<EOM;
-  </dl>
+  </pre>
   </td>
   </tr>
 </table>
@@ -3537,7 +3552,10 @@ sub createAList {
 		    if (!$isJ) {
 			my @newas;
 			foreach (split(/\s+/,$as[1])) { # First内をスペース分割
-			    $_=~s/^([^a-zA-Z]*[a-zA-Z][^a-zA-Z\.]*).*$/\U$1\./; # 頭文字だけ残す
+			    $_=~s/^(([^a-zA-Z]*)[a-zA-Z]([^a-zA-Z\.]*)).*$/\U$1\./; # 頭文字だけ残す
+			    if ($2 eq "" && $3 ne "") {
+				$_=~s/[^A-Z\.]+//;
+			    }
 			    push(@newas,$_);
 			}
 			$as[1]=join(' ',@newas);
@@ -3554,7 +3572,11 @@ sub createAList {
 		    if (!$isJ) {
 			my @newas;
 			foreach (split(/\s+/,$as[2])) {
-			    $_=~s/^([^a-zA-Z]*[a-zA-Z][^a-zA-Z\.]*).*$/\U$1\./; # 頭文字だけ残す
+#			    $_=~s/^([^a-zA-Z]*[a-zA-Z][^a-zA-Z\.]*).*$/\U$1\./; # 頭文字だけ残す
+			    $_=~s/^(([^a-zA-Z]*)[a-zA-Z]([^a-zA-Z\.]*)).*$/\U$1\./; # 頭文字だけ残す
+			    if ($2 eq "" && $3 ne "") {
+				$_=~s/[^A-Z\.]+//;
+			    }
 #			    $_=~s/^(.).*$/\U$1\./;
 			    push(@newas,$_);
 			}
@@ -3575,7 +3597,10 @@ sub createAList {
 		if (!$isJ) { # First Last -> Last
 		    my @newas;
 		    foreach (@as) {
-			$_=~s/^([^a-zA-Z]*[a-zA-Z][^a-zA-Z\.]*).*$/\U$1\./; # 頭文字だけ残す
+			    $_=~s/^(([^a-zA-Z]*)[a-zA-Z]([^a-zA-Z\.]*)).*$/\U$1\./; # 頭文字だけ残す
+			    if ($2 eq "" && $3 ne "") {
+				$_=~s/[^A-Z\.]+//;
+			    }
 			#$_=~s/^(.).*$/\U$1\./;
 			push(@newas,$_);
 		    }
@@ -3589,22 +3614,7 @@ sub createAList {
 
 	if ($alink ne '') {
 	    if ($authors[$_]=~/\\/) {
-		$authors[$_] =~s/\\ss\{?\}?/\&szlig;/g;
-		$authors[$_] =~s/\\\"\{?\\?([A-Za-z])\}?/\&\1uml;/g;
-		$authors[$_] =~s/\\\'\{?\\?([A-Za-z])\}?/\&\1acute;/g;
-		$authors[$_] =~s/\\\`\{?\\?([A-Za-z])\}?/\&\1grave;/g;
-		$authors[$_] =~s/\\\~\{?\\?([A-Za-z])\}?/\&\1tilde;/g;
-		$authors[$_] =~s/\\\v\{?C\}?/\&\#268;/g;
-		$authors[$_] =~s/\\v\{?c\}?/\&\#269;/g;
-		$authors[$_] =~s/\\v\{?S\}?/\&\#352;/g;
-		$authors[$_] =~s/\\v\{?s\}?/\&\#353;/g;
-		$authors[$_] =~s/\\v\{?Z\}?/\&\#381;/g;
-		$authors[$_] =~s/\\v\{?z\}?/\&\#382;/g;
-		$authors[$_] =~s/\&Cacute;/\&\#262;/g;
-		$authors[$_] =~s/\&Sacute;/\&\#346;/g;
-		$authors[$_] =~s/\&Nacute;/\&\#323;/g;
-		$authors[$_] =~s/\&Zacute;/\&\#377;/g;
-		# see http://www.thesauruslex.com/typo/eng/enghtml.htm
+		$authors[$_]=&latin_LaTeX2html($authors[$_]);
 	    }
 	    $authors[$_] = "<a href=\"".$alink."A=$enc\">$ul1$authors[$_]$ul2</a>";
 	} else {
@@ -3806,12 +3816,11 @@ sub capitalizePaperTitle {
     return;
 }
 
-sub createAbibEntry {
+sub genBibEntry {
     my ($st,$fld,$vl) = @_;
     my $isNeed = "I";
 
     $isNeed = &bibNeededCheck($st,$fld);
-
     # print each field
     my $aline = "";
     if ($fld eq "author") {
@@ -3822,22 +3831,22 @@ sub createAbibEntry {
 		$vl = join(" and ",split(/,/,$vl));
 	    }
 	    $vl =~s/\&/\\\&/g;
-	    $aline = "$fld = {$vl},\n";
+	    $aline = sprintf("    %10s = {%s},\n",$fld,$vl);
 	}
     } elsif ($fld eq "annote" && $vl ne "") {
 	$vl =~s/\&/\\\&/g;
-	$aline = "$fld = {$vl}\n";
+	$aline = sprintf("    %10s = {%s},\n",$fld,$vl);
     } elsif ($fld eq "year" && $vl ne "") {
 	if ($isNeed ne "I") {
-	    $aline = ($vl == 9999 ? "(to appear)": ($vl == 10000 ? "(submitted)":$vl));
-	    $aline = "$fld = {$aline},\n";
+	    my $y = ($vl == 9999 ? "(to appear)": ($vl == 10000 ? "(submitted)":$vl));
+	    $aline = sprintf("    %10s = {%s},\n",$fld,$y);
 	}
     } elsif ($fld =~ /_e$/) {
     } elsif ($vl ne "") {
 	if ($isNeed ne "I") {
 	    $vl =~s/\&/\\\&/g;
 	    $vl =~s/\%/\\\%/g;
-	    $aline = "$fld = {$vl},\n";
+	    $aline = sprintf("    %10s = {%s},\n",$fld,$vl);
 	}
     }
     return $aline;
@@ -4035,6 +4044,7 @@ EOM
 		  ) ) ) {
 
 	if ($isNeed ne "I") {
+	    $vl = HTML::Entities::encode($vl);
 	$ent .= <<EOM;
 <tr>
   <td class="fieldHead_$isNeed">
@@ -4050,6 +4060,7 @@ EOM
     } elsif (grep(/^$fld$/,( 
 		      "key"
 		  ) ) ) {
+	    $vl = HTML::Entities::encode($vl);
 	$ent .= <<EOM;
 <tr>
   <td class="fieldHead_$isNeed">
@@ -4065,6 +4076,7 @@ EOM
     } elsif (grep(/^$fld$/,( 
 		      "author_e" 
 		  ) ) ) {
+	    $vl = HTML::Entities::encode($vl);
 	$ent .= <<EOM;
 <tr>
   <td class="fieldHead_$isNeed">
@@ -4509,7 +4521,7 @@ sub registEntryByBib {
 	    };
 	    next if ($@);
 	    my $comma_editor = join(",",@editor);
-	    my $url = $entry->field('doi') || $entry->field('url');
+	    my $url =  $entry->field('url') || $entry->field('doi');
 	    my @v = (lc($entry->type), $$sess_params{'edit_ptype'}, $comma_author,
 		     $comma_editor, $entry->field('key'), $entry->field('title'),
 		     $entry->field('journal'),$entry->field('booktitle'),$entry->field('series'),
@@ -5141,6 +5153,49 @@ sub check_module {
 	} else {
 		return 1;
 	}
+}
+
+sub latin_LaTeX2html {
+    # see http://www.thesauruslex.com/typo/eng/enghtml.htm
+    my $str = shift;
+
+    $str =~ s/\\ss\{?\}?/\&szlig;/g;
+    $str =~ s/\\\"\{?\\?([A-Za-z])\}?/\&\1uml;/g;
+    $str =~ s/\\\'\{?\\?([A-Za-z])\}?/\&\1acute;/g;
+    $str =~ s/\\\`\{?\\?([A-Za-z])\}?/\&\1grave;/g;
+    $str =~ s/\\\^\{?\\?([A-Za-z])\}?/\&\1circ;/g;
+    $str =~ s/\\\~\{?\\?([A-Za-z])\}?/\&\1tilde;/g;
+
+    $str =~ s/\\c\{?\\?([A-Za-z])\}?/\&\1cedil;/g;
+    $str =~ s/\\v\{?C\}?/\&\#268;/g;
+    $str =~ s/\\v\{?c\}?/\&\#269;/g;
+    $str =~ s/\\v\{?S\}?/\&\#352;/g;
+    $str =~ s/\\v\{?s\}?/\&\#353;/g;
+    $str =~ s/\\v\{?Z\}?/\&\#381;/g;
+    $str =~ s/\\v\{?z\}?/\&\#382;/g;
+
+    # Polish
+    $str =~ s/\&Cacute;/\&\#262;/g;
+    $str =~ s/\&Nacute;/\&\#323;/g;
+    $str =~ s/\&Sacute;/\&\#346;/g;
+    $str =~ s/\&Zacute;/\&\#377;/g;
+
+    $str =~ s/\&cacute;/\&\#263;/g;
+    $str =~ s/\&nacute;/\&\#324;/g;
+    $str =~ s/\&sacute;/\&\#347;/g;
+    $str =~ s/\&zacute;/\&\#378;/g;
+
+    return $str;
+}
+
+sub genBib {
+    my $abib = shift;
+    my $bibent = "\@$$abib{'style'}\{id$$abib{'id'},\n";
+    foreach (@bb_order) {
+	my $aline = &genBibEntry($$abib{'style'},$_,$$abib{$_});
+	$bibent .= $aline;
+    }
+    $bibent .= "}\n";
 }
 
 exit(0);
