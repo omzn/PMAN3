@@ -1929,7 +1929,7 @@ EOM
 <li><a href="$scriptName?MODE=list">$viewMenu{'list'}</a></li>
 <li><a href="$scriptName?MODE=table">$viewMenu{'table'}</a></li>
 <li><a href="$scriptName?MODE=latex">$viewMenu{'latex'}</a></li>
-<li><a href="$scriptName?MODE=list">$viewMenu{'bbl'}</a></li>
+<li><a href="$scriptName?MODE=bbl">$viewMenu{'bbl'}</a></li>
 </ul>
 EOM
 
