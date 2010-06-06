@@ -93,8 +93,8 @@ dt.yearhead {
     margin:20px 0 12px 0; 
     padding: 5px 0 0 0; 
     width:100%; 
-    border-top: 1px solid #303030;
+    border-top: 1px solid #505050;
 }
 
-.toptab { padding: 0 10px 0 10px; margin: 0 10px 0 10px; color: #ddd; border-right: 1px solid #505052; }
-.activetoptab { padding: 0 10px 0 10px; margin: 0 10px 0 10px; color: #fdd; border-right: 1px solid #505052;}
+.toptab { padding: 0 5px 0 5px; margin: 0 5px 0 5px; color: #ddd; border-right: 1px solid #505052; }
+.activetoptab { padding: 0 5px 0 5px; margin: 0 5px 0 5px; color: #fdd; border-right: 1px solid #505052;}

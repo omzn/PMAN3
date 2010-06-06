@@ -479,17 +479,17 @@ sub makeQuery {
     my $order = "ORDER BY ";
     my $od = $session->param('SORT') || "t_descend";
     if ($od eq "ascend") {
-	$order .= "year asc,month asc";
+	$order .= "year asc,month asc,number asc";
     } elsif ($od eq "descend") {
-	$order .= "year desc,month desc";
+	$order .= "year desc,month desc,number desc";
     } elsif ($od eq "t_ascend") {
-	$order .= "pt_order,year asc,month asc";
+	$order .= "pt_order,year asc,month asc,number asc";
     } elsif ($od eq "t_descend") {
-	$order .= "pt_order,year desc,month desc";
+	$order .= "pt_order,year desc,month desc,number desc";
     } elsif ($od eq "y_t_ascend") {
-	$order .= "year asc,pt_order,month asc";
+	$order .= "year asc,pt_order,month asc,number asc";
     } elsif ($od eq "y_t_descend") {
-	$order .= "year desc,pt_order,month desc";
+	$order .= "year desc,pt_order,month desc,number desc";
     }
 
     my @smenu = ();
@@ -2305,7 +2305,7 @@ EOM
 <td class="pth">$ptype{$$abib{'ptype'}}<br></td>
 <td class="ptd">
 EOM
-            my @aa = split(/,/,($lang eq 'en' && $$abib{'author_e'} ne '' ? 
+            my @aa = split(/\s*(?<!\\),\s*/,($lang eq 'en' && $$abib{'author_e'} ne '' ? 
 			     $$abib{'author_e'}	: $$abib{'author'})) ;
 	    for (0..$#aa) {
 		my $enc = uri_escape_utf8($aa[$_]);
@@ -3498,9 +3498,9 @@ sub createAList {
     for (0..$#authors) {
 	my $enc = $authors[$_];
 	if($keys[$_] =~ /\S/ ){
-	    if ($keys[$_]=~/^(.+),(.+)$/) {
-		$keys[$_] = "$2 $1";
-	    }
+#	    if ($keys[$_]=~/^(.+)(?<!\\),(.+)$/) {
+#		$keys[$_] = "$2 $1";
+#	    }
 	    $enc = $keys[$_];
 	}	#追加(keyがあればそちらで検索) by Manabe
 	$enc =~s/(^\s*|\s*$)//;
@@ -3531,6 +3531,7 @@ sub createAList {
 	    }
 	    foreach (@al) {
 		my $q = $_;
+		$q =~ s/\\/\\\\/g;
 		if ($a=~/$q/i || $k =~/$q/i) {
 		    if ($mode eq 'list' ) {
 			$ul1 = '<U>'; $ul2 = '</U>';
@@ -3545,8 +3546,8 @@ sub createAList {
 
 	# 略称作成 (始)
 	my $isJ = $isJA; #&isJapanese($authors[$_]);
-	if ($authors[$_]=~/,/) {
-	    my @as = split(/\s*,\s*/,$authors[$_]);
+	if ($authors[$_]=~/(?<!\\),/) {
+	    my @as = split(/\s*(?<!\\),\s*/,$authors[$_]);
 	    if ($#as == 1) { # Last, First -> First Last
 		if ($check{'abbrev'}) {
 		    if (!$isJ) {
@@ -3828,7 +3829,7 @@ sub genBibEntry {
 	    if ($vl =~ /\sand\s/) {
 		$vl = join(" and ",split(/\s+and\s+/,$vl));
 	    } else {
-		$vl = join(" and ",split(/,/,$vl));
+		$vl = join(" and ",split(/(?<!\\),/,$vl));
 	    }
 	    $vl =~s/\&/\\\&/g;
 	    $aline = sprintf("    %10s = {%s},\n",$fld,$vl);
@@ -4400,13 +4401,13 @@ sub registEntry {
     if ($cgi->param('edit_author')=~/\s+and\s+/) {
 	@a = split(/\s+and\s+/,$cgi->param('edit_author'));
     } else {
-	@a = split(/\s*,\s*/,$cgi->param('edit_author'));
+	@a = split(/\s*(?<!\\),\s*/,$cgi->param('edit_author'));
     }
     my @k;
     if ($key=~/\s+and\s+/) {
 	@k = split(/\s+and\s+/,$key);
     } else {
-	@k = split(/\s*,\s*/,$key);
+	@k = split(/\s*(?<!\\),\s*/,$key);
     }
     &deleteAuthorDB($session->param('ID'));
     for (my $i = 0;$i<=$#a;$i++) {
@@ -5165,6 +5166,7 @@ sub latin_LaTeX2html {
     $str =~ s/\\\`\{?\\?([A-Za-z])\}?/\&\1grave;/g;
     $str =~ s/\\\^\{?\\?([A-Za-z])\}?/\&\1circ;/g;
     $str =~ s/\\\~\{?\\?([A-Za-z])\}?/\&\1tilde;/g;
+    $str =~ s/\\\,\{?\\?([A-Za-z])\}?/\&\1tilde;/g;
 
     $str =~ s/\\c\{?\\?([A-Za-z])\}?/\&\1cedil;/g;
     $str =~ s/\\v\{?C\}?/\&\#268;/g;
@@ -5175,6 +5177,8 @@ sub latin_LaTeX2html {
     $str =~ s/\\v\{?z\}?/\&\#382;/g;
 
     # Polish
+    $str =~ s/\\L/\&\#321/g;
+    $str =~ s/\\l/\&\#322/g;
     $str =~ s/\&Cacute;/\&\#262;/g;
     $str =~ s/\&Nacute;/\&\#323;/g;
     $str =~ s/\&Sacute;/\&\#346;/g;

@@ -122,7 +122,7 @@ sub split {
 	    return (undef, undef, $1, undef);
 	}
 
-	my @parts = split /\s*,\s*/, $name;
+	my @parts = split /\s*(?<!\\),\s*/, $name;
 
 	if (@parts == 0) {
 		return (undef, undef, undef, undef);
