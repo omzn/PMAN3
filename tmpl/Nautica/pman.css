@@ -1,0 +1,100 @@
+.fieldHead_N {
+    background-color: #d8a0a0;
+}
+.fieldHead_A {
+    background-color: #d8d8a0;
+}
+.fieldHead_O {
+    background-color: #e0e0e0;
+}
+.fieldHead {
+    background-color: #e0e0e0;
+}
+
+.logo {
+    float: right;
+/*    position: relative;*/
+}
+
+a, a:visited, a:hover {
+    color: inherit;
+    color: expression(this.parentNode.currentStyle.color); /* IE */
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+img {
+    border: none;
+}
+
+img.math {
+}
+
+.right {
+    text-align:right;
+}
+.hide {
+    display:none;
+}
+.tableview {
+    font-size: 0.8em;
+}
+.pth {
+    background-color: #f0f0f0;
+}
+.ptd {
+    border-right: 1px solid #f0f0f0;
+}
+.shortinput {
+    width: 50px;
+}
+.longinput {
+    width: 120px;
+}
+.small {
+    font-size:0.7em;
+}
+.red, .red a:link, .red a:visited, .red a:hover {
+    color: red;
+}
+
+pre {
+  white-space: -moz-pre-wrap; /* Mozilla */
+  white-space: -pre-wrap;     /* Opera 4-6 */
+  white-space: -o-pre-wrap;   /* Opera 7 */
+  white-space: pre-wrap;      /* CSS3 */
+  word-wrap: break-word;      /* IE 5.5+ */
+}
+
+.bibent {
+    width: 100%;
+}
+
+dt {
+    font-size: 1.2em; margin: 0 0 6px; 
+    margin-top:15px;
+    margin-bottom:10px;
+    font-weight: bold;
+}
+dd {
+    text-indent: -2em; 
+    text-align:justify;
+    margin:0 0px 5px 25px;
+}
+
+dt.yearhead { 
+    font-size: 1.4em; 
+    text-shadow: 1px 1px 1px #fff; 
+    color: #008080; 
+    font-weight:400; 
+    margin:20px 0 12px 0; 
+    padding: 5px 0 0 0; 
+    width:100%; 
+    border-top: 1px solid #303030;
+}
+
+.toptab { padding: 0 10px 0 10px; margin: 0 10px 0 10px; color: #ddd; border-right: 1px solid #505052; }
+.activetoptab { padding: 0 10px 0 10px; margin: 0 10px 0 10px; color: #fdd; border-right: 1px solid #505052;}

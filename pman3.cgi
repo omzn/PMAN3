@@ -2117,14 +2117,14 @@ EOM
 #### begin mode = bbl
     } elsif ($mode eq "bbl") {
 	$body .= <<EOM;
-<pre class="bibent">
+<textarea class="bibent" rows="50" cols="80">
 EOM
 	foreach my $abib (@$bib) {
 	    $body .= &genBib($abib);
 	    $body .= "\n";
 	}
 	$body .= <<EOM;
-</pre>
+</textarea>
 EOM
 #### end mode = bbl
 #### begin mode = latex

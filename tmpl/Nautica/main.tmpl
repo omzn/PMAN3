@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title><TMPL_VAR NAME="MAIN_TITLE"></title>
+	<TMPL_VAR NAME="CHARSET">
+	<meta http-equiv="Pragma" content="no-cache"> 
+        <meta http-equiv="Content-Style-Type" content="text/css" />
+	<link rel="stylesheet" type="text/css" href="tmpl/Nautica/css/main.css" />
+	<link rel="stylesheet" type="text/css" href="tmpl/Nautica/pman.css" />
+    </head>
+    <body>
+      <div id="header">
+	<div class="wrap">
+            <h1 id="logo"><a href="#"><TMPL_VAR NAME="PAGE_TITLE"></a></h1>
+	    <p><TMPL_VAR NAME="TOPMENU"> </p>
+
+            <div id="menu">
+              <TMPL_VAR NAME="VIEWMENU">
+            </div>
+
+        </div>
+      </div>
+      <div class="wrap">
+	<div id="main">
+          <div id="contents">
+            <TMPL_VAR NAME="CONTENTS">
+          </div>
+	</div>
+	<div id="side">
+          <a class="logo" href="http://se.is.kit.ac.jp/~o-mizuno/pman3.html"><img class="logo" src="img/logo.png" /></a>
+			<div class="line"></div>
+          <div id="searchmenu">
+            <TMPL_VAR NAME="SEARCHMENU">
+          </div>
+			<div class="line"></div>
+          <div id="searchmenu">
+            <TMPL_VAR NAME="TAGMENU">
+          </div>
+			<div class="line"></div>
+          <div id="searchmenu">
+            <TMPL_VAR NAME="MESSAGEMENU">
+          </div>
+	</div>
+        <div id="footer">
+          <TMPL_VAR NAME="FOOTER">
+	    <p>Design: Luka Cvrk - <a href="http://www.solucija.com" title="Free Web Templates">Solucija</a></p>
+        </div>
+      </div>
+    </body>
+</html>
