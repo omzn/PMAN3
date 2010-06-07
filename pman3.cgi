@@ -4913,7 +4913,7 @@ sub doConfigSetting {
 	      'use_XML','use_mimetex','use_imgtex','texHeader','texFooter',
 	      'use_latexpdf',
 	      'latexcmd','dvipdfcmd','tmpl_name',
-	      'title_list','title_table','title_latex','title_bibtex','title_detail');
+	      'title_list','title_table','title_latex','title_bbl','title_detail');
     foreach (@op) {
 	my $param = $cgi->param('opt_'.$_);
 	if ($param ne "") {
