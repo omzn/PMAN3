@@ -13,9 +13,9 @@ p  { margin: 0 0 15px; }
 .wrap { margin: 0 auto; width: 960px; }
 
 #header { height: 160px; background: #080808 url(../images/bg.jpg) no-repeat center top; color: #ccc; margin: 0 0 30px; }
-#header p { float: right; margin: 20px 0 0; }
+#header p { float: right; margin: 5px 0 0; }
 
-#logo { float: left; margin: 40px 20px 50px 0; color: #fff; letter-spacing: .2em; font-size: 1.9em; }
+#logo { float: left; margin: 30px 20px 50px 0; color: #fff; letter-spacing: .2em; font-size: 1.9em; width:100%}
 #logo a { color: #fff; }
 
 h1 { letter-spacing: -0.04em; font-size: 1.8em; text-shadow: 1px 1px 1px #000; }

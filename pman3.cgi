@@ -1489,11 +1489,15 @@ sub printScreen {
 	foreach (@$bib) {
 	    my $id = $_->{'id'};
 	    my $aline;
-	    &createAList(\$aline,\%check,$ssp,$_);
+	    if ($ssp->{'MODE'} ne "bbl" ) {
+		&createAList(\$aline,\%check,$ssp,$_);
+	    } else {
+		$aline = &genBib($_);
+	    }
 	    $rss->add_item(
 		title => "[$ptype{$_->{'ptype'}}] $_->{'title'}",
 		link => "http://$httpServerName$scriptName?D=$id",
-		description => "$aline"
+		description => "<pre>$aline</pre>"
 		);
 	}
 	$doc = $rss->as_string;
