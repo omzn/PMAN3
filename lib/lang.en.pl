@@ -315,6 +315,17 @@ our %msg = (
 
     "notInstalled"=>"Not installed",
 
+    "set_title_list"=>"Header of list mode",
+    "set_title_list_exp"=>"Specify a header of list mode.",
+    "set_title_table"=>"Header of table mode",
+    "set_title_table_exp"=>"Specify a header of table mode.",
+    "set_title_latex"=>"Header of LaTeX mode",
+    "set_title_latex_exp"=>"Specify a header of LaTeX mode.",
+    "set_title_bbl"=>"Header of BibTeX mode",
+    "set_title_bbl_exp"=>"Specify a header of BibTeX mode.",
+    "set_title_detail"=>"Header of detail mode",
+    "set_title_detail_exp"=>"Specify a header of detail mode.",,
+
 	);
 
 1;

@@ -224,6 +224,7 @@ our %msg = (
         "Title_add"=>"研究業績を追加",
         "Title_bib"=>"Bibから一括追加",
         "Title_category"=>"分類の設定",
+        "Title_config"=>"オプション設定",
 
         "deleteConfirm"=>"この文献を削除してもよろしいですか？",
 
@@ -242,7 +243,6 @@ our %msg = (
     "notavailable"=>"利用できません．",
     "nothingfound"=>"そのような文献が見つかりません．",
 
-    "Title_config"=>"オプション設定",
     "tagsetting"=>"タグ設定",
     "tag_rebuild"=>"タグの再構築（消去）",
     "tag_rebuild_exp"=>"全文献のタグを表題から再構築します．現在のタグは消去されます．",
@@ -316,6 +316,18 @@ our %msg = (
     "dontuse"=>"使用しない",
 
     "notInstalled"=>"未インストール",
+
+    "set_title_list"=>"リストの見出し設定",
+    "set_title_list_exp"=>"リストモードでの見出しを設定します．",
+    "set_title_table"=>"表の見出し設定",
+    "set_title_table_exp"=>"表モードでの見出しを設定します．",
+    "set_title_latex"=>"LaTeXの見出し設定",
+    "set_title_latex_exp"=>"LaTeXモードでの見出しを設定します．",
+    "set_title_bbl"=>"BibTeXリストの見出し設定",
+    "set_title_bbl_exp"=>"BibTeXモードでの見出しを設定します．",
+    "set_title_detail"=>"詳細の見出し設定",
+    "set_title_detail_exp"=>"詳細モードでの見出しを設定します．",
+
 
 );
 

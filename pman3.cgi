@@ -5,7 +5,7 @@
 #                               
 #              (c) 2002-2010 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.2 beta build 2010.06.02";
+my $VERSION = "3.2 beta build 2010.06.07";
 # 
 # =================================================================================
 BEGIN {
@@ -69,6 +69,18 @@ my $dvipdfcmd = "/usr/bin/dvipdfmx -V 4";
 
 my $tmpl_name = "default";
 
+my $title_list;
+my $title_table;
+my $title_latex ;
+my $title_detail;
+my $title_bbl ;
+
+my $title_add ;
+my $title_bib ;
+my $title_edit ;
+my $title_category ;
+my $title_config  ;
+
 my %opts = ( 
     use_XML              => $use_XML,
     use_RSS              => $use_RSS,
@@ -86,7 +98,12 @@ my %opts = (
     texFooter            => $texFooter,
     latexcmd             => $latexcmd,
     dvipdfcmd            => $dvipdfcmd,
-    tmpl_name            => $tmpl_name
+    tmpl_name            => $tmpl_name,
+    title_list           => 'List of works',
+    title_table          => 'Table of works',
+    title_latex          => 'LaTeX list of works',
+    title_detail         => 'Detail of a work',
+    title_bbl            => 'BibTeX list of works',
     );
 
 &getOptionsDB;
@@ -343,6 +360,12 @@ EOM
     # 言語設定
     my $l = $session->param('LANG') || "ja";
     require "$LIBDIR/lang.$l.pl";
+
+    $title_add = $msg{'Title_add'};
+    $title_bib = $msg{'Title_bib'};
+    $title_edit = $msg{'Title_edit'};
+    $title_category = $msg{'Title_category'};
+    $title_config  = $msg{'Title_config'};
 
     # ログイン状態設定
     if ($session->param('PASSWD') eq $PASSWD) {
@@ -1398,11 +1421,13 @@ sub printScreen {
 	    $document = HTML::Template->new(filename => "$TMPLDIR/$tmpl_name/static.tmpl"); 
 	};
 	&printError($@) if ($@);
-	
+
+	my $ttl;
+	eval "\$ttl = \$title_$mode;";
 	($header,$htmlh) = &printHeader;    
 	$document->param(CHARSET => $htmlh);
 	$document->param(MAIN_TITLE => $titleOfSite);
-	$document->param(PAGE_TITLE => $msg{"Title_$mode"});
+	$document->param(PAGE_TITLE => $ttl) ; #$msg{"Title_$mode"});
 	$document->param(CONTENTS=> &printBody);    
 	$document->param(FOOTER=> &printFooter);
 
@@ -1480,11 +1505,14 @@ sub printScreen {
 	    &printError($@);
 	}
 
+	my $ttl;
+	eval "\$ttl = \$title_$mode;";
+
 	($header,$htmlh) = &printHeader;    
 	$document->param(CHARSET => $htmlh);
 	
 	$document->param(MAIN_TITLE => $titleOfSite);
-	$document->param(PAGE_TITLE => $msg{"Title_$mode"});
+	$document->param(PAGE_TITLE => $ttl); #$msg{"Title_$mode"});
 	
 	my ($topm,$searchm,$viewm) = &printMenu;    
 	$document->param(TOPMENU => $topm);
@@ -2821,6 +2849,23 @@ EOM
   <input type="text" name="opt_titleOfSite" value="$titleOfSite"/>
   </td>
 </tr>
+EOM
+
+foreach my $tt (grep(/^title\_/,keys(%opts))) {
+    my $val;
+    eval "\$val = \$$tt;";
+    $body .= <<EOM;
+<tr>
+  <td class="fieldHead" width="25%">$msg{"set_${tt}"}</td>
+  <td class="fieldBody" width="60%">$msg{"set_${tt}_exp"}</td> 
+  <td class="fieldBody" width="15%">
+  <input type="text" name="opt_${tt}" value="$val" />
+  </td>
+</tr>
+EOM
+}
+
+	$body .= <<EOM;
 <tr>
   <td class="fieldHead" width="25%">$msg{'set_maintainername'}</td>
   <td class="fieldBody" width="60%">$msg{'set_maintainername_exp'}</td> 
@@ -4863,7 +4908,8 @@ sub doConfigSetting {
 	      'use_cache','use_DBforSession','use_AutoJapaneseTags','use_RSS',
 	      'use_XML','use_mimetex','use_imgtex','texHeader','texFooter',
 	      'use_latexpdf',
-	      'latexcmd','dvipdfcmd','tmpl_name');
+	      'latexcmd','dvipdfcmd','tmpl_name',
+	      'title_list','title_table','title_latex','title_bibtex','title_detail');
     foreach (@op) {
 	my $param = $cgi->param('opt_'.$_);
 	if ($param ne "") {
