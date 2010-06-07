@@ -4572,6 +4572,7 @@ sub registEntryByBib {
 	    next if ($@);
 	    my $comma_editor = join(",",@editor);
 	    my $url =  $entry->field('url') || $entry->field('doi');
+	    my $note = $entry->field('location') || $entry->field('note');
 	    my @v = (lc($entry->type), $$sess_params{'edit_ptype'}, $comma_author,
 		     $comma_editor, $entry->field('key'), $entry->field('title'),
 		     $entry->field('journal'),$entry->field('booktitle'),$entry->field('series'),
@@ -4579,7 +4580,7 @@ sub registEntryByBib {
 		     $pages,$entry->field('edition'),$entry->field('school'),
 		     $entry->field('type'),$entry->field('institution'),$entry->field('organization'),
 		     $entry->field('publisher'),$entry->field('address'),$entry->field('month'),
-		     $entry->field('year'),$entry->field('howpublished'),$entry->field('note'),
+		     $entry->field('year'),$entry->field('howpublished'),$note,
 		     $entry->field('annote'),$entry->field('abstract'),"",
 		     "","","",
 		     "","","",
@@ -4674,7 +4675,7 @@ sub registEntryByBib {
 
     &expireCacheFromCDB;
     #redirect
-    print $cgi->redirect("$scriptName?D=$first_id");
+    print $cgi->redirect("$scriptName?D=$maxid");
     $dbh->disconnect;
     exit(0);
 }
