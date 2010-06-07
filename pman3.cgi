@@ -479,17 +479,17 @@ sub makeQuery {
     my $order = "ORDER BY ";
     my $od = $session->param('SORT') || "t_descend";
     if ($od eq "ascend") {
-	$order .= "year asc,month asc,number asc";
+	$order .= "year asc,number asc,month asc";
     } elsif ($od eq "descend") {
-	$order .= "year desc,month desc,number desc";
+	$order .= "year desc,number desc,month desc";
     } elsif ($od eq "t_ascend") {
-	$order .= "pt_order,year asc,month asc,number asc";
+	$order .= "pt_order,year asc,number asc,month asc";
     } elsif ($od eq "t_descend") {
-	$order .= "pt_order,year desc,month desc,number desc";
+	$order .= "pt_order,year desc,number desc,month desc";
     } elsif ($od eq "y_t_ascend") {
-	$order .= "year asc,pt_order,month asc,number asc";
+	$order .= "year asc,pt_order,number asc,month asc";
     } elsif ($od eq "y_t_descend") {
-	$order .= "year desc,pt_order,month desc,number desc";
+	$order .= "year desc,pt_order,number desc,month desc";
     }
 
     my @smenu = ();
@@ -3466,7 +3466,7 @@ sub createAList {
     my %check = %{$chk};
 
     my $lang = $ssp->{'LANG'} || "ja";
-    my $mode = $ssp->{'MODE'};
+    my $mode = $ssp->{'MODE'} || "list";
     my $mmode = $ssp->{'MENU'} ;
 
     # タイトルの処理
