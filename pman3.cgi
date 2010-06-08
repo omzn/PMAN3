@@ -4675,7 +4675,7 @@ sub registEntryByBib {
 
     &expireCacheFromCDB;
     #redirect
-    print $cgi->redirect("$scriptName?D=$maxid");
+    print $cgi->redirect("$scriptName?D=$first_id");
     $dbh->disconnect;
     exit(0);
 }
