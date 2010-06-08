@@ -6,21 +6,31 @@
 	<TMPL_VAR NAME="CHARSET">
 	<meta http-equiv="Pragma" content="no-cache"> 
         <meta http-equiv="Content-Style-Type" content="text/css" />
+	<link rel="stylesheet" type="text/css" href="tmpl/andreas01/andreas01.css" />
 	<link rel="stylesheet" type="text/css" href="tmpl/andreas01/pman.css" />
     </head>
     <body>
-      <div id="container">
-        <div id="header">
-	    <a class="logo" href="http://se.is.kit.ac.jp/~o-mizuno/pman3.html"><img class="logo" src="img/logo.png" /></a>
-            <h1><TMPL_VAR NAME="PAGE_TITLE"></h1>
-        </div>
-        <div id="contents">
+      <div id="wrap">
+
+      <div id="topmenu">
+            <TMPL_VAR NAME="TOPMENU">
+      </div>
+      <div id="header">
+	<a class="logo" href="http://se.is.kit.ac.jp/~o-mizuno/pman3.html"><img class="logo" src="img/logo.png" /></a>
+        <h1><a href="#"><TMPL_VAR NAME="PAGE_TITLE"></a></h1>
+      </div>
+
+      <div id="leftside">
+      </div>
+  
+      <div id="contentwide">
             <TMPL_VAR NAME="CONTENTS">
-        </div>
-        <div id="footer">
-            <TMPL_VAR NAME="FOOTER">
-	    <p>CSS Design by <a href="http://andreasviklund.com/">Andreas Viklund</a></p>
-        </div>
+      </div>
+      <div id="footer">
+        <TMPL_VAR NAME="FOOTER">
+	  <p>CSS design by <a href="http://andreasviklund.com/">Andreas Viklund</a></p>
+      </div>
+
       </div>
     </body>
 </html>
