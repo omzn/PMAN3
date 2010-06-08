@@ -744,7 +744,7 @@ sub updateDB {
 #	if ($$sp{$p} ne "") {
 	    $$sp{$p}=$dbh->quote($$sp{$p});
 	    $p=~/^edit_([\w_]+)$/;
-	    push(@q,"$1=$$sp{$p}") if ($1 ne 'upfile' && $1 ne 'tags');
+	    push(@q,"$1=$$sp{$p}") if ($1 ne 'upfile' && $1 ne 'tags' && $1 ne 'bibentry');
 #	}
     }
  
@@ -4527,6 +4527,7 @@ sub registEntryByBib {
 
     my $mode = $session->param('MODE');
     my $bibent = $session->param('edit_bibentry');
+    $session->clear('edit_bibentry');
     #write DB
     # Create parser object ...
     my $bibh = IO::String->new($bibent);
