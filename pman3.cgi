@@ -807,12 +807,12 @@ sub getTitleOnlyDB {
 }
 
 sub insertFileDB {
-    my ($fname,$mimetype,$fh,$fa,$desc) = @_;
+    my ($paper_id,$fname,$mimetype,$fh,$fa,$desc) = @_;
 
     my $SQL = "INSERT INTO files VALUES(null,?,?,?,?,?,?)";
     my $sth = $dbh->prepare($SQL);
     eval {
-	$sth->execute($session->param('ID'),$fname,$mimetype,$fh,$fa,$desc);
+	$sth->execute($paper_id,$fname,$mimetype,$fh,$fa,$desc);
 	$dbh->commit;	  
     };
 
@@ -4500,7 +4500,7 @@ sub registEntry {
 	if ($file_contents) {
 	    print STDERR "Do insertFileDB now!" if $debug;
 	    my $a = grep(/new/,@faccess) ? 1 : 0;
-	    &insertFileDB($fh,$mimetype,$file_contents,$a,$filedesc);
+	    &insertFileDB($session->param('ID'),$fh,$mimetype,$file_contents,$a,$filedesc);
 	}
     }
     $session->clear([grep(/edit_/,keys(%$sess_params))]);
@@ -4668,7 +4668,7 @@ sub registEntryByBib {
 	if ($file_contents) {
 	    print STDERR "Do insertFileDB now!" if $debug;
 	    my $a = grep(/new/,@faccess) ? 1 : 0;
-	    &insertFileDB($fh,$mimetype,$file_contents,$a,$filedesc);
+	    &insertFileDB($first_id,$fh,$mimetype,$file_contents,$a,$filedesc);
 	}
     }
     $session->clear([grep(/edit_/,keys(%$sess_params))]);
