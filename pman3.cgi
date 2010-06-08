@@ -15,7 +15,7 @@ BEGIN {
 use strict;
 use utf8;
 
-my $debug=0;
+my $debug=1;
 
 use DBI;
 use CGI;
