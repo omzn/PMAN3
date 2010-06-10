@@ -7,7 +7,7 @@
 */
 
 *{margin:0;padding:0;}:focus,:active {outline:0}ul,ol{list-style:none}img{border:0} 
-body { font: .74em Sans-Serif; color: #444; background: #f4f4f4; line-height: 1.6em; }
+body { font: .84em Sans-Serif; color: #444; background: #f4f4f4; line-height: 1.6em; }
 a { text-decoration: none; color: #008080; }
 p  { margin: 0 0 15px; }
 .wrap { margin: 0 auto; width: 960px; }
@@ -29,7 +29,7 @@ h3 { font-size: 1.2em; margin: 0 0 6px; }
 #menu li a:hover { color: #fff; }
 #menu li a.current { font-weight: bold; color: #fff; }
 
-#main { clear: left; float: left; width: 690px; } 
+#main { font-size: 1.1em; clear: left; float: left; width: 690px; } 
 
 .l { float: left; width: 310px; }
 .r { float: right; width: 330px; }

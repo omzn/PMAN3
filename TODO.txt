@@ -5,8 +5,6 @@ Bug
 - 1人しか著者が居ないとき，last, first 形式で名前を書いていると，カンマ
   区切りと誤認する．
 
-- von がcapitalizeされる．
-
 Still working...
 
 ・表モードで表示する項目を選択できるようにする．
@@ -15,7 +13,7 @@ Still working...
 
 ・その表やリストをRTFに書き出せるようにする．(Wordでの利用対策) 
 
-・bibでリストを表示する機能．
+[DONE] ・bibでリストを表示する機能．
 
 [DONE] ・bibから追加する機能． 
 
@@ -26,8 +24,9 @@ Idea...
   - 頻出著者 Best 10 -? pie chart
   - 頻出tag  Best 10 -> pie chart
 
-#・mod_rewriteによる短縮URL機能を追加?
-#  /pman/A/Mizuno/ -> pman.cgi?A=Mizuno
-
 #・iPhone用表示？
 
+分散文献DBからのPull
+・リモートPMANからの検索結果を統合する．
+ - bibtexモードでのRSSにはbibデータが載るようにした．
+ - 複数のPMAN-bib-RSSからデータを取得し，それぞれをローカルDBのbibと同じフォーマットのdbにしてやる．その際，サイト毎にptypeを指定する．

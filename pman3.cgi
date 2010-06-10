@@ -5,7 +5,7 @@
 #                               
 #              (c) 2002-2010 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.2 beta build 2010.06.07";
+my $VERSION = "3.2 beta build 2010.06.10";
 # 
 # =================================================================================
 BEGIN {
@@ -15,7 +15,7 @@ BEGIN {
 use strict;
 use utf8;
 
-my $debug=1;
+my $debug=0;
 
 use DBI;
 use CGI;
@@ -1493,11 +1493,12 @@ sub printScreen {
 		&createAList(\$aline,\%check,$ssp,$_);
 	    } else {
 		$aline = &genBib($_);
+		$aline = "<pre>".$aline."</pre>";
 	    }
 	    $rss->add_item(
 		title => "[$ptype{$_->{'ptype'}}] $_->{'title'}",
 		link => "http://$httpServerName$scriptName?D=$id",
-		description => "<pre>$aline</pre>"
+		description => $aline
 		);
 	}
 	$doc = $rss->as_string;
@@ -3602,9 +3603,11 @@ sub createAList {
 		    if (!$isJ) {
 			my @newas;
 			foreach (split(/\s+/,$as[1])) { # First内をスペース分割
-			    $_=~s/^(([^a-zA-Z]*)[a-zA-Z]([^a-zA-Z\.]*)).*$/\U$1\./; # 頭文字だけ残す
-			    if ($2 eq "" && $3 ne "") {
-				$_=~s/[^A-Z\.]+//;
+			    if ($_ !~/^[a-z]+$/) { # vonなどはそのまま
+				$_=~s/^(([^a-zA-Z]*)[a-zA-Z]([^a-zA-Z\.]*)).*$/\U$1\./; # 頭文字だけ残す
+				if ($2 eq "" && $3 ne "") {
+				    $_=~s/[^A-Z\.]+//;
+				}
 			    }
 			    push(@newas,$_);
 			}
@@ -3622,12 +3625,12 @@ sub createAList {
 		    if (!$isJ) {
 			my @newas;
 			foreach (split(/\s+/,$as[2])) {
-#			    $_=~s/^([^a-zA-Z]*[a-zA-Z][^a-zA-Z\.]*).*$/\U$1\./; # 頭文字だけ残す
-			    $_=~s/^(([^a-zA-Z]*)[a-zA-Z]([^a-zA-Z\.]*)).*$/\U$1\./; # 頭文字だけ残す
-			    if ($2 eq "" && $3 ne "") {
-				$_=~s/[^A-Z\.]+//;
+			    if ($_ !~/^[a-z]+$/) { # vonなどはそのまま
+				$_=~s/^(([^a-zA-Z]*)[a-zA-Z]([^a-zA-Z\.]*)).*$/\U$1\./; # 頭文字だけ残す
+				if ($2 eq "" && $3 ne "") {
+				    $_=~s/[^A-Z\.]+//;
+				}
 			    }
-#			    $_=~s/^(.).*$/\U$1\./;
 			    push(@newas,$_);
 			}
 			$as[2]=join(' ',@newas);
@@ -3647,11 +3650,12 @@ sub createAList {
 		if (!$isJ) { # First Last -> Last
 		    my @newas;
 		    foreach (@as) {
+			if ($_ !~/^[a-z]+$/) { # vonなどはそのまま
 			    $_=~s/^(([^a-zA-Z]*)[a-zA-Z]([^a-zA-Z\.]*)).*$/\U$1\./; # 頭文字だけ残す
 			    if ($2 eq "" && $3 ne "") {
 				$_=~s/[^A-Z\.]+//;
 			    }
-			#$_=~s/^(.).*$/\U$1\./;
+			}
 			push(@newas,$_);
 		    }
 		    $authors[$_] = join(" ",(@newas,$lastname));
