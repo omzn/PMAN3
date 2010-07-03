@@ -7,17 +7,19 @@
 	<meta http-equiv="Pragma" content="no-cache"> 
         <meta http-equiv="Content-Style-Type" content="text/css" />
 	<link rel="stylesheet" type="text/css" href="tmpl/enthusiastica/css/main.css" />
+	<link rel="stylesheet" type="text/css" href="tmpl/enthusiastica/css/pman.css" />
     </head>
     <body>
       <div id="wrap">
 
-        <div id="logo">
-          <h1><TMPL_VAR NAME="PAGE_TITLE"></h1>
-        </div>
-
 	<div id="explore">
           <TMPL_VAR NAME="TOPMENU">
 	</div>
+
+        <div id="logo">
+          <h1><TMPL_VAR NAME="MAIN_TITLE"></h1>
+          <p><TMPL_VAR NAME="PAGE_TITLE"></p>
+        </div>
 
         <div id="menu">
 	  <div id="menu-left"></div>
