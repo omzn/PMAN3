@@ -5,7 +5,7 @@
 #                               
 #              (c) 2002-2010 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.2 beta build 2010.06.10";
+my $VERSION = "3.2 beta 2010.07.14";
 # 
 # =================================================================================
 BEGIN {
