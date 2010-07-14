@@ -211,6 +211,8 @@ our %msg = (
 	"Head_bibent"=>"BiBTeX entry",
 	"Head_url"=>"URL",
 	"Exp_url"=>"URL for this publication",
+	"Head_enterbib"=>"Bib entry",
+	"Exp_enterbib"=>"Describe Bib entries. Above category is applied to all entries. Electronic file is only attatched to the first entry. Tags are appended to each entry.",
 
 	"volnum"=>"Volume / Number",
 	"ifacc"=>"Impact factor / Acceptance",

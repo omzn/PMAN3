@@ -139,8 +139,8 @@ our %msg = (
 	"need" => "[必須]",
 	"altneed" => "[どちらか必須]",
 
-        "accepted" => "(採録済)",
-        "submitted" => "(投稿中)",
+        "accepted" => "採録済",
+        "submitted" => "投稿中",
 
 	"Head_address" => "出版社住所 (address)",
 	"Exp_address" => "出版社の住所を記す．",
@@ -210,6 +210,8 @@ our %msg = (
 	"Head_bibent"=>"BiBTeXエントリ",
 	"Head_url"=>"URL",
 	"Exp_url"=>"この文献のURL",
+	"Head_enterbib"=>"Bibエントリ",
+	"Exp_enterbib"=>"Bibエントリを記入します．上で指定した分類に追加されます．なお，Bibエントリは複数を一括で登録できます．複数エントリを登録する場合，下の電子ファイルに指定したファイルは最初のエントリにのみ添付されます．タグは個々のエントリについて生成したものに，上で指定したものを追加します．",
 
 	"volnum"=>"巻号",
 	"ifacc"=>"JCR/採択率",

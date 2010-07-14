@@ -2785,8 +2785,9 @@ EOM
 ######### textareaにてbibを入力
 	$body .= <<EOM;
 <tr>
-  <td class="fieldHead">BiB</td>
+  <td class="fieldHead">$msg{'Head_enterbib'}</td>
   <td class="fieldBody">
+  $msg{'Exp_enterbib'}
   <textarea name="edit_bibentry" cols="60" rows="20"></textarea>
   </td>
 </tr>
