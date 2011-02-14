@@ -3874,6 +3874,9 @@ sub createAList {
     } elsif ($$ent{'style'} eq "techreport") {
 	my $tp = "$$ent{'type'}," if ($$ent{'type'});
 	$aline .= "$lquot$t,$rquot $tp $vvnn $$ent{'institution'}, $yymm.";
+    } elsif ($$ent{'style'} eq "misc") {
+	my $how = $$ent{'howpublished'};
+	$aline .= "$lquot$t,$rquot $how, $yymm.";
     } else {
 	my $note = $$ent{'note'};
 	$note .= ',' if ($note ne "");
