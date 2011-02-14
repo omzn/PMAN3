@@ -287,6 +287,13 @@ our %msg = (
 
     "set_passwd"=>"パスワード設定",
     "set_passwd_exp"=>"管理者モードになるためのパスワードを設定します．",
+    "set_auth_ldap"=>"LDAP認証設定 (experimental)",
+    "set_auth_ldap_exp"=>"PMANの認証設定にLDAP認証を使うかどうか選択します．",
+    "set_auth_ldap_host"=>"LDAP認証ホスト名",
+    "set_auth_ldap_host_exp"=>"LDAPサーバのホスト名を指定します．",
+    "set_auth_ldap_baseDN"=>"LDAPベースDN",
+    "set_auth_ldap_baseDN_exp"=>"LDAPからユーザ名を取得する際に利用するベースDNを設定します．",
+
     "set_titleofsite"=>"サイトタイトル設定",
     "set_titleofsite_exp"=>"サイトのタイトルを設定します．(通常ウィンドウのバーに表示されます．)",
     "set_maintainername"=>"管理者名設定",

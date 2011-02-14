@@ -3,9 +3,9 @@
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
-#              (c) 2002-2010 Osamu Mizuno, All right researved.
+#              (c) 2002-2011 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.2 beta 2010.07.14";
+my $VERSION = "3.2 beta 2011.02.14";
 # 
 # =================================================================================
 BEGIN {
@@ -49,6 +49,7 @@ my $IMGTEXPATH = "$LIBDIR/imgtex.fcgi";
 # Options 
 #=====================================================
 my $PASSWD;
+
 my $titleOfSite;
 my $maintainerName;
 my $maintainerAddress;
@@ -68,6 +69,10 @@ my $latexcmd = "/usr/bin/platex -halt-on-error";
 my $dvipdfcmd = "/usr/bin/dvipdfmx -V 4";
 
 my $tmpl_name = "default";
+
+my $use_auth_ldap = 0;
+my $auth_ldap_host = 'localhost';
+my $auth_ldap_baseDN = 'cn=users,dc=example,dc=com';
 
 my $title_list;
 my $title_table;
@@ -91,6 +96,9 @@ my %opts = (
     use_imgtex           => $use_imgtex,
     use_latexpdf         => $use_latexpdf,
     PASSWD               => $PASSWD,
+    use_auth_ldap        => $use_auth_ldap,
+    auth_ldap_host       => $auth_ldap_host,
+    auth_ldap_baseDN     => $auth_ldap_baseDN,
     titleOfSite          => $titleOfSite,
     maintainerName       => $maintainerName,
     maintainerAddress    => $maintainerAddress,
@@ -332,12 +340,14 @@ EOM
 	    if (!$use_DBforSession);
         $session = new CGI::Session("driver:sqlite", $sid, {DataSource=>$SESS_DB}) 
 	    if ($use_DBforSession);
-	
+
+	# LOGIN = offであれば，sessionからPASSWD情報を削除．
 	if (defined($cgi->param('LOGIN')) && $cgi->param('LOGIN') eq "off") {
 	    $cgi->delete('PASSWD');
 	    $session->clear('PASSWD');
 	}
 
+	# cgiからPASSWDが渡ってきたら，MD5変換して再設定
 	if ($cgi->param('PASSWD')) {
 	    $cgi->param('PASSWD',md5_hex($cgi->param('PASSWD')));
 	}
@@ -354,6 +364,7 @@ EOM
     foreach (keys(%$sp)) {
 	$sbk{$_} = $sp->{$_} ;
     }
+    # ここで，cgi -> session を突っ込む．PASSWDも突っ込まれたはず．
     $session->save_param($cgi); # OK?
 
 
@@ -368,6 +379,27 @@ EOM
     $title_config  = $msg{'Title_config'};
 
     # ログイン状態設定
+    # LDAPログインのデータが渡されてきて，ldap認証がonの場合
+    if ($use_auth_ldap && $cgi->param('LDAP_username') && $cgi->param('LDAP_passwd')) {
+	# ldapで認証できたら，session:PASSWD に
+	# PASSWDをセットしてやるという適当な実装で良かろうか．
+	# そうじゃないと，ずっとsession内にldapのpasswdが残るのでセキュリティどうよ．
+	require Authen::Simple::LDAP;
+	my $ldap = Authen::Simple::LDAP->new( 
+	    host    => $auth_ldap_host,
+	    basedn  => $auth_ldap_baseDN
+	    );
+    
+	if ( $ldap->authenticate( $cgi->param('LDAP_username'), $cgi->param('LDAP_passwd') ) ) {
+	    $session->param('PASSWD',$PASSWD); # sessionに強制的にPASSWDを渡す．
+	    $session->clear('LDAP_username');
+	    $session->clear('LDAP_passwd');
+	    # successfull authentication
+	} else {
+	    $session->clear('PASSWD');
+	}
+    }
+
     if ($session->param('PASSWD') eq $PASSWD) {
 	$login = 1;
     } else {
@@ -1362,6 +1394,7 @@ sub getOptionsDB {
 	my @val = $odbh->selectrow_array($SQL);
 	if (@val != ()) {
 	    eval "\$$n = \'$val[0]\';";
+	    print STDERR "$n = $val[0];"
 	} else {
 	    $SQL = "INSERT INTO config VALUES(null,?,?)";
 	    my $sth = $odbh->prepare($SQL);
@@ -2052,7 +2085,20 @@ sub printBody {
 
 #### login処理
     if ($lmode eq "on") {
-	$body .= <<EOM;
+	if ($use_auth_ldap) {
+	    $body .= <<EOM;
+<p class="login">
+<form action="$scriptName" method="POST">
+Username: 
+<input type="text" name="LDAP_username" size="20" />
+Password: 
+<input type="password" name="LDAP_passwd" size="20" />
+<input type="submit" value="Login" />
+</form>
+</p>
+EOM
+	} else {
+	    $body .= <<EOM;
 <p class="login">
 <form action="$scriptName" method="POST">
 Password: 
@@ -2061,8 +2107,11 @@ Password:
 </form>
 </p>
 EOM
-        return $body;
+	}
+	return $body;
     }
+####
+
 
     if (@$bib == () && !( $mode eq "add" || $mode eq "bib" || $mode eq "category" || $mode eq "config")) {
 	$body .= "<p>$msg{'nothingfound'}</p>";
@@ -2832,6 +2881,38 @@ EOM
   <td class="fieldBody" width="60%">$msg{'set_passwd_exp'}</td> 
   <td class="fieldBody" width="15%">
   <input type="password" name="opt_PASSWD"/>
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'set_auth_ldap'}</td>
+  <td class="fieldBody" width="60%">$msg{'set_auth_ldap_exp'}</td> 
+  <td class="fieldBody" width="15%">
+  <select name="opt_use_auth_ldap">
+EOM
+        my %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
+        for ( 0 .. 1 ) {
+	    my $selected = '';
+	    $selected = "selected" if ($use_auth_ldap == $_);
+	    $body .= <<EOM;
+<option value="$_" $selected>$labels{$_}</option>
+EOM
+        }
+        $body .= <<EOM;
+      </select>
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'set_auth_ldap_host'}</td>
+  <td class="fieldBody" width="60%">$msg{'set_auth_ldap_host_exp'}</td> 
+  <td class="fieldBody" width="15%">
+  <input type="text" name="opt_auth_ldap_host" value="$auth_ldap_host" />
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'set_auth_ldap_baseDN'}</td>
+  <td class="fieldBody" width="60%">$msg{'set_auth_ldap_baseDN_exp'}</td> 
+  <td class="fieldBody" width="15%">
+  <input type="text" name="opt_auth_ldap_baseDN" value="$auth_ldap_baseDN" />
   </td>
 </tr>
 <tr>
@@ -4355,7 +4436,7 @@ sub bibNeededCheck {
 	    $isNeed = "I";
 	}
     } elsif ($st eq "misc") {
-	if (grep(/^$fld$/,('author_e','title_e','author','title','howpublishd','month','year','note'))) {
+	if (grep(/^$fld$/,('author_e','title_e','author','title','howpublished','month','year','note'))) {
 	    # 任意
 	    $isNeed = "O";
 	} else {
@@ -4920,7 +5001,9 @@ sub doConfigSetting {
 	      'use_XML','use_mimetex','use_imgtex','texHeader','texFooter',
 	      'use_latexpdf',
 	      'latexcmd','dvipdfcmd','tmpl_name',
-	      'title_list','title_table','title_latex','title_bbl','title_detail');
+	      'title_list','title_table','title_latex','title_bbl','title_detail',
+	      'use_auth_ldap','auth_ldap_host','auth_ldap_baseDN'
+	);
     foreach (@op) {
 	my $param = $cgi->param('opt_'.$_);
 	if ($param ne "") {

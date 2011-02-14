@@ -285,7 +285,14 @@ our %msg = (
 
     "set_passwd"=>"Password setting",
     "set_passwd_exp"=>"Set password for administrator.",
-   "set_titleofsite"=>"Site title",
+    "set_auth_ldap"=>"LDAP authentication setting",
+    "set_auth_ldap_exp"=>"Use LDAP to authenticate PMAN",
+    "set_auth_ldap_host"=>"LDAP authentication server",
+    "set_auth_ldap_host_exp"=>"Specify LDAP server hostname.",
+    "set_auth_ldap_baseDN"=>"LDAP search base DN",
+    "set_auth_ldap_baseDN_exp"=>"Specify LDAP search base DN for users information.",
+
+    "set_titleofsite"=>"Site title",
     "set_titleofsite_exp"=>"Specify site's title.",
     "set_maintainername"=>"Maintainer's name",
     "set_maintainername_exp"=>"Specify maintainer's name.",
