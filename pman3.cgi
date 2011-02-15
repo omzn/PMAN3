@@ -2184,10 +2184,11 @@ EOM
 	    $body .= "<dd><a href=\"$scriptName?D=$$abib{'id'}\">\[$counter\]</a> ";
 	    # リスト1行生成
 	    if  (!defined($cgi->param('SSI')) && !defined($cgi->param('STATIC'))) {
-		&createAList(\$body,\%check,$ssp,$abib,"$scriptName?","$scriptName?")."</dd>\n";
+		&createAList(\$body,\%check,$ssp,$abib,"$scriptName?","$scriptName?");
+		$body .= "</dd>\n";
 	    } else {
-		&createAList(\$body,\%check,$ssp,$abib)."</dd>\n";
-		
+		&createAList(\$body,\%check,$ssp,$abib);
+		$body .= "</dd>\n";		
 	    }	    
 	    $counter ++;
 	}
