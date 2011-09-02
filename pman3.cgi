@@ -5,7 +5,7 @@
 #                               
 #              (c) 2002-2011 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.2 beta 2011.02.14";
+my $VERSION = "3.2 build 20110902";
 # 
 # =================================================================================
 BEGIN {
@@ -70,10 +70,6 @@ my $dvipdfcmd = "/usr/bin/dvipdfmx -V 4";
 
 my $tmpl_name = "default";
 
-my $use_auth_ldap = 0;
-my $auth_ldap_host = 'localhost';
-my $auth_ldap_baseDN = 'cn=users,dc=example,dc=com';
-
 my $title_list;
 my $title_table;
 my $title_latex ;
@@ -96,9 +92,6 @@ my %opts = (
     use_imgtex           => $use_imgtex,
     use_latexpdf         => $use_latexpdf,
     PASSWD               => $PASSWD,
-    use_auth_ldap        => $use_auth_ldap,
-    auth_ldap_host       => $auth_ldap_host,
-    auth_ldap_baseDN     => $auth_ldap_baseDN,
     titleOfSite          => $titleOfSite,
     maintainerName       => $maintainerName,
     maintainerAddress    => $maintainerAddress,
@@ -279,6 +272,7 @@ sub manageSession {
     if ($cgi->param("D") ne "") {
 	$cgi->param("MODE","detail");
 	my $param = $cgi->param("D");
+	$param =~s/\"//g;
 	if (utf8::is_utf8($param)) {
 	    utf8::encode($param);
 	}
@@ -288,6 +282,7 @@ sub manageSession {
 	$cgi->param("FROM","author");
 	$cgi->param("LOGIC","and");
 	my $param = $cgi->param("A");
+	$param =~s/\"//g;
 	if (utf8::is_utf8($param)) {
 	    utf8::encode($param);
 	}
@@ -297,6 +292,7 @@ sub manageSession {
 	$cgi->param("FROM","tag");
 	$cgi->param("LOGIC","or");
 	my $param = $cgi->param("T");
+	$param =~s/\"//g;
 	if (utf8::is_utf8($param)) {
 	    utf8::encode($param);
 	}
@@ -307,6 +303,8 @@ sub manageSession {
     for my $g ($cgi->param) {
 	if ($g ne 'edit_upfile') { # upfileの破壊を防ぐ
 	    my $param = $cgi->param($g);
+	    $param =~s/\"//g;
+	    #$param = &htmlScrub($param);
 	    if (!utf8::is_utf8($param)) { # utf-8 flagが立ってないやつだけ．
 		my @v = map {Encode::decode('utf-8',$_)} $cgi->param($g);
 		$cgi->param($g,@v);
@@ -379,26 +377,6 @@ EOM
     $title_config  = $msg{'Title_config'};
 
     # ログイン状態設定
-    # LDAPログインのデータが渡されてきて，ldap認証がonの場合
-    if ($use_auth_ldap && $cgi->param('LDAP_username') && $cgi->param('LDAP_passwd')) {
-	# ldapで認証できたら，session:PASSWD に
-	# PASSWDをセットしてやるという適当な実装で良かろうか．
-	# そうじゃないと，ずっとsession内にldapのpasswdが残るのでセキュリティどうよ．
-	require Authen::Simple::LDAP;
-	my $ldap = Authen::Simple::LDAP->new( 
-	    host    => $auth_ldap_host,
-	    basedn  => $auth_ldap_baseDN
-	    );
-    
-	if ( $ldap->authenticate( $cgi->param('LDAP_username'), $cgi->param('LDAP_passwd') ) ) {
-	    $session->param('PASSWD',$PASSWD); # sessionに強制的にPASSWDを渡す．
-	    $session->clear('LDAP_username');
-	    $session->clear('LDAP_passwd');
-	    # successfull authentication
-	} else {
-	    $session->clear('PASSWD');
-	}
-    }
 
     if ($session->param('PASSWD') eq $PASSWD) {
 	$login = 1;
@@ -1878,6 +1856,7 @@ EOM
 EOM
 
     my $search = $session->param('SEARCH') || "" ;
+    $search=~s/\"//g;
     utf8::decode($search) if (!utf8::is_utf8($search)) ;
     $searchmenu .= <<EOM;
         <input class="longinput" name="SEARCH" type="text" size="25" value="$search" />
@@ -2085,19 +2064,6 @@ sub printBody {
 
 #### login処理
     if ($lmode eq "on") {
-	if ($use_auth_ldap) {
-	    $body .= <<EOM;
-<p class="login">
-<form action="$scriptName" method="POST">
-Username: 
-<input type="text" name="LDAP_username" size="20" />
-Password: 
-<input type="password" name="LDAP_passwd" size="20" />
-<input type="submit" value="Login" />
-</form>
-</p>
-EOM
-	} else {
 	    $body .= <<EOM;
 <p class="login">
 <form action="$scriptName" method="POST">
@@ -2107,8 +2073,8 @@ Password:
 </form>
 </p>
 EOM
-	}
-	return $body;
+
+return $body;
     }
 ####
 
@@ -2882,38 +2848,6 @@ EOM
   <td class="fieldBody" width="60%">$msg{'set_passwd_exp'}</td> 
   <td class="fieldBody" width="15%">
   <input type="password" name="opt_PASSWD"/>
-  </td>
-</tr>
-<tr>
-  <td class="fieldHead" width="25%">$msg{'set_auth_ldap'}</td>
-  <td class="fieldBody" width="60%">$msg{'set_auth_ldap_exp'}</td> 
-  <td class="fieldBody" width="15%">
-  <select name="opt_use_auth_ldap">
-EOM
-        my %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
-        for ( 0 .. 1 ) {
-	    my $selected = '';
-	    $selected = "selected" if ($use_auth_ldap == $_);
-	    $body .= <<EOM;
-<option value="$_" $selected>$labels{$_}</option>
-EOM
-        }
-        $body .= <<EOM;
-      </select>
-  </td>
-</tr>
-<tr>
-  <td class="fieldHead" width="25%">$msg{'set_auth_ldap_host'}</td>
-  <td class="fieldBody" width="60%">$msg{'set_auth_ldap_host_exp'}</td> 
-  <td class="fieldBody" width="15%">
-  <input type="text" name="opt_auth_ldap_host" value="$auth_ldap_host" />
-  </td>
-</tr>
-<tr>
-  <td class="fieldHead" width="25%">$msg{'set_auth_ldap_baseDN'}</td>
-  <td class="fieldBody" width="60%">$msg{'set_auth_ldap_baseDN_exp'}</td> 
-  <td class="fieldBody" width="15%">
-  <input type="text" name="opt_auth_ldap_baseDN" value="$auth_ldap_baseDN" />
   </td>
 </tr>
 <tr>
@@ -5005,8 +4939,7 @@ sub doConfigSetting {
 	      'use_XML','use_mimetex','use_imgtex','texHeader','texFooter',
 	      'use_latexpdf',
 	      'latexcmd','dvipdfcmd','tmpl_name',
-	      'title_list','title_table','title_latex','title_bbl','title_detail',
-	      'use_auth_ldap','auth_ldap_host','auth_ldap_baseDN'
+	      'title_list','title_table','title_latex','title_bbl','title_detail'
 	);
     foreach (@op) {
 	my $param = $cgi->param('opt_'.$_);
