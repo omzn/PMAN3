@@ -306,7 +306,7 @@ sub manageSession {
 	    $param =~s/\"//g;
 	    #$param = &htmlScrub($param);
 	    if (!utf8::is_utf8($param)) { # utf-8 flagが立ってないやつだけ．
-		my @v = map {Encode::decode('utf-8',$_)} $cgi->param($g);
+		my @v = map {Encode::decode('utf-8',$_)} $param;#$cgi->param($g);
 		$cgi->param($g,@v);
 	    }
 	}
