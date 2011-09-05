@@ -5,7 +5,7 @@
 #                               
 #              (c) 2002-2011 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.2.1 build 20110905";
+my $VERSION = "3.2.2 build 20110905";
 # 
 # =================================================================================
 BEGIN {
@@ -2462,6 +2462,11 @@ EOM
 	my $abib = shift(@{$bib});
 	$body .= <<EOM;
     <table>
+<tr>
+<td colspan="2">
+<iframe src="http://www.facebook.com/plugins/like.php?app_id=143903329035904&amp;href=http%3A%2F%2Fse.is.kit.ac.jp%2Fpman%2Fpman3.cgi%3FD%3D$$abib{'id'}&amp;send=false&amp;layout=standard&amp;width=450&amp;show_faces=true&amp;action=like&amp;colorscheme=light&amp;font&amp;height=80" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:450px; height:80px;" allowTransparency="true"></iframe>
+</td>
+</tr>
 <tr>
   <td class="fieldHead">ID</td>
   <td class="fieldBody">$$abib{'id'}</td>
