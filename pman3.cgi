@@ -2459,12 +2459,35 @@ EOM
 #### begin mode = detail
     } elsif ($mode eq "detail") {
 
+	my %check;
+	my @opt = $cgi->param('OPT');
+	my $lang = $cgi->param('LANG') || $session->param('LANG') || "ja";
+	if (@opt != ()) {
+	    foreach (@opt) {
+		$check{$_} = "checked" if ($_);
+	    }	
+	} else {
+	    @opt = ('underline','abbrev','shortvn','jcr','note');
+	    foreach (@opt) {
+		$check{$_} = $cgi->cookie($_) if (defined($cgi->cookie($_)));
+	    }
+#	    $session->param('OPT',keys(%check));
+	}
+
+	my $ssp = $session->param_hashref();
 	my $abib = shift(@{$bib});
+	my $line = &createAList(\$body,\%check,$ssp,$abib,"$scriptName?","$scriptName?");
+
 	$body .= <<EOM;
     <table>
 <tr>
 <td colspan="2">
 <iframe src="http://www.facebook.com/plugins/like.php?app_id=143903329035904&amp;href=http%3A%2F%2Fse.is.kit.ac.jp%2Fpman%2Fpman3.cgi%3FD%3D$$abib{'id'}&amp;send=false&amp;layout=standard&amp;width=450&amp;show_faces=true&amp;action=like&amp;colorscheme=light&amp;font&amp;height=80" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:450px; height:80px;" allowTransparency="true"></iframe>
+</td>
+</tr>
+<tr>
+<td colspan="2">
+<dl><dd>$line</dd></dl>
 </td>
 </tr>
 <tr>
