@@ -2476,18 +2476,22 @@ EOM
 
 	my $ssp = $session->param_hashref();
 	my $abib = shift(@{$bib});
-	my $line = &createAList(\$body,\%check,$ssp,$abib,"$scriptName?","$scriptName?");
+	my $line;
+	&createAList(\$line,\%check,$ssp,$abib);
+
+	my $svn = uri_escape_utf8("http://".$httpServerName);
+	my $scn = uri_escape_utf8($scriptName);
 
 	$body .= <<EOM;
     <table>
 <tr>
 <td colspan="2">
-<iframe src="http://www.facebook.com/plugins/like.php?app_id=143903329035904&amp;href=http%3A%2F%2Fse.is.kit.ac.jp%2Fpman%2Fpman3.cgi%3FD%3D$$abib{'id'}&amp;send=false&amp;layout=standard&amp;width=450&amp;show_faces=true&amp;action=like&amp;colorscheme=light&amp;font&amp;height=80" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:450px; height:80px;" allowTransparency="true"></iframe>
+<iframe src="http://www.facebook.com/plugins/like.php?app_id=143903329035904&amp;href=$svn$scn%3FD%3D$$abib{'id'}&amp;send=false&amp;layout=standard&amp;width=450&amp;show_faces=true&amp;action=like&amp;colorscheme=light&amp;font&amp;height=80" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:450px; height:80px;" allowTransparency="true"></iframe>
 </td>
 </tr>
 <tr>
 <td colspan="2">
-<dl><dd>$line</dd></dl>
+$line
 </td>
 </tr>
 <tr>
@@ -3628,7 +3632,7 @@ sub createAList {
 		my $q = $_;
 		$q =~ s/\\/\\\\/g;
 		if ($a=~/$q/i || $k =~/$q/i) {
-		    if ($mode eq 'list' ) {
+		    if ($mode eq 'list' || $mode eq 'detail') {
 			$ul1 = '<U>'; $ul2 = '</U>';
 		    } else {
 			$ul1 = '\\underline{'; $ul2 = '}';
@@ -3756,7 +3760,7 @@ sub createAList {
     # 巻号処理
     my $vvnn = "";
     if ($check{'shortvn'}) {
-	if ($mode eq "list") {
+	if ($mode eq "list" || $mode eq 'detail') {
 	    $vvnn = $$ent{'volume'} eq "" ? "": "<b>$$ent{'volume'}</b>";
 	} else {
 	    $vvnn = $$ent{'volume'} eq "" ? "": "\{\\bf $$ent{'volume'}\}";
@@ -3807,7 +3811,7 @@ sub createAList {
     my $lquot = "``";
     my $rquot = "''";
 
-    $lquot = $rquot = "&#34;" if ($mode eq "list");
+    $lquot = $rquot = "&#34;" if ($mode eq "list" || $mode eq 'detail');
 
     if ($$ent{'style'} eq "article") {
 	$aline .= "$lquot$t,$rquot $jj, $vvnn $pp $yymm.";
@@ -3846,7 +3850,7 @@ sub createAList {
 	$aline .= "$t, $note $yy.";
     }
 
-    if ($mode eq 'list') {
+    if ($mode eq 'list' || $mode eq 'detail') {
 	if ($$ent{'year'} > 9999) {
 	    $aline = "<span class=\"red\">".$aline."</span>";
 	}
