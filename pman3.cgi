@@ -1437,10 +1437,10 @@ sub printScreen {
 	eval "\$ttl = \$title_$mode;";
 	($header,$htmlh) = &printHeader;    
 	$document->param(CHARSET => $htmlh);
-	$document->param(MAIN_TITLE => $titleOfSite);
 	$document->param(PAGE_TITLE => $ttl) ; #$msg{"Title_$mode"});
 	$document->param(CONTENTS=> &printBody);    
 	$document->param(FOOTER=> &printFooter);
+	$document->param(MAIN_TITLE => $titleOfSite);
 
 	$doc = $document->output;
 
@@ -1527,7 +1527,6 @@ sub printScreen {
 	($header,$htmlh) = &printHeader;    
 	$document->param(CHARSET => $htmlh);
 	
-	$document->param(MAIN_TITLE => $titleOfSite);
 	$document->param(PAGE_TITLE => $ttl); #$msg{"Title_$mode"});
 	
 	my ($topm,$searchm,$viewm) = &printMenu;    
@@ -1540,6 +1539,7 @@ sub printScreen {
 
 	$document->param(CONTENTS=> &printBody);    
 	$document->param(FOOTER=> &printFooter);
+	$document->param(MAIN_TITLE => $titleOfSite);
 
 #######################[TIME]
 	$t2 = Time::HiRes::tv_interval($t0);
@@ -2460,24 +2460,16 @@ EOM
     } elsif ($mode eq "detail") {
 
 	my %check;
-	my @opt = $cgi->param('OPT');
-	my $lang = $cgi->param('LANG') || $session->param('LANG') || "ja";
-	if (@opt != ()) {
-	    foreach (@opt) {
-		$check{$_} = "checked" if ($_);
-	    }	
-	} else {
-	    @opt = ('underline','abbrev','shortvn','jcr','note');
-	    foreach (@opt) {
-		$check{$_} = $cgi->cookie($_) if (defined($cgi->cookie($_)));
-	    }
-#	    $session->param('OPT',keys(%check));
-	}
-
+	$check{'abbrev'} = 1;
+	$check{'underline'} = 0;
+	$check{'shortvn'} = 1;
+	$check{'jcr'} = 0;
+	$check{'note'} = 0;
 	my $ssp = $session->param_hashref();
 	my $abib = shift(@{$bib});
 	my $line;
 	&createAList(\$line,\%check,$ssp,$abib);
+#	$titleOfSite .= uri_escape_utf8(&htmlScrub($line));
 
 	my $svn = uri_escape_utf8("http://".$httpServerName);
 	my $scn = uri_escape_utf8($scriptName);
@@ -2486,9 +2478,9 @@ EOM
     <table>
 <tr>
 <td colspan="2">
-<iframe src="http://www.facebook.com/plugins/like.php?app_id=143903329035904&amp;href=$svn$scn%3FD%3D$$abib{'id'}&amp;send=false&amp;layout=standard&amp;width=450&amp;show_faces=true&amp;action=like&amp;colorscheme=light&amp;font&amp;height=80" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:450px; height:80px;" allowTransparency="true"></iframe>
-</td>
-</tr>
+<a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+<iframe src="http://www.facebook.com/plugins/like.php?app_id=143903329035904&amp;href=$svn$scn%3FD%3D$$abib{'id'}&amp;send=false&amp;layout=button_count&amp;width=50&amp;show_faces=false&amp;action=recommend&amp;colorscheme=light&amp;font&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:150px; height:21px;" allowTransparency="true"></iframe>
+</td></tr>
 <tr>
 <td colspan="2">
 $line
