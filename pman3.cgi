@@ -2469,10 +2469,12 @@ EOM
 	my $abib = shift(@{$bib});
 	my $line;
 	&createAList(\$line,\%check,$ssp,$abib);
-#	$titleOfSite .= uri_escape_utf8(&htmlScrub($line));
+	my $tline;
+	&createAList(\$tline,\%check,$ssp,$abib,'','',1);
+	$titleOfSite .= ": $tline";
 
 	my $svn = uri_escape_utf8("http://".$httpServerName);
-	my $scn = uri_escape_utf8($scriptName);
+	my $scn = uri_escape_utf8(&htmlScrub($scriptName));
 
 	$body .= <<EOM;
     <table>
@@ -3553,7 +3555,7 @@ sub createAList {
     my $tt0 = [Time::HiRes::gettimeofday];
 ################################[TIME]
 
-    my ($rbody,$chk,$ssp,$ent,$alink,$tlink) = @_;
+    my ($rbody,$chk,$ssp,$ent,$alink,$tlink,$isTitle) = @_;
     my %check = %{$chk};
 
     my $lang = $ssp->{'LANG'} || "ja";
@@ -3798,6 +3800,11 @@ sub createAList {
 # 各文献スタイルに応じた出力生成
     my $aline = "$strauth, ";
 
+    if ($isTitle) {
+	$aline .= "$t, $yymm.";
+	$$rbody .= $aline;
+	return;
+    }
     my $jj = ($lang eq "en" && $$ent{'journal_e'} ne "") ? $$ent{'journal_e'} : $$ent{'journal'};
 
     my $lquot = "``";
