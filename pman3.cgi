@@ -2460,11 +2460,11 @@ EOM
     } elsif ($mode eq "detail") {
 
 	my %check;
-	$check{'abbrev'} = 1;
-	$check{'underline'} = 0;
-	$check{'shortvn'} = 1;
-	$check{'jcr'} = 0;
-	$check{'note'} = 0;
+	$check{'abbrev'} = 'checked';
+	$check{'underline'} = '';
+	$check{'shortvn'} = 'checked';
+	$check{'jcr'} = '';
+	$check{'note'} = '';
 	my $ssp = $session->param_hashref();
 	my $abib = shift(@{$bib});
 	my $line;
