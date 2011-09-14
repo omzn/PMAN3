@@ -5,7 +5,7 @@
 #                               
 #              (c) 2002-2011 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.2.2 build 20110905";
+my $VERSION = "3.2.2 build 20110914";
 # 
 # =================================================================================
 BEGIN {
@@ -2107,12 +2107,12 @@ return $body;
 <div class="opt">
 <!-- <div class="small"><a href="" onclick="if(document.listoption.style.display == 'none') { document.listoption.style.display = 'block'} else {document.listoption.style.display = 'none'} ;return(false);">$msg{'showDisplayOptions'}Toggle</a></div> -->
 <form name="listoption" method="POST">
-<input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="abbrev" $check{'abbrev'} id="c5" \><label for="c5">$msg{'showAbbrev'}</label>
-<input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="underline" $check{'underline'} id="c4" \><label for="c4">$msg{'showUL'}</label>
-<input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="shortvn" $check{'shortvn'} id="c1" \><label for="c1">$msg{'showShortVN'}</label>
-<input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="jcr" $check{'jcr'} id="c2" \><label for="c2">$msg{'showJCR'}</label>
-<input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="note" $check{'note'} id="c3" \><label for="c3">$msg{'showNote'}</label>
-<input type="hidden"   name="OPT" value="xx" \>
+<input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="abbrev" $check{'abbrev'} id="c5" /><label for="c5">$msg{'showAbbrev'}</label>
+<input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="underline" $check{'underline'} id="c4" /><label for="c4">$msg{'showUL'}</label>
+<input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="shortvn" $check{'shortvn'} id="c1" /><label for="c1">$msg{'showShortVN'}</label>
+<input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="jcr" $check{'jcr'} id="c2" /><label for="c2">$msg{'showJCR'}</label>
+<input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="note" $check{'note'} id="c3" /><label for="c3">$msg{'showNote'}</label>
+<input type="hidden"   name="OPT" value="xx" />
 </form>
 </div>
 <br />
