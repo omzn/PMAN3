@@ -272,7 +272,7 @@ sub manageSession {
     if ($cgi->param("D") ne "") {
 	$cgi->param("MODE","detail");
 	my $param = $cgi->param("D");
-	$param =~s/\"//g;
+	$param=~s/[\"\']//g;
 	if (utf8::is_utf8($param)) {
 	    utf8::encode($param);
 	}
@@ -282,7 +282,7 @@ sub manageSession {
 	$cgi->param("FROM","author");
 	$cgi->param("LOGIC","and");
 	my $param = $cgi->param("A");
-	$param =~s/\"//g;
+	$param=~s/[\"\']//g;
 	if (utf8::is_utf8($param)) {
 	    utf8::encode($param);
 	}
@@ -292,7 +292,7 @@ sub manageSession {
 	$cgi->param("FROM","tag");
 	$cgi->param("LOGIC","or");
 	my $param = $cgi->param("T");
-	$param =~s/\"//g;
+	$param=~s/[\"\']//g;
 	if (utf8::is_utf8($param)) {
 	    utf8::encode($param);
 	}
@@ -303,11 +303,16 @@ sub manageSession {
     for my $g ($cgi->param) {
 	if ($g ne 'edit_upfile') { # upfileの破壊を防ぐ
 	    my $param = $cgi->param($g);
-	    $param =~s/\"//g;
 	    #$param = &htmlScrub($param);
 	    if (!utf8::is_utf8($param)) { # utf-8 flagが立ってないやつだけ．
-		my @v = map {Encode::decode('utf-8',$_)} $param;#$cgi->param($g);
+		my @v = map {Encode::decode('utf-8',$_)} $cgi->param($g);#$param;
+		foreach (@v) {
+		    $_=~s/[\"\']//g;
+		}
 		$cgi->param($g,@v);
+	    } else {
+		$param =~s/[\"\']//g;
+		$cgi->param($g,$param);
 	    }
 	}
     }
@@ -1372,7 +1377,7 @@ sub getOptionsDB {
 	my @val = $odbh->selectrow_array($SQL);
 	if (@val != ()) {
 	    eval "\$$n = \'$val[0]\';";
-	    print STDERR "$n = $val[0];"
+	    print STDERR "$n = $val[0];" if $debug;
 	} else {
 	    $SQL = "INSERT INTO config VALUES(null,?,?)";
 	    my $sth = $odbh->prepare($SQL);
@@ -2099,8 +2104,8 @@ return $body;
 	    foreach (@opt) {
 		$check{$_} = $cgi->cookie($_) if (defined($cgi->cookie($_)));
 	    }
-#	    $session->param('OPT',keys(%check));
 	}
+#	$session->param('OPT',keys(%check));
 
 	if (!defined($cgi->param('SSI')) && !defined($cgi->param('STATIC')) && !defined($cgi->param('FEED'))) {
 	    $body .= <<EOM;
@@ -2459,18 +2464,18 @@ EOM
 #### begin mode = detail
     } elsif ($mode eq "detail") {
 
-	my %check;
-	$check{'abbrev'} = 'checked';
-	$check{'underline'} = '';
-	$check{'shortvn'} = 'checked';
-	$check{'jcr'} = '';
-	$check{'note'} = '';
+	my %ck;
+	$ck{'abbrev'} = 'checked';
+	$ck{'underline'} = '';
+	$ck{'shortvn'} = 'checked';
+	$ck{'jcr'} = '';
+	$ck{'note'} = '';
 	my $ssp = $session->param_hashref();
 	my $abib = shift(@{$bib});
 	my $line;
-	&createAList(\$line,\%check,$ssp,$abib);
+	&createAList(\$line,\%ck,$ssp,$abib);
 	my $tline;
-	&createAList(\$tline,\%check,$ssp,$abib,'','',1);
+	&createAList(\$tline,\%ck,$ssp,$abib,'','',1);
 	$titleOfSite .= ": $tline";
 
 	my $svn = uri_escape_utf8("http://".$httpServerName);
