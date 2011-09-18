@@ -4568,7 +4568,8 @@ sub registEntry {
 
     &expireCacheFromCDB;
     #redirect
-    print $cgi->redirect("$scriptName?MODE=detail");
+    my $d = $session->param('ID');
+    print $cgi->redirect("$scriptName?D=$d");
 
     $dbh->disconnect;
     exit(0);
