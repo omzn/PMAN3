@@ -5,7 +5,7 @@
 #                               
 #              (c) 2002-2011 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.2.2 build 20110914";
+my $VERSION = "3.2.2 build 20111016";
 # 
 # =================================================================================
 BEGIN {
@@ -3581,9 +3581,9 @@ sub createAList {
 ################################[TIME]
 
     # 著者の処理
-    my @authors; my @keys;
-    @authors = @{$authors_hash{"$$ent{'id'}"}->{'author_name'}};
-    @keys = @{$authors_hash{"$$ent{'id'}"}->{'author_key'}};
+    my @authors = (); my @keys = ();
+    @authors = @{$authors_hash{"$$ent{'id'}"}->{'author_name'}} if (defined $authors_hash{"$$ent{'id'}"}->{'author_name'});
+    @keys = @{$authors_hash{"$$ent{'id'}"}->{'author_key'}} if (defined $authors_hash{"$$ent{'id'}"}->{'author_key'});
     my $astr = join(',',@authors);
     my $isJA = &isJapanese($astr) ;
     # keysを使うか，authorを使うか．
