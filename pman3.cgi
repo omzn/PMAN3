@@ -3125,70 +3125,6 @@ EOM
   </td>
 </tr>
 <tr>
-  <td class="fieldHead" width="25%">$msg{'use_imgtex'}</td>
-  <td class="fieldBody" width="60%">$msg{'use_imgtex_exp'}</td> 
-  <td class="fieldBody" width="15%">
-EOM
-    if (-f $IMGTEXPATH && -x $IMGTEXPATH) {
-#        $body .= $cgi->popup_menu(-name=>'opt_use_mimetex',
-#				  -default=>"$use_mimetex",
-#				  -values=>['1','0'],
-#				  -labels=>{ '1'=>$msg{'use'},
-#					     '0'=>$msg{'dontuse'} }
-#	);
-	$body .= <<EOM;
-<select name="opt_use_imgtex">
-EOM
-        %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
-        for ( 0 .. 1 ) {
-	    my $selected = '';
-	    $selected = "selected" if ($use_imgtex == $_);
-	    $body .= <<EOM;
-<option value="$_" $selected>$labels{$_}</option>
-EOM
-        }
-        $body .= <<EOM;
-      </select>
-EOM
-    } else {
-        $body .= "$msg{'notInstalled'}: $IMGTEXPATH";
-    }
-	$body .= <<EOM;
-  </td>
-</tr>
-<tr>
-  <td class="fieldHead" width="25%">$msg{'use_mimetex'}</td>
-  <td class="fieldBody" width="60%">$msg{'use_mimetex_exp'}</td> 
-  <td class="fieldBody" width="15%">
-EOM
-    if (-f $MIMETEXPATH && -x $MIMETEXPATH) {
-#        $body .= $cgi->popup_menu(-name=>'opt_use_mimetex',
-#				  -default=>"$use_mimetex",
-#				  -values=>['1','0'],
-#				  -labels=>{ '1'=>$msg{'use'},
-#					     '0'=>$msg{'dontuse'} }
-#	);
-	$body .= <<EOM;
-<select name="opt_use_mimetex">
-EOM
-        %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
-        for ( 0 .. 1 ) {
-	    my $selected = '';
-	    $selected = "selected" if ($use_mimetex == $_);
-	    $body .= <<EOM;
-<option value="$_" $selected>$labels{$_}</option>
-EOM
-        }
-        $body .= <<EOM;
-      </select>
-EOM
-    } else {
-        $body .= "$msg{'notInstalled'}: $MIMETEXPATH";
-    }
-	$body .= <<EOM;
-  </td>
-</tr>
-<tr>
   <td class="fieldHead" width="25%"></td>
   <td class="fieldBody" width="60%"></td> 
   <td class="fieldBody" width="15%">
@@ -3527,7 +3463,7 @@ sub printHeader {
     $head2 .= <<EOM;
     <META http-equiv="Content-Type" content="text/html; charset=utf-8">
     <script type="text/x-mathjax-config">
-	MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ["\\(","\\)"]] } });
+	MathJax.Hub.Config({ tex2jax: { inlineMath: [['\$','\$'] ] } });
     </script>
     <script type="text/javascript"
         src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML">
@@ -3889,13 +3825,13 @@ sub capitalizePaperTitle {
 
     # 日本語を含んでいたら数式処理のみ
     if (&isJapanese($$string) && ($mode ne "latex" && $mode ne "PDF")) {
-	if ($use_mimetex) {
-	    $$string=~s/\$([^\$]*)\$/<img class="math" src="${MIMETEXPATH}\?\1" \/>/g;
-	} elsif ($use_imgtex) {
-	    $$string=~s/\$([^\$]*)\$/<img class="math" src="${IMGTEXPATH}\?{\$\1\$}" \/>/g;
-	} else {
+#	if ($use_mimetex) {
+#	    $$string=~s/\$([^\$]*)\$/<img class="math" src="${MIMETEXPATH}\?\1" \/>/g;
+#	} elsif ($use_imgtex) {
+#	    $$string=~s/\$([^\$]*)\$/<img class="math" src="${IMGTEXPATH}\?{\$\1\$}" \/>/g;
+#	} else {
 	    $$string=~s/\$([^\$]*)\$/\1/g;
-	}
+#	}
 	$$string=~s/\{([^\}]*)\}/\1/g;
 	return;
     }
@@ -3906,13 +3842,13 @@ sub capitalizePaperTitle {
 	# $$に囲まれた部分はそのまま
 	if ($words[$i]=~/\$([^\$]*)\$/) {
 	    next if ($mode eq "latex" || $mode eq "PDF") ; 
- 	    if($use_mimetex) {
-		$words[$i]=~s/\$([^\$]*)\$/<img class="math" src="${MIMETEXPATH}\?\1" \/>/g;
- 	    } elsif($use_imgtex) {
-		$words[$i]=~s/\$([^\$]*)\$/<img class="math" src="${IMGTEXPATH}\?{\$\1\$}" \/>/g;
-	    } else {
+# 	    if($use_mimetex) {
+#		$words[$i]=~s/\$([^\$]*)\$/<img class="math" src="${MIMETEXPATH}\?\1" \/>/g;
+# 	    } elsif($use_imgtex) {
+#		$words[$i]=~s/\$([^\$]*)\$/<img class="math" src="${IMGTEXPATH}\?{\$\1\$}" \/>/g;
+#	    } else {
 		$words[$i]=~s/\$([^\$]*)\$/\1/g;
-	    }
+#	    }
 	    next;
 	}
 	# {}に囲まれた部分はそのまま
@@ -4015,12 +3951,12 @@ EOM
 		  )
 	) {
 	$vl=~s/\n/<br \/>/ig;
-	if ($use_mimetex) {
-	    $vl=~s/\$([^\$]*)\$/<img class="math" src="${MIMETEXPATH}\?\1" \/>/g 
-	} elsif ($use_imgtex) {
-	    $vl=~s/\$([^\$]*)\$/<img class="math" src="${IMGTEXPATH}\?{\$\1\$}" \/>/g 
-        } else {
-	}
+#	if ($use_mimetex) {
+#	    $vl=~s/\$([^\$]*)\$/<img class="math" src="${MIMETEXPATH}\?\1" \/>/g 
+#	} elsif ($use_imgtex) {
+#	    $vl=~s/\$([^\$]*)\$/<img class="math" src="${IMGTEXPATH}\?{\$\1\$}" \/>/g 
+#        } else {
+#	}
 	$ent .= <<EOM;
 <tr>
   <td class="fieldHead">
