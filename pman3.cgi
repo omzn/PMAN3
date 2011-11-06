@@ -5,7 +5,7 @@
 #                               
 #              (c) 2002-2011 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.2.2 build 20111016";
+my $VERSION = "3.2.3 build 20111106";
 # 
 # =================================================================================
 BEGIN {
@@ -1952,34 +1952,34 @@ EOM
 
     # ビューメニュー
     my $viewmenu .= <<EOM;
-<ul class="view">
+<ul id="menu-menu" class="sf-menu view">
 EOM
 
     if ($login == 1) {
 	my $id = $session->param('ID');
 	$viewmenu .= <<EOM;
-<li><a href="$scriptName?MODE=add">$viewMenu{'add'}</a></li>
-<li><a href="$scriptName?MODE=bib">$viewMenu{'bib'}</a></li>
+<li class="menu-item"><a href="$scriptName?MODE=add">$viewMenu{'add'}</a></li>
+<li class="menu-item"><a href="$scriptName?MODE=bib">$viewMenu{'bib'}</a></li>
 EOM
         if ($mode eq "detail") {
 	    $viewmenu .= <<EOM;
-<li><a href="$scriptName?MODE=edit;ID=$id">$viewMenu{'edit'}</a></li>
+<li class="menu-item"><a href="$scriptName?MODE=edit;ID=$id">$viewMenu{'edit'}</a></li>
 EOM
         }	    
 
         if ($mode eq "edit") {
 	    $viewmenu .= <<EOM;
-<li><a href="$scriptName?MODE=delete;ID=$id" onClick="if( !confirm(\'$msg{'deleteConfirm'}\')) {return false;}">$viewMenu{'delete'}</a></li>
+<li class="menu-item"><a href="$scriptName?MODE=delete;ID=$id" onClick="if( !confirm(\'$msg{'deleteConfirm'}\')) {return false;}">$viewMenu{'delete'}</a></li>
 EOM
         }	    
 	#$viewmenu .= "<li class=\"hide\"></li>";
     }
 
     $viewmenu .= <<EOM;
-<li><a href="$scriptName?MODE=list">$viewMenu{'list'}</a></li>
-<li><a href="$scriptName?MODE=table">$viewMenu{'table'}</a></li>
-<li><a href="$scriptName?MODE=latex">$viewMenu{'latex'}</a></li>
-<li><a href="$scriptName?MODE=bbl">$viewMenu{'bbl'}</a></li>
+<li class="menu-item"><a href="$scriptName?MODE=list">$viewMenu{'list'}</a></li>
+<li class="menu-item"><a href="$scriptName?MODE=table">$viewMenu{'table'}</a></li>
+<li class="menu-item"><a href="$scriptName?MODE=latex">$viewMenu{'latex'}</a></li>
+<li class="menu-item"><a href="$scriptName?MODE=bbl">$viewMenu{'bbl'}</a></li>
 </ul>
 EOM
 
@@ -3526,6 +3526,13 @@ sub printHeader {
     my $url = &generateURL;
     $head2 .= <<EOM;
     <META http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <script type="text/x-mathjax-config">
+	MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ["\\(","\\)"]] } });
+    </script>
+    <script type="text/javascript"
+        src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML">
+    </script>
+    <meta http-equiv="X-UA-Compatible" CONTENT="IE=EmulateIE7" />
 EOM
     if ($use_RSS) {
     $head2 .= <<EOM;

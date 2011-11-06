@@ -139,7 +139,7 @@ our %msg = (
 	"need" => "[必須]",
 	"altneed" => "[どちらか必須]",
 
-        "accepted" => "採録済",
+        "accepted" => "採録決定",
         "submitted" => "投稿中",
 
 	"Head_address" => "出版社住所 (address)",
