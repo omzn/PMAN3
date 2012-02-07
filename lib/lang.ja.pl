@@ -29,6 +29,7 @@ our %viewMenu = (
     "table"=>"　表　",
     "latex"=>"LaTeX",
     "bbl"=>"BibTeX",
+    "graph"=>"統計情報",
     "add"=>"追　加",
     "bib"=>"Bib追加",
     "edit"=>"編　集",
@@ -49,7 +50,7 @@ our %topMenu = (
     "simple"=>"簡易",
     "detail"=>"詳細",
     "japanese"=>"日本語",
-    "english"=>"English",
+    "english"=>"英語",
     "login"=>"ログイン",
     "logout"=>"ログアウト",
     "category"=>"分類設定",
@@ -139,7 +140,7 @@ our %msg = (
 	"need" => "[必須]",
 	"altneed" => "[どちらか必須]",
 
-        "accepted" => "採録決定",
+        "accepted" => "採録済",
         "submitted" => "投稿中",
 
 	"Head_address" => "出版社住所 (address)",
@@ -221,6 +222,7 @@ our %msg = (
         "Title_table"=>"研究業績表",
         "Title_latex"=>"LaTeX研究業績リスト",
         "Title_bbl"=>"BibTeXリスト",
+        "Title_graph"=>"文献統計情報",
         "Title_detail"=>"研究業績の詳細",
         "Title_edit"=>"研究業績の編集",
         "Title_add"=>"研究業績を追加",
@@ -278,6 +280,9 @@ our %msg = (
 
     "use_XML"=>"XML出力機能",
     "use_XML_exp"=>"XML出力機能を有効にします．XML::Simpleモジュールが必要です．",
+
+    "use_highcharts"=>"<a href=\"http://highcharts.com\" target=\"_blank\">highcharts</a>の利用",
+    "use_highcharts_exp"=>"<a href=\"http://highcharts.com\" target=\"_blank\">highcharts.js</a>による統計グラフ機能を有効にします． (highchartsライブラリを./lib/highcharts/下に置いて下さい．[./lib/highcharts/{highcharts.js,theme/,modules/}となるように．])",
 
     "use_mimetex"=>"mimetexの利用",
     "use_mimetex_exp"=>"mimetex.cgiを利用してタイトル中の数式を表示します．mimetex.cgiをlib/下にインストールする必要があります．",
@@ -337,6 +342,9 @@ our %msg = (
     "set_title_detail"=>"詳細の見出し設定",
     "set_title_detail_exp"=>"詳細モードでの見出しを設定します．",
 
+    "numPapersYear"=>"年ごとの文献発表数",
+    "stackedType"=>"種類別積み上げ",
+    "numOfPub"=>"文献数",
 
 );
 

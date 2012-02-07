@@ -5,7 +5,7 @@
 #                               
 #              (c) 2002-2011 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.2.3 build 20111106";
+my $VERSION = "3.2.4 build 20120206";
 # 
 # =================================================================================
 BEGIN {
@@ -64,6 +64,7 @@ my $use_XML = 0;
 my $use_mimetex = 0;
 my $use_imgtex = 0;
 my $use_latexpdf = 0;
+my $use_highcharts = 1;
 
 my $latexcmd = "/usr/bin/platex -halt-on-error";
 my $dvipdfcmd = "/usr/bin/dvipdfmx -V 4";
@@ -78,6 +79,7 @@ my $title_bbl ;
 
 my $title_add ;
 my $title_bib ;
+my $title_graph ;
 my $title_edit ;
 my $title_category ;
 my $title_config  ;
@@ -91,6 +93,7 @@ my %opts = (
     use_mimetex          => $use_mimetex,
     use_imgtex           => $use_imgtex,
     use_latexpdf         => $use_latexpdf,
+    use_highcharts       => $use_highcharts,
     PASSWD               => $PASSWD,
     titleOfSite          => $titleOfSite,
     maintainerName       => $maintainerName,
@@ -377,6 +380,7 @@ EOM
 
     $title_add = $msg{'Title_add'};
     $title_bib = $msg{'Title_bib'};
+    $title_graph = $msg{'Title_graph'};
     $title_edit = $msg{'Title_edit'};
     $title_category = $msg{'Title_category'};
     $title_config  = $msg{'Title_config'};
@@ -1661,7 +1665,7 @@ sub printMenu {
     # 言語・詳細
     my $topmenu = "<p>";
 
-    if (grep(/^$mode$/,('list','table','latex','bbl'))) {
+    if (grep(/^$mode$/,('list','table','latex','bbl','graph'))) {
 
 	my $tabsimple = $mmode eq "simple" ? "activetoptab" : "toptab";
 	my $tabdetail = $mmode eq "detail" ? "activetoptab" : "toptab";
@@ -1705,7 +1709,7 @@ EOM
     # 検索メニュー
     my $searchmenu;
 
-    if (grep(/^$mode$/,('list','table','latex','bbl'))) {
+    if (grep(/^$mode$/,('list','table','latex','bbl','graph'))) {
 	$searchmenu .= <<EOM;
 <script type="text/javascript">
 function clearFormAll() {
@@ -1980,6 +1984,13 @@ EOM
 <li class="menu-item"><a href="$scriptName?MODE=table">$viewMenu{'table'}</a></li>
 <li class="menu-item"><a href="$scriptName?MODE=latex">$viewMenu{'latex'}</a></li>
 <li class="menu-item"><a href="$scriptName?MODE=bbl">$viewMenu{'bbl'}</a></li>
+EOM
+    if ($use_highcharts) {
+	$viewmenu .= <<EOM;
+<li class="menu-item"><a href="$scriptName?MODE=graph">$viewMenu{'graph'}</a></li>
+EOM
+    }
+    $viewmenu .= <<EOM;
 </ul>
 EOM
 
@@ -2168,6 +2179,13 @@ EOM
 </dl>
 EOM
 #### end mode = list
+#### begin mode = graph
+    } elsif ($mode eq "graph") {
+	$body .= <<EOM;
+<div id="graphcontainer" style="width: 640px; height: 640px; margin: 0 auto">
+</div>
+EOM
+
 #### begin mode = bbl
     } elsif ($mode eq "bbl") {
 	$body .= <<EOM;
@@ -3059,6 +3077,33 @@ EOM
   </td>
 </tr>
 <tr>
+  <td class="fieldHead" width="25%">$msg{'use_highcharts'}</td>
+  <td class="fieldBody" width="60%">$msg{'use_highcharts_exp'}</td> 
+  <td class="fieldBody" width="15%">
+EOM
+#    if (&check_module('XML::RSS')) {
+	$body .= <<EOM;
+<select name="opt_use_highcharts">
+EOM
+        %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
+        for ( 0 .. 1 ) {
+	    my $selected = '';
+	    $selected = "selected" if ($use_highcharts == $_);
+	    $body .= <<EOM;
+<option value="$_" $selected>$labels{$_}</option>
+EOM
+        }
+        $body .= <<EOM;
+      </select>
+EOM
+
+#    } else {
+#        $body .= "$msg{'notInstalled'}: ";
+#    }
+	$body .= <<EOM;
+  </td>
+</tr>
+<tr>
   <td class="fieldHead" width="25%">$msg{'use_RSS'}</td>
   <td class="fieldBody" width="60%">$msg{'use_RSS_exp'}</td> 
   <td class="fieldBody" width="15%">
@@ -3475,6 +3520,200 @@ EOM
     <link rel="alternate" type="application/rss+xml" title="RSS" href="$url;RSS" />
 EOM
     }
+
+    if ($use_highcharts) {
+
+    my $mode = $session->param('MODE') || $session->param('prevMODE') || "list";
+    my $s = $session->param('SORT') || "t_descend";
+######## highcharts
+    if ($mode eq "graph") {
+
+	my $prevPtype = -1;
+	my $prevYear = -1;
+	my @yrs ;
+	my @pts ;
+	my %num ;
+        my $m;
+        my $title;
+        my $subtitle;
+        my $legendEnable = "false";
+        my $plotOption = "bar: {dataLabels: { enabled: true }}";
+	if ($s =~/y_/ && $s=~/t_/) {
+	    $m = 'yt';
+	    $legendEnable = "true";
+	    $title = $msg{'numPapersYear'}; #"Number of papers per year";
+	    $subtitle = $msg{'stackedType'};
+	    $plotOption = "series: {stacking: 'normal' }";
+	} elsif ($s =~/y_/) {
+	    $m = 'y';
+	    $title = $msg{'numPapersYear'};#"Number of papers per year";
+	} elsif ($s=~/t_/) {
+	    $m = 't';
+	    $title = "Number of papers per type";
+        } else {
+            $m = 'y';
+	    $title = $msg{'numPapersYear'};#"Number of papers per year";
+        }
+	foreach my $abib (@$bib) {
+            if ($m eq 'y') {
+		if ($$abib{'year'} != $prevYear) {
+		    $prevYear = $$abib{'year'};
+		    push(@yrs,$prevYear);
+		    $prevPtype = -1;
+		}		
+		$num{"$prevYear"}++;
+	    } elsif ($m eq 't') {
+		if ($$abib{'ptype'} != $prevPtype) {
+		    $prevPtype = $$abib{'ptype'};
+		    push(@pts,$prevPtype);
+		} 
+		$num{"$prevPtype"}++;
+	    } else { # $m eq 'yt'
+		if ($$abib{'year'} != $prevYear) {
+		    $prevYear = $$abib{'year'};
+		    push(@yrs,$prevYear);
+		    $prevPtype = -1;
+		}
+		if ($$abib{'ptype'} != $prevPtype) {
+		    $prevPtype = $$abib{'ptype'};
+#		    if (!grep(/^$prevType$/,@pts)) {
+#			push(@pts,$prevPtype);
+#		    }
+		}
+		$num{"$prevPtype"}->{"$prevYear"}++;
+	    }
+	}
+
+	$head2 .= <<EOM;
+<!-- 1. Add these JavaScript inclusions in the head of your page -->
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+<script type="text/javascript" src="lib/highcharts/highcharts.js"></script>
+<!-- 1a) Optional: add a theme file -->
+<script type="text/javascript" src="lib/highcharts/themes/gray.js"></script>
+<!-- 1b) Optional: the exporting module -->
+<script type="text/javascript" src="lib/highcharts/modules/exporting.js"></script>
+<!-- 2. Add the JavaScript to initialize the chart on document ready -->
+<script type="text/javascript">
+var chart;
+\$(document).ready(function() {
+    chart = new Highcharts.Chart({
+	chart: {
+		renderTo: 'graphcontainer',
+		defaultSeriesType: 'bar'
+	},
+	title: {
+		text: '$title'
+	},
+	subtitle: {
+		text: '$subtitle'
+	},
+	xAxis: {
+		categories: [
+EOM
+        if ($m eq 'y' || $m eq 'yt') {
+	    $head2 .= join(",",map {
+		my $py = $_ < 9999 ? $_ : 
+		    ($_ == 9999 ? $msg{'accepted'} : $msg{'submitted'}); "'".$py."'"
+			   } @yrs);
+        } elsif ($m eq 't') {
+	    $head2 .= join(",",map {"'".$ptype{$_}."'"} @pts);
+        }
+	$head2 .= <<EOM;
+	        ],
+		title: {
+			text: null
+		}
+	},
+	yAxis: {
+		min: 0,
+		tickInterval: 5,
+		title: {
+			text: '$msg{"numOfPub"}',
+			align: 'high'			
+		}
+	},
+	tooltip: {
+		formatter: function() {
+			return '' + this.series.name + ':' + this.y + '';
+		}
+	},
+	plotOptions: {
+	    $plotOption
+	},
+	legend: {
+     	        enabled: $legendEnable,
+		layout: 'vertical',
+		align: 'right',
+		verticalAlign: 'top',
+//		x: -100,
+//		y: 100,
+		floating: false,
+		borderWidth: 1,
+		backgroundColor: '#7F7F7F',
+		shadow: true
+	},
+	credits: {
+		enabled: true
+	},
+        series: [{
+EOM
+    if ($m eq 'y') {
+	$head2 .= <<EOM;
+		name: '$msg{"numOfPub"}',
+		data: [
+EOM
+	my @nn;
+        foreach (@yrs) {
+	    push(@nn,$num{"$_"});
+        }
+        $head2 .= join(", ",@nn); 
+	$head2 .= <<EOM;
+	]
+EOM
+    } elsif ($m eq 't') {
+	$head2 .= <<EOM;
+		name: '$msg{"numOfPub"}',
+		data: [
+EOM
+	my @nn;
+        foreach (@pts) {
+	    push(@nn,$num{"$_"});
+        }
+        $head2 .= join(", ",@nn); 
+	$head2 .= <<EOM;
+	]
+EOM
+    } elsif ($m eq 'yt') {
+        my @ss;
+        foreach my $p (@ptype_order) {
+	    if (!exists($num{"$p"})) {
+		next;
+   	    }
+            my $str;
+	    $str .= <<EOM;
+	        name: '$ptype{$p}',
+		data: [
+EOM
+	    my @nn;
+	    foreach my $y (@yrs) {
+		push(@nn, ($num{"$p"}->{"$y"} eq '' ? 0 : $num{"$p"}->{"$y"}));
+	    }
+            $str .= join(", ",@nn); 
+	    $str .= "]\n";
+            push(@ss,$str);
+        }
+        $head2 .= join("}, {",@ss);        
+    }
+    $head2 .= <<EOM;
+	}]
+    });
+});
+</script>
+EOM
+
+    }
+}
+
 
     return ($head1,$head2);
 }
@@ -4917,7 +5156,7 @@ sub doConfigSetting {
     my @op = ('titleOfSite','maintainerName','maintainerAddress',
 	      'use_cache','use_DBforSession','use_AutoJapaneseTags','use_RSS',
 	      'use_XML','use_mimetex','use_imgtex','texHeader','texFooter',
-	      'use_latexpdf',
+	      'use_latexpdf','use_highcharts',
 	      'latexcmd','dvipdfcmd','tmpl_name',
 	      'title_list','title_table','title_latex','title_bbl','title_detail'
 	);

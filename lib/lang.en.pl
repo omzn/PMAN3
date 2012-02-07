@@ -29,6 +29,7 @@ our %viewMenu = (
     "table"=> "Table",
     "latex"=> "LaTeX",
     "bbl"=>   "BibTeX",
+    "graph"=> "Statistics",
     "add"=>   "Add",
     "bib"=>   "Add bib",
     "edit"=>  "Edit",
@@ -49,7 +50,7 @@ our %topMenu = (
     "simple"=>"Simple",
     "detail"=>"Advanced",
     "japanese"=>"Japanese",
-    "english"=>"英語",
+    "english"=>"English",
     "login"=>"Login",
     "logout"=>"Logout",
     "category"=>"Category",
@@ -222,6 +223,7 @@ our %msg = (
         "Title_table"=>"Table of publications",
         "Title_latex"=>"LaTeX of publications",
         "Title_bbl"=>"BibTeX of publications",
+        "Title_graph"=>"Statistics of publications",
         "Title_detail"=>"Detail of a publication",
         "Title_edit"=>"Edit a publication",
         "Title_add"=>"Add a publication",
@@ -276,6 +278,9 @@ our %msg = (
 
     "use_XML"=>"XML output",
     "use_XML_exp"=>"Enable XML output feature. (Requires XML::Simple module.)",
+
+    "use_highcharts"=>"Support <a href=\"http://highcharts.com\" target=\"_blank\">highcharts</a>",
+    "use_highcharts_exp"=>"Enable <a href=\"http://highcharts.com\" target=\"_blank\">highchart</a> support. (Place highcharts library under ./lib/highcharts/. [to be ./lib/highcharts/{highcharts.js,theme/,modules/}])",
 
     "use_mimetex"=>"mimetex",
     "use_mimetex_exp"=>"Ebable mimetex.cgi. Formulas are shown in TeX format. (Requires mimetex.cgi under lib/ directory.)",
@@ -335,6 +340,9 @@ our %msg = (
     "set_title_detail"=>"Header of detail mode",
     "set_title_detail_exp"=>"Specify a header of detail mode.",,
 
+    "numPapersYear"=>"Number of publications for each year",
+    "stackedType"=>"Types stacked",
+    "numOfPub"=>"Number of publications",
 	);
 
 1;
