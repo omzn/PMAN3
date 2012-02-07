@@ -64,7 +64,7 @@ my $use_XML = 0;
 my $use_mimetex = 0;
 my $use_imgtex = 0;
 my $use_latexpdf = 0;
-my $use_highcharts = 1;
+my $use_highcharts = 0;
 
 my $latexcmd = "/usr/bin/platex -halt-on-error";
 my $dvipdfcmd = "/usr/bin/dvipdfmx -V 4";
