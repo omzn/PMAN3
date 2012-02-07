@@ -341,6 +341,7 @@ our %msg = (
     "set_title_detail_exp"=>"Specify a header of detail mode.",,
 
     "numPapersYear"=>"Number of publications for each year",
+    "numPapersYear"=>"Number of publications for each type",
     "stackedType"=>"Types stacked",
     "numOfPub"=>"Number of publications",
 	);

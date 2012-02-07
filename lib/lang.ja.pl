@@ -343,6 +343,7 @@ our %msg = (
     "set_title_detail_exp"=>"詳細モードでの見出しを設定します．",
 
     "numPapersYear"=>"年ごとの文献発表数",
+    "numPapersType"=>"種別ごとの文献発表数",
     "stackedType"=>"種類別積み上げ",
     "numOfPub"=>"文献数",
 

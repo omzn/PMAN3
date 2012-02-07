@@ -3549,7 +3549,7 @@ EOM
 	    $title = $msg{'numPapersYear'};#"Number of papers per year";
 	} elsif ($s=~/t_/) {
 	    $m = 't';
-	    $title = "Number of papers per type";
+	    $title = $msg{'numPapersType'};#"Number of papers per type";
         } else {
             $m = 'y';
 	    $title = $msg{'numPapersYear'};#"Number of papers per year";
