@@ -3597,6 +3597,17 @@ EOM
 var chart;
 \$(document).ready(function() {
     chart = new Highcharts.Chart({
+        colors: [
+	'#4572A7', 
+	'#AA4643', 
+	'#89A54E', 
+	'#80699B', 
+	'#3D96AE', 
+	'#DB843D', 
+	'#92A8CD', 
+	'#A47D7C', 
+	'#B5CA92'
+	],
 	chart: {
 		renderTo: 'graphcontainer',
 		defaultSeriesType: 'bar'
@@ -3727,7 +3738,7 @@ sub printFooter {
     $footer .=<<EOM;
 <p class="center">
 This site is maintained by <a href="$maintainerAddress">$maintainerName</a>.<br />
-<a href="http://se.is.kit.ac.jp/~o-mizuno/pman3.html">PMAN $VERSION</a> - Paper MANagement system / (C) 2002-2010, <a href="http://se.is.kit.ac.jp/~o-mizuno/">Osamu Mizuno</a> / All rights reserved.
+<a href="http://se.is.kit.ac.jp/~o-mizuno/pman3/">PMAN $VERSION</a> - Paper MANagement system / (C) 2002-2012, <a href="http://se.is.kit.ac.jp/~o-mizuno/">Osamu Mizuno</a> / All rights reserved.
 <br />
 Time to show this page: $drawingTime seconds.
 </p>
