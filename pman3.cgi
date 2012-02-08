@@ -5488,7 +5488,7 @@ sub generateURL {
     if ($mode eq "detail") {
 	my $id = $session->param('ID');
 	push(@p,"ID=".uri_escape_utf8($id));
-    } elsif ($mode =~/^(list|table|latex)$/) {
+    } elsif ($mode =~/^(list|table|latex|graph)$/) {
 	my $m = $session->param('MENU') || "simple";
 	push(@p,"MENU=".uri_escape_utf8($m));
 	my $f = $session->param("FROM");
