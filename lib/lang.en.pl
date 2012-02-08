@@ -344,6 +344,7 @@ our %msg = (
     "numPapersYear"=>"Number of publications for each type",
     "stackedType"=>"Types stacked",
     "numOfPub"=>"Number of publications",
+    "tagdist"=>"Distribution of top 30 tags",
 	);
 
 1;

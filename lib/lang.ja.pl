@@ -346,6 +346,7 @@ our %msg = (
     "numPapersType"=>"種別ごとの文献発表数",
     "stackedType"=>"種類別積み上げ",
     "numOfPub"=>"文献数",
+    "tagdist"=>"出現上位30タグの分布",
 
 );
 

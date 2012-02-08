@@ -2030,14 +2030,13 @@ EOM
 
 # 頻出タグを表示するメニュー
 sub printTagMenu {
-    return if ($session->param('MODE') =~ /(detail|edit|add|bib|category|config)/);
+    return if ($session->param('MODE') =~ /(graph|detail|edit|add|bib|category|config)/);
     my @idlist;
     foreach (@$bib) {
 	push(@idlist,$_->{'id'});
     }
     my $tags = &getMyTagDB(join(",",@idlist));
     my @tg = split(/,/,$tags);
-    my $pm = $session->param('MODE');
     my @taglist;
     my $max = $#tg >= 59 ? 59 : $#tg;
 
@@ -2182,8 +2181,8 @@ EOM
 #### begin mode = graph
     } elsif ($mode eq "graph") {
 	$body .= <<EOM;
-<div id="graphcontainer" style="width: 640px; height: 640px; margin: 0 auto">
-</div>
+<div id="graphcontainer" style="width: 100%; height: 640px; margin: 0 auto"></div>
+<div id="tagcontainer"   style="width: 100%; height: 640px; margin: 0 auto"></div>
 EOM
 
 #### begin mode = bbl
@@ -3538,6 +3537,7 @@ EOM
         my $subtitle;
         my $legendEnable = "false";
         my $plotOption = "bar: {dataLabels: { enabled: true }}";
+	my @idlist;
 	if ($s =~/y_/ && $s=~/t_/) {
 	    $m = 'yt';
 	    $legendEnable = "true";
@@ -3555,6 +3555,7 @@ EOM
 	    $title = $msg{'numPapersYear'};#"Number of papers per year";
         }
 	foreach my $abib (@$bib) {
+	    push(@idlist,$abib->{'id'});
             if ($m eq 'y') {
 		if ($$abib{'year'} != $prevYear) {
 		    $prevYear = $$abib{'year'};
@@ -3645,6 +3646,7 @@ EOM
 	},
 	tooltip: {
 		formatter: function() {
+// '
 			return '' + this.series.name + ':' + this.y + '';
 		}
 	},
@@ -3719,6 +3721,64 @@ EOM
 	}]
     });
 });
+    
+var tagchart;
+\$(document).ready(function() {
+    tagchart = new Highcharts.Chart({
+    chart: {
+	renderTo: 'tagcontainer',
+	plotBackgroundColor: null,
+	plotBorderWidth: null,
+	plotShadow: false
+    },
+    title: {
+	text: '$msg{"tagdist"}'
+    },
+    tooltip: {
+      formatter: function() {
+	  return '<b>'+ this.point.name +'</b>: '+ this.y ;
+      }
+    },
+    plotOptions: {
+      pie: {
+	allowPointSelect: true,
+	cursor: 'pointer',
+	dataLabels: {
+	  enabled: true,
+          color: '#ffffff',
+  	  connectorColor: '#ffffff',
+	  },
+	    showInLegend: false
+	}
+      },
+    series: [{
+      type: 'pie',
+      name: 'Browser share',
+      data: [
+EOM
+    my $tags = &getMyTagDB(join(",",@idlist));
+    my @tg = split(/,/,$tags);
+    my @taglist;
+    my $max = $#tg >= 59 ? 59 : $#tg;
+    my $others = 0;
+    for (my $i=0;$i<=$max;$i+=2) {
+#	if ($i >= $max) {
+#	    $others += $tg[$i+1];
+#	} else {
+	    push(@taglist,"['$tg[$i]', $tg[$i+1]]");
+#	}
+    } 
+#    if ($others > 0) {
+#	push(@taglist,"['Others', $others]");
+#    }
+    $tags = join(",",@taglist);
+    $head2 .= <<EOM;
+$tags
+	]
+     }]
+   });
+});
+
 </script>
 EOM
 
