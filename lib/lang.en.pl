@@ -345,6 +345,7 @@ our %msg = (
     "stackedType"=>"Types stacked",
     "numOfPub"=>"Number of publications",
     "tagdist"=>"Distribution of top 30 tags",
+    "tagdist"=>"Distribution of authors",
 	);
 
 1;

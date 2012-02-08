@@ -1092,6 +1092,28 @@ sub getIdFromAuthorsDB {
     return join(",",@idlist);
 }
 
+sub getAuthorsByIdDB {
+    my ($pids) = @_;
+    my @authorlist;#
+
+    my $SQL = "SELECT author_key,count(author_key) FROM authors WHERE author_key not null AND paper_id IN ( $pids ) GROUP BY author_key ORDER BY count(author_key) desc;";
+    eval {
+	my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
+	foreach (@$f) {
+	    push(@authorlist,$_->{'author_key'});
+	    push(@authorlist,$_->{'count(author_key)'});
+	}
+    };
+    if ($@) { 
+	$dbh->rollback; $dbh->disconnect; 
+	my $emsg = "Incomplete query. While getting an author list from ids.";
+	$emsg .= "<br /> $@ <br /> query: $SQL" if ($debug);
+	&printError($emsg);
+    }
+    return join(",",@authorlist);
+}
+
+
 sub getAuthorListDB {
     my @al;
     my $SQL = "SELECT author_name,author_key FROM authors WHERE author_key not null GROUP BY author_name;";
@@ -2182,6 +2204,7 @@ EOM
     } elsif ($mode eq "graph") {
 	$body .= <<EOM;
 <div id="graphcontainer" style="width: 100%; height: 640px; margin: 0 auto"></div>
+<div id="authorcontainer"   style="width: 100%; height: 640px; margin: 0 auto"></div>
 <div id="tagcontainer"   style="width: 100%; height: 640px; margin: 0 auto"></div>
 EOM
 
@@ -3722,6 +3745,64 @@ EOM
     });
 });
     
+var authorchart;
+\$(document).ready(function() {
+    authorchart = new Highcharts.Chart({
+    chart: {
+	renderTo: 'authorcontainer',
+	plotBackgroundColor: null,
+	plotBorderWidth: null,
+	plotShadow: false
+    },
+    title: {
+	text: '$msg{"authordist"}'
+    },
+    tooltip: {
+      formatter: function() {
+	  return '<b>'+ this.point.name +'</b>: '+ this.y ;
+      }
+    },
+    plotOptions: {
+      pie: {
+	allowPointSelect: true,
+	cursor: 'pointer',
+	dataLabels: {
+	  enabled: true,
+          color: '#ffffff',
+  	  connectorColor: '#ffffff',
+	  },
+	    showInLegend: false
+	}
+      },
+    series: [{
+      type: 'pie',
+      name: 'Author distribution',
+      data: [
+EOM
+
+    my $authors = &getAuthorsByIdDB(join(",",@idlist));
+    my @au = split(/,/,$authors);
+    my @aulist;
+    my $max = $#au >= 59 ? 59 : $#au;
+    my $others = 0;
+    for (my $i=0;$i<=$#au;$i+=2) {
+	if ($i >= $max) {
+	    $others += $au[$i+1];
+	} else {
+	    push(@aulist,"['$au[$i]', $au[$i+1]]");
+	}
+    } 
+    if ($others > 0) {
+	push(@aulist,"['Others', $others]");
+    }
+    $authors = join(",",@aulist);
+    $head2 .= <<EOM;
+$authors
+	]
+     }]
+   });
+});
+
 var tagchart;
 \$(document).ready(function() {
     tagchart = new Highcharts.Chart({
@@ -3759,8 +3840,8 @@ EOM
     my $tags = &getMyTagDB(join(",",@idlist));
     my @tg = split(/,/,$tags);
     my @taglist;
-    my $max = $#tg >= 59 ? 59 : $#tg;
-    my $others = 0;
+    $max = $#tg >= 59 ? 59 : $#tg;
+    $others = 0;
     for (my $i=0;$i<=$max;$i+=2) {
 #	if ($i >= $max) {
 #	    $others += $tg[$i+1];
