@@ -3789,13 +3789,14 @@ EOM
 	if ($i >= $max) {
 	    $others += $au[$i+1];
 	} else {
+	    $au[$i] =~s/'/\''/g;
 	    push(@aulist,"['$au[$i]', $au[$i+1]]");
 	}
     } 
     if ($others > 0) {
 	push(@aulist,"['Others', $others]");
     }
-    $authors = join(",",map {s/'/\\'/g} @aulist);
+    $authors = join(",",@aulist);
     $head2 .= <<EOM;
 $authors
 	]
@@ -3843,16 +3844,10 @@ EOM
     $max = $#tg >= 59 ? 59 : $#tg;
     $others = 0;
     for (my $i=0;$i<=$max;$i+=2) {
-#	if ($i >= $max) {
-#	    $others += $tg[$i+1];
-#	} else {
-	    push(@taglist,"['$tg[$i]', $tg[$i+1]]");
-#	}
+	$tg[$i]=~s/'/\\'/g;
+	push(@taglist,"['$tg[$i]', $tg[$i+1]]");
     } 
-#    if ($others > 0) {
-#	push(@taglist,"['Others', $others]");
-#    }
-    $tags = join(",",map {s/'/\\'/g} @taglist);
+    $tags = join(",",@taglist);
     $head2 .= <<EOM;
 $tags
 	]
