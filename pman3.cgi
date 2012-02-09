@@ -3789,7 +3789,7 @@ EOM
 	if ($i >= $max) {
 	    $others += $au[$i+1];
 	} else {
-	    $au[$i] =~s/'/\''/g;
+	    $au[$i] =~s/'/\\'/g;
 	    push(@aulist,"['$au[$i]', $au[$i+1]]");
 	}
     } 
