@@ -3795,7 +3795,7 @@ EOM
     if ($others > 0) {
 	push(@aulist,"['Others', $others]");
     }
-    $authors = join(",",@aulist);
+    $authors = join(",",map {s/'/\\'/g} @aulist);
     $head2 .= <<EOM;
 $authors
 	]
@@ -3852,7 +3852,7 @@ EOM
 #    if ($others > 0) {
 #	push(@taglist,"['Others', $others]");
 #    }
-    $tags = join(",",@taglist);
+    $tags = join(",",map {s/'/\\'/g} @taglist);
     $head2 .= <<EOM;
 $tags
 	]
