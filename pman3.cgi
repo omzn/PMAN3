@@ -3177,7 +3177,7 @@ EOM
 EOM
 
     } else {
-        $body .= "$msg{'notInstalled'}: ";
+        $body .= "$msg{'notInstalled'}: highcharts";
     }
 	$body .= <<EOM;
   </td>
@@ -3220,7 +3220,7 @@ EOM
       </select>
 EOM
 } else {
-        $body .= "$msg{'notInstalled'}: ";
+        $body .= "$msg{'notInstalled'}: highcharts";
 }
 	$body .= <<EOM;
   </td>
