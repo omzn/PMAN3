@@ -281,8 +281,8 @@ our %msg = (
     "use_XML"=>"XML出力機能",
     "use_XML_exp"=>"XML出力機能を有効にします．XML::Simpleモジュールが必要です．",
 
-    "use_highcharts"=>"<a href=\"http://highcharts.com\" target=\"_blank\">highcharts</a>の利用",
-    "use_highcharts_exp"=>"<a href=\"http://highcharts.com\" target=\"_blank\">highcharts.js</a>による統計グラフ機能を有効にします． (highchartsライブラリを./lib/highcharts/下に置いて下さい．[./lib/highcharts/{highcharts.js,theme/,modules/}となるように．])",
+    "use_highcharts"=>"<a href=\"http://www.highcharts.com\" target=\"_blank\">highcharts</a>の利用",
+    "use_highcharts_exp"=>"<a href=\"http://www.highcharts.com\" target=\"_blank\">highcharts.js</a>による統計グラフ機能を有効にします．",
 
     "use_mimetex"=>"mimetexの利用",
     "use_mimetex_exp"=>"mimetex.cgiを利用してタイトル中の数式を表示します．mimetex.cgiをlib/下にインストールする必要があります．",
@@ -348,6 +348,11 @@ our %msg = (
     "numOfPub"=>"文献数",
     "tagdist"=>"タグの分布(出現上位30タグのみ)",
     "authordist"=>"著者の分布",
+
+    "path_highcharts"=>"Highcharts.jsの設置パス",
+    "path_highcharts_exp"=>"<a href=\"http://www.higicharts.com/download/\" target=\"_blank\">Highcharts.com</a>からダウンロードしたzipアーカイブ内のjsディレクトリを，リネームして置いて下さい． このディレクトリの直下に，highcharts.js, modules/, themes/ がある状態にして下さい．",
+    "theme_highcharts"=>"Highchartsのテーマ",
+    "theme_highcharts_exp"=>"Highchartsのテーマを選びます．",
 
 );
 

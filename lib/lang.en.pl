@@ -279,8 +279,8 @@ our %msg = (
     "use_XML"=>"XML output",
     "use_XML_exp"=>"Enable XML output feature. (Requires XML::Simple module.)",
 
-    "use_highcharts"=>"Support <a href=\"http://highcharts.com\" target=\"_blank\">highcharts</a>",
-    "use_highcharts_exp"=>"Enable <a href=\"http://highcharts.com\" target=\"_blank\">highchart</a> support. (Place highcharts library under ./lib/highcharts/. [to be ./lib/highcharts/{highcharts.js,theme/,modules/}])",
+    "use_highcharts"=>"Support <a href=\"http://www.highcharts.com\" target=\"_blank\">highcharts</a>",
+    "use_highcharts_exp"=>"Enable <a href=\"http://www.highcharts.com\" target=\"_blank\">highchart</a> support.",
 
     "use_mimetex"=>"mimetex",
     "use_mimetex_exp"=>"Ebable mimetex.cgi. Formulas are shown in TeX format. (Requires mimetex.cgi under lib/ directory.)",
@@ -345,7 +345,14 @@ our %msg = (
     "stackedType"=>"Types stacked",
     "numOfPub"=>"Number of publications",
     "tagdist"=>"Distribution of top 30 tags",
-    "tagdist"=>"Distribution of authors",
+    "authorist"=>"Distribution of authors",
+
+    "path_highcharts"=>"Path to highcharts.js",
+
+    "path_highcharts_exp"=>"From <a href=\"http://www.higicharts.com/download/\" target=\"_blank\">Highcharts.com</a>, you can download zip archive of highcharts. In the archive, you will find 'js' directory. Rename 'js' directory to 'highcharts', and place under lib/. You can see highcharts.js, modules/, and themes/ under lib/highcharts.",
+    "theme_highcharts"=>"Theme of Highcharts",
+    "theme_highcharts_exp"=>"Select a theme for highcharts.",
+
 	);
 
 1;

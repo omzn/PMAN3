@@ -3102,33 +3102,6 @@ EOM
   </td>
 </tr>
 <tr>
-  <td class="fieldHead" width="25%">$msg{'use_highcharts'}</td>
-  <td class="fieldBody" width="60%">$msg{'use_highcharts_exp'}</td> 
-  <td class="fieldBody" width="15%">
-EOM
-#    if (&check_module('XML::RSS')) {
-	$body .= <<EOM;
-<select name="opt_use_highcharts">
-EOM
-        %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
-        for ( 0 .. 1 ) {
-	    my $selected = '';
-	    $selected = "selected" if ($use_highcharts == $_);
-	    $body .= <<EOM;
-<option value="$_" $selected>$labels{$_}</option>
-EOM
-        }
-        $body .= <<EOM;
-      </select>
-EOM
-
-#    } else {
-#        $body .= "$msg{'notInstalled'}: ";
-#    }
-	$body .= <<EOM;
-  </td>
-</tr>
-<tr>
   <td class="fieldHead" width="25%">$msg{'use_RSS'}</td>
   <td class="fieldBody" width="60%">$msg{'use_RSS_exp'}</td> 
   <td class="fieldBody" width="15%">
@@ -3191,6 +3164,80 @@ EOM
     } else {
         $body .= "$msg{'notInstalled'}: XML::Simple";
     }
+	$body .= <<EOM;
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'path_highcharts'}</td>
+  <td class="fieldBody" width="60%">$msg{'path_highcharts_exp'}</td> 
+  <td class="fieldBody" width="15%">
+  $path_highcharts
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'use_highcharts'}</td>
+  <td class="fieldBody" width="60%">$msg{'use_highcharts_exp'}</td> 
+  <td class="fieldBody" width="15%">
+EOM
+    if (
+	-f $path_highcharts."/highcharts.js" &&
+	-d $path_highcharts."/modules" &&
+	-d $path_highcharts."/themes" 
+    ) {
+	$body .= <<EOM;
+<select name="opt_use_highcharts">
+EOM
+        %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
+        for ( 0 .. 1 ) {
+	    my $selected = '';
+	    $selected = "selected" if ($use_highcharts == $_);
+	    $body .= <<EOM;
+<option value="$_" $selected>$labels{$_}</option>
+EOM
+        }
+        $body .= <<EOM;
+      </select>
+EOM
+
+    } else {
+        $body .= "$msg{'notInstalled'}: ";
+    }
+	$body .= <<EOM;
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'theme_highcharts'}</td>
+  <td class="fieldBody" width="60%">$msg{'theme_highcharts_exp'}</td> 
+  <td class="fieldBody" width="15%">
+EOM
+    if (
+	-d $path_highcharts."/themes" 
+    ) {
+	$body .= <<EOM;
+<select name="opt_theme_highcharts">
+EOM
+        my @tmpls = ();
+        opendir(DIR,$path_highcharts."/themes");
+	while(my $dir = readdir(DIR)){
+	    next if ($dir=~/^\./); 
+	    next if ($dir=~/^CVS/); 
+	    next if ($dir!~/\.js$/); 
+	    push(@tmpls,$dir);
+	}
+	closedir(DIR);
+        foreach ( @tmpls ) {
+	    my $selected = '';
+	    $selected = "selected" if ($theme_highcharts eq $_);
+	    $body .= <<EOM;
+<option value="$_" $selected>$_</option>
+EOM
+        }
+        $body .= <<EOM;
+      </select>
+EOM
+} else {
+        $body .= "$msg{'notInstalled'}: ";
+}
 	$body .= <<EOM;
   </td>
 </tr>
@@ -3614,11 +3661,11 @@ EOM
 	$head2 .= <<EOM;
 <!-- 1. Add these JavaScript inclusions in the head of your page -->
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
-<script type="text/javascript" src="lib/highcharts/highcharts.js"></script>
+<script type="text/javascript" src="$path_highcharts/highcharts.js"></script>
 <!-- 1a) Optional: add a theme file -->
-<script type="text/javascript" src="lib/highcharts/themes/gray.js"></script>
+<script type="text/javascript" src="$path_highcharts/themes/$theme_highcharts"></script>
 <!-- 1b) Optional: the exporting module -->
-<script type="text/javascript" src="lib/highcharts/modules/exporting.js"></script>
+<script type="text/javascript" src="$path_highcharts/modules/exporting.js"></script>
 <!-- 2. Add the JavaScript to initialize the chart on document ready -->
 <script type="text/javascript">
 var chart;
@@ -3688,7 +3735,7 @@ EOM
 //		y: 100,
 		floating: false,
 		borderWidth: 1,
-		backgroundColor: '#7F7F7F',
+//		backgroundColor: '#7F7F7F',
 		shadow: true
 	},
 	credits: {
@@ -3771,8 +3818,8 @@ var authorchart;
 	cursor: 'pointer',
 	dataLabels: {
 	  enabled: true,
-          color: '#ffffff',
-  	  connectorColor: '#ffffff',
+          color: '#afafaf',
+  	  connectorColor: '#afafaf',
 	  },
 	    showInLegend: false
 	}
@@ -3830,8 +3877,8 @@ var tagchart;
 	cursor: 'pointer',
 	dataLabels: {
 	  enabled: true,
-          color: '#ffffff',
-  	  connectorColor: '#ffffff',
+          color: '#afafaf',
+  	  connectorColor: '#afafaf',
 	  },
 	    showInLegend: false
 	}
@@ -5306,7 +5353,7 @@ sub doConfigSetting {
     my @op = ('titleOfSite','maintainerName','maintainerAddress',
 	      'use_cache','use_DBforSession','use_AutoJapaneseTags','use_RSS',
 	      'use_XML','use_mimetex','use_imgtex','texHeader','texFooter',
-	      'use_latexpdf','use_highcharts',
+	      'use_latexpdf','use_highcharts','theme_highcharts',
 	      'latexcmd','dvipdfcmd','tmpl_name',
 	      'title_list','title_table','title_latex','title_bbl','title_detail'
 	);
