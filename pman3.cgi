@@ -2204,7 +2204,7 @@ EOM
     } elsif ($mode eq "graph") {
 	$body .= <<EOM;
 <div id="graphcontainer" style="width: 100%; height: 640px; margin: 0 auto"></div>
-<div id="authorcontainer"   style="width: 100%; height: 640px; margin: 0 auto"></div>
+<div id="authorcontainer"   style="width: 100%; height: 550px; margin: 0 auto"></div>
 <div id="tagcontainer"   style="width: 100%; height: 640px; margin: 0 auto"></div>
 EOM
 
@@ -3783,10 +3783,10 @@ EOM
     my $authors = &getAuthorsByIdDB(join(",",@idlist));
     my @au = split(/,/,$authors);
     my @aulist;
-    my $max = $#au >= 59 ? 59 : $#au;
+#    my $max = $#au >= 59 ? 59 : $#au;
     my $others = 0;
     for (my $i=0;$i<=$#au;$i+=2) {
-	if ($i >= $max) {
+	if ($au[$i+1] < 2) {
 	    $others += $au[$i+1];
 	} else {
 	    $au[$i] =~s/'/\\'/g;
