@@ -347,7 +347,7 @@ our %msg = (
     "authordist"=>"著者の分布",
 
     "path_highcharts"=>"Highcharts.jsの設置パス",
-    "path_highcharts_exp"=>"<a href=\"http://www.higicharts.com/download/\" target=\"_blank\">Highcharts.com</a>からダウンロードしたzipアーカイブ内のjsディレクトリを，リネームして置いて下さい． このディレクトリの直下に，highcharts.js, modules/, themes/ がある状態にして下さい．",
+    "path_highcharts_exp"=>"<a href=\"http://www.higicharts.com/download/\" target=\"_blank\">Highcharts.com</a>からダウンロードしたzipアーカイブ内の\"js\"ディレクトリを，\"highcharts\"にリネームしてlibの下に置いて下さい． lib/highchartsディレクトリの直下に，highcharts.js, modules/, themes/ がある状態にして下さい．",
     "theme_highcharts"=>"Highchartsのテーマ",
     "theme_highcharts_exp"=>"Highchartsのテーマを選びます．",
 
