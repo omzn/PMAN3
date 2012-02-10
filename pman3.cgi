@@ -1,11 +1,10 @@
 #!/usr/bin/perl
-# $Id: pman3.cgi,v 1.94 2010/05/26 06:23:14 o-mizuno Exp $
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
-#              (c) 2002-2011 Osamu Mizuno, All right researved.
+#              (c) 2002-2012 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.2.4 build 20120206";
+my $VERSION = "3.2.4 build 20120210";
 # 
 # =================================================================================
 BEGIN {
@@ -56,7 +55,7 @@ my $maintainerAddress;
 my $texHeader;
 my $texFooter;
 
-my $use_cache = 1;
+my $use_cache = 0;
 my $use_DBforSession = 0;
 my $use_AutoJapaneseTags = 0;
 my $use_RSS = 0;
@@ -65,6 +64,8 @@ my $use_mimetex = 0;
 my $use_imgtex = 0;
 my $use_latexpdf = 0;
 my $use_highcharts = 0;
+my $path_highcharts = 'lib/highcharts';
+my $theme_highcharts = "gray.js";
 
 my $latexcmd = "/usr/bin/platex -halt-on-error";
 my $dvipdfcmd = "/usr/bin/dvipdfmx -V 4";
@@ -94,6 +95,8 @@ my %opts = (
     use_imgtex           => $use_imgtex,
     use_latexpdf         => $use_latexpdf,
     use_highcharts       => $use_highcharts,
+    path_highcharts      => $path_highcharts,
+    theme_highcharts     => $theme_highcharts,
     PASSWD               => $PASSWD,
     titleOfSite          => $titleOfSite,
     maintainerName       => $maintainerName,
@@ -3783,7 +3786,7 @@ EOM
     my $authors = &getAuthorsByIdDB(join(",",@idlist));
     my @au = split(/,/,$authors);
     my @aulist;
-#    my $max = $#au >= 59 ? 59 : $#au;
+    my $max = $#au >= 59 ? 59 : $#au;
     my $others = 0;
     for (my $i=0;$i<=$#au;$i+=2) {
 	if ($au[$i+1] < 2) {
