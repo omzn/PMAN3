@@ -284,11 +284,8 @@ our %msg = (
     "use_highcharts"=>"<a href=\"http://www.highcharts.com\" target=\"_blank\">highcharts</a>の利用",
     "use_highcharts_exp"=>"<a href=\"http://www.highcharts.com\" target=\"_blank\">highcharts.js</a>による統計グラフ機能を有効にします．",
 
-    "use_mimetex"=>"mimetexの利用",
-    "use_mimetex_exp"=>"mimetex.cgiを利用してタイトル中の数式を表示します．mimetex.cgiをlib/下にインストールする必要があります．",
-
-    "use_imgtex"=>"imgtexの利用 [EXPERIMENTAL]",
-    "use_imgtex_exp"=>"imgtex.fcgiを利用してタイトル中の数式を表示します．imgtex.fcgiをlib/下にインストールする必要があります．また，imgtex.fcgiがご利用の環境で適切に動作するように設定する必要があります．",
+    "use_mathjax"=>"<a href=\"http://www.mathjax.org/\" target=\"_blank\">MathJax</a>の利用",
+    "use_mathjax_exp"=>"<a href=\"http://www.mathjax.org/\" target=\"_blank\">MathJax</a>を利用してタイトル中の数式を表示します．",
 
     "set_passwd"=>"パスワード設定",
     "set_passwd_exp"=>"管理者モードになるためのパスワードを設定します．",

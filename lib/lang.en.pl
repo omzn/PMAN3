@@ -282,11 +282,8 @@ our %msg = (
     "use_highcharts"=>"Support <a href=\"http://www.highcharts.com\" target=\"_blank\">highcharts</a>",
     "use_highcharts_exp"=>"Enable <a href=\"http://www.highcharts.com\" target=\"_blank\">highchart</a> support.",
 
-    "use_mimetex"=>"mimetex",
-    "use_mimetex_exp"=>"Ebable mimetex.cgi. Formulas are shown in TeX format. (Requires mimetex.cgi under lib/ directory.)",
-
-    "use_imgtex"=>"imgtex [EXPERIMENTAL]",
-    "use_imgtex_exp"=>"Ebable imgtex.fcgi. Formulas are shown in TeX format. (Requires imgtex.fcgi under lib/ directory. You may need to modify imgtex.fcgi for your environment. )",
+    "use_mathjaxtex"=>"Support <a href=\"http://www.mathjax.org/\" target=\"_blank\">MathJax</a>",
+    "use_mathjax_exp"=>"Enable <a href=\"http://www.mathjax.org/\" target=\"_blank\">MathJax</a> support. Formulas are shown in TeX format by MathJax.",
 
     "set_passwd"=>"Password setting",
     "set_passwd_exp"=>"Set password for administrator.",

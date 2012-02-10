@@ -41,8 +41,6 @@ my $DB = "./db/bibdat.db";
 my $SESS_DB = "./db/sess.db";
 my $CACHE_DB = "./db/cache.db";
 my $OPTIONS_DB = "./db/config.db";
-my $MIMETEXPATH = "$LIBDIR/mimetex.cgi";
-my $IMGTEXPATH = "$LIBDIR/imgtex.fcgi";
 
 #=====================================================
 # Options 
@@ -60,10 +58,9 @@ my $use_DBforSession = 0;
 my $use_AutoJapaneseTags = 0;
 my $use_RSS = 0;
 my $use_XML = 0;
-my $use_mimetex = 0;
-my $use_imgtex = 0;
 my $use_latexpdf = 0;
 my $use_highcharts = 0;
+my $use_mathjax = 0;
 my $path_highcharts = 'lib/highcharts';
 my $theme_highcharts = "gray.js";
 
@@ -91,9 +88,8 @@ my %opts = (
     use_cache            => $use_cache,
     use_DBforSession     => $use_DBforSession,
     use_AutoJapaneseTags => $use_AutoJapaneseTags,
-    use_mimetex          => $use_mimetex,
-    use_imgtex           => $use_imgtex,
     use_latexpdf         => $use_latexpdf,
+    use_mathjax          => $use_mathjax,
     use_highcharts       => $use_highcharts,
     path_highcharts      => $path_highcharts,
     theme_highcharts     => $theme_highcharts,
@@ -3011,14 +3007,6 @@ EOM
   <td class="fieldBody" width="60%">$msg{'use_cache_exp'}</td> 
   <td class="fieldBody" width="15%">
 EOM
-#
-#        $body .= $cgi->popup_menu(-name=>'opt_use_cache',
-#				  -default=>"$use_cache",
-#				  -values=>['1','0'],
-#				  -labels=>{ '1'=>$msg{'use'},
-#					     '0'=>$msg{'dontuse'} }
-#	);
-
 	$body .= <<EOM;
 <select name="opt_use_cache">
 EOM
@@ -3043,12 +3031,6 @@ EOM
   <td class="fieldBody" width="60%">$msg{'use_DBforSession_exp'}</td> 
   <td class="fieldBody" width="15%">
 EOM
-#        $body .= $cgi->popup_menu(-name=>'opt_use_DBforSession',
-#				  -default=>"$use_DBforSession",
-#				  -values=>['1','0'],
-#				  -labels=>{ '1'=>$msg{'use'},
-#					     '0'=>$msg{'dontuse'} }
-#	);
 	$body .= <<EOM;
 <select name="opt_use_DBforSession">
 EOM
@@ -3073,13 +3055,6 @@ EOM
   <td class="fieldBody" width="15%">
 EOM
     if (&check_module('Text::MeCab')) {
-#        $body .= $cgi->popup_menu(-name=>'opt_use_AutoJapaneseTags',
-#				  -default=>"$use_AutoJapaneseTags",
-#				  -values=>['1','0'],
-#				  -labels=>{ '1'=>$msg{'use'},
-#					     '0'=>$msg{'dontuse'} }
-#	);
-
 	$body .= <<EOM;
 <select name="opt_use_AutoJapaneseTags">
 EOM
@@ -3107,13 +3082,6 @@ EOM
   <td class="fieldBody" width="15%">
 EOM
     if (&check_module('XML::RSS')) {
-#        $body .= $cgi->popup_menu(-name=>'opt_use_RSS',
-#				  -default=>"$use_RSS",
-#				  -values=>['1','0'],
-#				  -labels=>{ '1'=>$msg{'use'},
-#					     '0'=>$msg{'dontuse'} }
-#	);
-
 	$body .= <<EOM;
 <select name="opt_use_RSS">
 EOM
@@ -3141,12 +3109,6 @@ EOM
   <td class="fieldBody" width="15%">
 EOM
     if (&check_module('XML::Simple')) {
-#        $body .= $cgi->popup_menu(-name=>'opt_use_XML',
-#				  -default=>"$use_XML",
-#				  -values=>['1','0'],
-#				  -labels=>{ '1'=>$msg{'use'},
-#					     '0'=>$msg{'dontuse'} }
-#	);
 	$body .= <<EOM;
 <select name="opt_use_XML">
 EOM
@@ -3168,10 +3130,25 @@ EOM
   </td>
 </tr>
 <tr>
-  <td class="fieldHead" width="25%">$msg{'path_highcharts'}</td>
-  <td class="fieldBody" width="60%">$msg{'path_highcharts_exp'}</td> 
+  <td class="fieldHead" width="25%">$msg{'use_mathjax'}</td>
+  <td class="fieldBody" width="60%">$msg{'use_mathjax_exp'}</td> 
   <td class="fieldBody" width="15%">
-  $path_highcharts
+EOM
+	$body .= <<EOM;
+<select name="opt_use_mathjax">
+EOM
+        %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
+        for ( 0 .. 1 ) {
+	    my $selected = '';
+	    $selected = "selected" if ($use_mathjax == $_);
+	    $body .= <<EOM;
+<option value="$_" $selected>$labels{$_}</option>
+EOM
+        }
+        $body .= <<EOM;
+      </select>
+EOM
+	$body .= <<EOM;
   </td>
 </tr>
 <tr>
@@ -3203,6 +3180,13 @@ EOM
         $body .= "$msg{'notInstalled'}: ";
     }
 	$body .= <<EOM;
+  </td>
+</tr>
+<tr>
+  <td class="fieldHead" width="25%">$msg{'path_highcharts'}</td>
+  <td class="fieldBody" width="60%">$msg{'path_highcharts_exp'}</td> 
+  <td class="fieldBody" width="15%">
+  $path_highcharts
   </td>
 </tr>
 <tr>
@@ -3280,12 +3264,6 @@ EOM
   <td class="fieldBody" width="60%">$msg{'use_latexpdf_exp'}</td> 
   <td class="fieldBody" width="15%">
 EOM
-#        $body .= $cgi->popup_menu(-name=>'opt_use_latexpdf',
-#				  -default=>"$use_latexpdf",
-#				  -values=>['1','0'],
-#				  -labels=>{ '1'=>$msg{'use'},
-#					     '0'=>$msg{'dontuse'} }
-#	);
 	$body .= <<EOM;
 <select name="opt_use_latexpdf">
 EOM
@@ -3579,6 +3557,9 @@ sub printHeader {
     my $url = &generateURL;
     $head2 .= <<EOM;
     <META http-equiv="Content-Type" content="text/html; charset=utf-8">
+EOM
+    if ($use_mathjax) {
+    $head2 .= <<EOM;
     <script type="text/x-mathjax-config">
 	MathJax.Hub.Config({ tex2jax: { inlineMath: [['\$','\$'] ] } });
     </script>
@@ -3587,6 +3568,7 @@ sub printHeader {
     </script>
     <meta http-equiv="X-UA-Compatible" CONTENT="IE=EmulateIE7" />
 EOM
+    }
     if ($use_RSS) {
     $head2 .= <<EOM;
     <link rel="alternate" type="application/rss+xml" title="RSS" href="$url;RSS" />
@@ -4261,13 +4243,7 @@ sub capitalizePaperTitle {
 
     # 日本語を含んでいたら数式処理のみ
     if (&isJapanese($$string) && ($mode ne "latex" && $mode ne "PDF")) {
-#	if ($use_mimetex) {
-#	    $$string=~s/\$([^\$]*)\$/<img class="math" src="${MIMETEXPATH}\?\1" \/>/g;
-#	} elsif ($use_imgtex) {
-#	    $$string=~s/\$([^\$]*)\$/<img class="math" src="${IMGTEXPATH}\?{\$\1\$}" \/>/g;
-#	} else {
-	    $$string=~s/\$([^\$]*)\$/\1/g;
-#	}
+	$$string=~s/\$([^\$]*)\$/\1/g;
 	$$string=~s/\{([^\}]*)\}/\1/g;
 	return;
     }
@@ -4278,13 +4254,7 @@ sub capitalizePaperTitle {
 	# $$に囲まれた部分はそのまま
 	if ($words[$i]=~/\$([^\$]*)\$/) {
 	    next if ($mode eq "latex" || $mode eq "PDF") ; 
-# 	    if($use_mimetex) {
-#		$words[$i]=~s/\$([^\$]*)\$/<img class="math" src="${MIMETEXPATH}\?\1" \/>/g;
-# 	    } elsif($use_imgtex) {
-#		$words[$i]=~s/\$([^\$]*)\$/<img class="math" src="${IMGTEXPATH}\?{\$\1\$}" \/>/g;
-#	    } else {
-		$words[$i]=~s/\$([^\$]*)\$/\1/g;
-#	    }
+	    $words[$i]=~s/\$([^\$]*)\$/\1/g;
 	    next;
 	}
 	# {}に囲まれた部分はそのまま
@@ -4387,12 +4357,6 @@ EOM
 		  )
 	) {
 	$vl=~s/\n/<br \/>/ig;
-#	if ($use_mimetex) {
-#	    $vl=~s/\$([^\$]*)\$/<img class="math" src="${MIMETEXPATH}\?\1" \/>/g 
-#	} elsif ($use_imgtex) {
-#	    $vl=~s/\$([^\$]*)\$/<img class="math" src="${IMGTEXPATH}\?{\$\1\$}" \/>/g 
-#        } else {
-#	}
 	$ent .= <<EOM;
 <tr>
   <td class="fieldHead">
@@ -5352,8 +5316,8 @@ sub doConfigSetting {
     # texHeader, texFooter,
     my @op = ('titleOfSite','maintainerName','maintainerAddress',
 	      'use_cache','use_DBforSession','use_AutoJapaneseTags','use_RSS',
-	      'use_XML','use_mimetex','use_imgtex','texHeader','texFooter',
-	      'use_latexpdf','use_highcharts','theme_highcharts',
+	      'use_XML','texHeader','texFooter',
+	      'use_latexpdf','use_mathjax','use_highcharts','theme_highcharts',
 	      'latexcmd','dvipdfcmd','tmpl_name',
 	      'title_list','title_table','title_latex','title_bbl','title_detail'
 	);
