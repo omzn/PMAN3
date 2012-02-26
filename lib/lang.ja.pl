@@ -50,7 +50,7 @@ our %topMenu = (
     "simple"=>"簡易",
     "detail"=>"詳細",
     "japanese"=>"日本語",
-    "english"=>"English",
+    "english"=>"英語",
     "login"=>"ログイン",
     "logout"=>"ログアウト",
     "category"=>"分類設定",
@@ -345,6 +345,7 @@ our %msg = (
     "numOfPub"=>"文献数",
     "tagdist"=>"タグの分布(出現上位30タグのみ)",
     "authordist"=>"著者の分布",
+    "authorTransition"=>"頻出上位10著者出現回数の傾向",
 
     "path_highcharts"=>"Highcharts.jsの設置パス",
     "path_highcharts_exp"=>"<a href=\"http://www.higicharts.com/download/\" target=\"_blank\">Highcharts.com</a>からダウンロードしたzipアーカイブ内の\"js\"ディレクトリを，\"highcharts\"にリネームしてlibの下に置いて下さい． lib/highchartsディレクトリの直下に，highcharts.js, modules/, themes/ がある状態にして下さい．",

@@ -4,7 +4,7 @@
 #                               
 #              (c) 2002-2012 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.2.4 build 20120210";
+my $VERSION = "3.2.4 build 20120226";
 # 
 # =================================================================================
 BEGIN {
@@ -2204,6 +2204,7 @@ EOM
 	$body .= <<EOM;
 <div id="graphcontainer" style="width: 100%; height: 640px; margin: 0 auto"></div>
 <div id="authorcontainer"   style="width: 100%; height: 550px; margin: 0 auto"></div>
+<div id="author2container"   style="width: 100%; height: 550px; margin: 0 auto"></div>
 <div id="tagcontainer"   style="width: 100%; height: 640px; margin: 0 auto"></div>
 EOM
 
@@ -3587,6 +3588,7 @@ EOM
 	my @yrs ;
 	my @pts ;
 	my %num ;
+	my %catidlist ;
         my $m;
         my $title;
         my $subtitle;
@@ -3618,12 +3620,14 @@ EOM
 		    $prevPtype = -1;
 		}		
 		$num{"$prevYear"}++;
+		push(@{$catidlist{"$prevYear"}},$abib->{'id'});
 	    } elsif ($m eq 't') {
 		if ($$abib{'ptype'} != $prevPtype) {
 		    $prevPtype = $$abib{'ptype'};
 		    push(@pts,$prevPtype);
 		} 
 		$num{"$prevPtype"}++;
+		push(@{$catidlist{"$prevPtype"}},$abib->{'id'});
 	    } else { # $m eq 'yt'
 		if ($$abib{'year'} != $prevYear) {
 		    $prevYear = $$abib{'year'};
@@ -3637,6 +3641,7 @@ EOM
 #		    }
 		}
 		$num{"$prevPtype"}->{"$prevYear"}++;
+		push(@{$catidlist{"$prevYear"}},$abib->{'id'});
 	    }
 	}
 
@@ -3736,7 +3741,7 @@ EOM
         }
         $head2 .= join(", ",@nn); 
 	$head2 .= <<EOM;
-	]
+      ]
 EOM
     } elsif ($m eq 't') {
 	$head2 .= <<EOM;
@@ -3834,6 +3839,97 @@ $authors
 	]
      }]
    });
+});
+		   
+var authorchart2;
+\$(document).ready(function() {
+  authorchart2 = new Highcharts.Chart({
+    chart: {
+      renderTo: 'author2container',
+      defaultSeriesType: 'line',
+      marginBottom: 80
+      },
+    title: {
+      text: '$msg{"authorTransition"}',
+      x: -20 //center
+      },
+    xAxis: {
+      categories: [
+EOM
+        if ($m eq 'y' || $m eq 'yt') {
+	    $head2 .= join(",",map {
+		my $py = $_ < 9999 ? $_ : 
+		    ($_ == 9999 ? $msg{'accepted'} : $msg{'submitted'}); "'".$py."'"
+			   } @yrs);
+        } elsif ($m eq 't') {
+	    $head2 .= join(",",map {"'".$ptype{$_}."'"} @pts);
+        }
+	$head2 .= <<EOM;
+	        ],
+      labels: {
+	rotation: -45,
+	align: 'right',
+      }
+    },
+
+    yAxis: {
+      min: 0,
+      tickInterval: 5,
+      title: {
+	text: '$msg{"numOfPub"}'
+	},
+      plotLines: [{
+	 value: 0,
+	 width: 1,
+	 color: '#808080'
+      }]
+   },
+   legend: {
+     align: 'left',
+     verticalAlign: 'bottom',
+     floating:true,
+     borderWidth: 0
+  },
+  series: [{
+EOM
+
+my @top10au;
+for (my $i=0; $i<= ($#au >19 ? 19 : $#au) ; $i+=2) {
+        push(@top10au,$au[$i]);
+}
+my %top10num;
+my @loop = $m eq 't' ? @pts : @yrs;
+foreach my $l (@loop) {
+    my %catau = split(/,/,&getAuthorsByIdDB(join(",",@{$catidlist{"$l"}})));
+    foreach my $k (keys(%catau)) {
+	foreach my $ta (@top10au) {
+	    if ($ta eq $k) {
+		$top10num{$ta}->{$l} = $catau{$k};
+		last;
+	    }
+	}
+    }
+}
+my @plot;
+foreach my $ta (@top10au) {
+    my @data;
+    foreach my $l (@loop) {
+	if (!exists($top10num{$ta}->{$l})) {
+	    $top10num{$ta}->{$l} = 0;
+	}
+	push(@data,$top10num{$ta}->{$l});
+    }
+    my $d = join(", ",@data);
+    $ta =~s/'/\\'/g;
+    my $str = <<EOM;
+name: '$ta', data: [ $d ]
+EOM
+    push(@plot,$str);
+}
+$head2 .= join("},{\n",@plot);
+$head2 .= <<EOM;
+	}]
+  });
 });
 
 var tagchart;

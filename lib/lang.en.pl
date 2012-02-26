@@ -49,7 +49,7 @@ our %viewMenu = (
 our %topMenu = (
     "simple"=>"Simple",
     "detail"=>"Advanced",
-    "japanese"=>"ÆüËÜ¸ì",
+    "japanese"=>"Japanese",
     "english"=>"English",
     "login"=>"Login",
     "logout"=>"Logout",
@@ -342,7 +342,8 @@ our %msg = (
     "stackedType"=>"Types stacked",
     "numOfPub"=>"Number of publications",
     "tagdist"=>"Distribution of top 30 tags",
-    "authorist"=>"Distribution of authors",
+    "authordist"=>"Distribution of authors",
+    "authorTransition"=>"Trend of top 10 frequent author appearance",
 
     "path_highcharts"=>"Path to highcharts.js",
 
