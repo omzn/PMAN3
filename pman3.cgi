@@ -3847,7 +3847,7 @@ var authorchart2;
     chart: {
       renderTo: 'author2container',
       defaultSeriesType: 'line',
-      marginBottom: 80
+      marginBottom: 100
       },
     title: {
       text: '$msg{"authorTransition"}',
