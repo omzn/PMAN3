@@ -2064,7 +2064,7 @@ sub printTagMenu {
     # タグの重要度に応じてサイズを変える．
     for (my $i=0;$i<=$max;$i+=2) {
 	my $size = ($tg[$i+1] / $tg[1]) * 1.3 + 0.5;
-	push(@taglist,"<span style=\"font-size: ${size}em;\"><a href=\"$scriptName?T=".uri_escape_utf8($tg[$i])."\">$tg[$i]<sup>($tg[$i+1])</sup></a></span>");
+	push(@taglist,"<span style=\"font-size: ${size}em;\"><a href=\"$scriptName?T=".uri_escape_utf8($tg[$i])."\">$tg[$i]<sup>:$tg[$i+1]</sup></a></span>");
     } 
     $tags = join(" ",@taglist);
        
@@ -2672,22 +2672,24 @@ EOM
 EOM
         foreach (@bb_order) {
 	    # author, key, author_eだったら，authors_hashを使って第3引数を構成．
-	    my $vl;
-	    if ($_ eq "author") {
-		my @as = @{$authors_hash{"$$abib{'id'}"}->{'author_name'}};
-		$vl = join(",",@as);
-	    } elsif ($_ eq "key" || $_ eq "author_e" ) {
-		my @ks = @{$authors_hash{"$$abib{'id'}"}->{'author_key'}};
-		$vl = join(",",@ks);
-	    } else {
-		$vl = $$abib{$_};
-	    }	    
+	    my $vl = $$abib{$_};
+	    if (exists($authors_hash{"$$abib{'id'}"}->{'author_name'})) {
+		if ($_ eq "author") {
+		    my @as = @{$authors_hash{"$$abib{'id'}"}->{'author_name'}};
+		    $vl = join(",",@as);
+		} elsif ($_ eq "key" || $_ eq "author_e" ) {
+		    my @ks = @{$authors_hash{"$$abib{'id'}"}->{'author_key'}};
+		    $vl = join(",",@ks);
+		} else {
+		    $vl = $$abib{$_};
+		}	    
+	    }
 	    $body .= &editEntry($$abib{'style'},$_,$vl) ;
         }
 
 
 #ファイルのリストを作成
-		$body .= <<EOM;
+	$body .= <<EOM;
 <tr>
   <td class="fieldHead">$msg{'efile'}</td>
   <td class="fieldBody">
