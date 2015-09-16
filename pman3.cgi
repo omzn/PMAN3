@@ -991,7 +991,7 @@ sub getMyTagDB {
     my ($pids) = @_;
     my @tf;
     
-    $pids = join(",", map {$dbh->quote($_);} split(/,/,$pids));
+#    $pids = join(",", map {$dbh->quote($_);} split(/,/,$pids));
     my $SQL = "SELECT tag,count(tag) FROM tags WHERE paper_id IN ( $pids ) GROUP BY tag ORDER BY count(tag) desc;";
     eval {
 	my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
@@ -1075,7 +1075,7 @@ sub getIdFromAuthorsDB {
     my ($author,$ord) = @_;
     my @idlist;
 
-    $author = $dbh->quote($author);
+#    $author = $dbh->quote($author); # authorはすでにquote済み
     $ord = $dbh->quote($ord);
     my $SQL = "SELECT paper_id FROM authors WHERE ( author_name LIKE $author OR author_key LIKE $author) ";
     if (defined $ord) {
@@ -1100,7 +1100,7 @@ sub getAuthorsByIdDB {
     my ($pids) = @_;
     my @authorlist;#
 
-    $pids = join(",", map {$dbh->quote($_);} split(/,/,$pids));
+#    $pids = join(",", map {$dbh->quote($_);} split(/,/,$pids));
     my $SQL = "SELECT author_key,count(author_key) FROM authors WHERE author_key not null AND paper_id IN ( $pids ) GROUP BY author_key ORDER BY count(author_key) desc;";
     eval {
 	my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
@@ -2062,7 +2062,7 @@ sub printTagMenu {
     foreach (@$bib) {
 	push(@idlist,$_->{'id'});
     }
-    my $tags = &getMyTagDB(join(",",@idlist));
+    my $tags = &getMyTagDB(join(",",map {$dbh->quote($_)} @idlist));
     my @tg = split(/,/,$tags);
     my @taglist;
     my $max = $#tg >= 59 ? 59 : $#tg;
@@ -3825,7 +3825,7 @@ var authorchart;
       data: [
 EOM
 
-    my $authors = &getAuthorsByIdDB(join(",",@idlist));
+    my $authors = &getAuthorsByIdDB(join(",",map {$dbh->quote($_)} @idlist));
     my @au = split(/,/,$authors);
     my @aulist;
     my $max = $#au >= 59 ? 59 : $#au;
@@ -3908,7 +3908,7 @@ for (my $i=0; $i<= ($#au >19 ? 19 : $#au) ; $i+=2) {
 my %top10num;
 my @loop = $m eq 't' ? @pts : @yrs;
 foreach my $l (@loop) {
-    my %catau = split(/,/,&getAuthorsByIdDB(join(",",@{$catidlist{"$l"}})));
+    my %catau = split(/,/,&getAuthorsByIdDB(join(",",map {$dbh->quote($_)} @{$catidlist{"$l"}})));
     foreach my $k (keys(%catau)) {
 	foreach my $ta (@top10au) {
 	    if ($ta eq $k) {
