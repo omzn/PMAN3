@@ -4269,7 +4269,7 @@ sub createAList {
 
 # 各文献スタイルに応じた出力生成
     my $aline = "$strauth, ";
-    $aline = "\\publication\{$strauth\}";
+#    $aline = "\\publication\{$strauth\}";
     if ($isTitle) {
 	$aline .= "$t, $yymm.";
 	$$rbody .= $aline;
@@ -4283,20 +4283,20 @@ sub createAList {
     $lquot = $rquot = "&#34;" if ($mode eq "list" || $mode eq 'detail');
 
     if ($$ent{'style'} eq "article") {
-#	$aline .= "$lquot$t,$rquot $jj, $vvnn $pp $yymm.";
-	$aline .= "\{$t\}\{$jj, $vvnn $pp\}\{$yy\}\{ほげほげ\}";
-#	if ($check{'jcr'} && $$ent{'impactfactor'} ne "") {
-#	    $aline .= " (JCR: $$ent{'impactfactor'})";
-#	}
+	$aline .= "$lquot$t,$rquot $jj, $vvnn $pp $yymm.";
+#	$aline .= "\{$t\}\{$jj, $vvnn $pp\}\{$yy\}\{ほげほげ\}";
+	if ($check{'jcr'} && $$ent{'impactfactor'} ne "") {
+	    $aline .= " (JCR: $$ent{'impactfactor'})";
+	}
     } elsif ($$ent{'style'} eq "inproceedings") {
-#	$aline .= "$lquot$t,$rquot $edr $bkt $vvnn $pp $yymm.";
-	$aline .= "\{$t\}\{$edr $bkt $vvnn $pp\}\{$yy\}\{ほげほげ\}";
-#	if ($$ent{'note'} ne "" && $check{'note'}) {
-#	    $aline .= " ($$ent{'note'})";
-#	}
-#	if ($check{'jcr'} && $$ent{'acceptance'} ne "") {
-#	    $aline .= " (Acceptance rate: $$ent{'acceptance'})";
-#	}
+	$aline .= "$lquot$t,$rquot $edr $bkt $vvnn $pp $yymm.";
+#	$aline .= "\{$t\}\{$edr $bkt $vvnn $pp\}\{$yy\}\{ほげほげ\}";
+	if ($$ent{'note'} ne "" && $check{'note'}) {
+	    $aline .= " ($$ent{'note'})";
+	}
+	if ($check{'jcr'} && $$ent{'acceptance'} ne "") {
+	    $aline .= " (Acceptance rate: $$ent{'acceptance'})";
+	}
     } elsif ($$ent{'style'} eq "incollection") {
 	$aline .= "$t, $edr $bkt $chp $pp $pub $yy.";
     } elsif ($$ent{'style'} =~ /(in)?book|manual/) {
@@ -4304,16 +4304,16 @@ sub createAList {
     } elsif ($$ent{'style'} eq "phdthesis") {
 	my $phdthesis = 'Ph.D. thesis';
 	$phdthesis = '博士学位論文' if ($isJA && $lang eq 'ja');
-#	$aline .= "$lquot$t,$rquot $phdthesis, $$ent{'school'}, $yy.";
-	$aline .= "\{$t\}\{$$ent{'school'}\}\{$yy\}\{ほげほげ\}";
+	$aline .= "$lquot$t,$rquot $phdthesis, $$ent{'school'}, $yy.";
+#	$aline .= "\{$t\}\{$$ent{'school'}\}\{$yy\}\{ほげほげ\}";
     } elsif ($$ent{'style'} eq "masterthesis") {
 	my $mathesis = 'Master thesis';
 	$mathesis = '修士学位論文' if ($isJA && $lang eq 'ja');
 	$aline .= "$lquot$t,$rquot $mathesis, $$ent{'school'}, $yy.";
     } elsif ($$ent{'style'} eq "techreport") {
 	my $tp = "$$ent{'type'}," if ($$ent{'type'});
-#	$aline .= "$lquot$t,$rquot $tp $vvnn $$ent{'institution'}, $yymm.";
-	$aline .= "\{$t\}\{$tp $vvnn $$ent{'institution'}\}\{$yy\}\{ほげほげ\}";
+	$aline .= "$lquot$t,$rquot $tp $vvnn $$ent{'institution'}, $yymm.";
+#	$aline .= "\{$t\}\{$tp $vvnn $$ent{'institution'}\}\{$yy\}\{ほげほげ\}";
     } elsif ($$ent{'style'} eq "misc") {
 	my $how = $$ent{'howpublished'};
 	$aline .= "$lquot$t,$rquot $how, $yymm.";
