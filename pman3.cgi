@@ -2,9 +2,9 @@
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
-#              (c) 2002-2012 Osamu Mizuno, All right researved.
+#              (c) 2002-2015 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.2.4 build 20120226";
+my $VERSION = "3.2.5 build 20150916";
 # 
 # =================================================================================
 BEGIN {
