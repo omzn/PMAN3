@@ -790,10 +790,11 @@ sub updateDB {
 # データ削除
 sub deleteDB {
     my $id = shift;
-    my $SQL = "DELETE FROM bib WHERE id=\'$id\';";
-    $SQL   .= "DELETE FROM files WHERE pid=\'$id\';";
-    $SQL   .= "DELETE FROM tags WHERE paper_id=\'$id\';";
-    $SQL   .= "DELETE FROM authors WHERE paper_id=\'$id\';";
+    my $idq = $dbh->quote($id);
+    my $SQL = "DELETE FROM bib WHERE id=$idq;";
+    $SQL   .= "DELETE FROM files WHERE pid=$idq;";
+    $SQL   .= "DELETE FROM tags WHERE paper_id=$idq;";
+    $SQL   .= "DELETE FROM authors WHERE paper_id=$idq;";
     eval {
  	my $sth = $dbh->do($SQL);
 	$dbh->commit;
@@ -846,7 +847,7 @@ sub insertFileDB {
 sub changeAccessFileDB {
     my ($fid,$fa) = @_;
 
-    my $SQL = "UPDATE files SET access=$fa WHERE id=$fid";
+    my $SQL = sprintf("UPDATE files SET access=%s WHERE id=%s",$dbh->quote($fa),$dbh->quote($fid));
     eval {
 	my $sth = $dbh->do($SQL);
 	$dbh->commit;
@@ -863,8 +864,7 @@ sub changeAccessFileDB {
 sub changeDescFileDB {
     my ($fid,$desc) = @_;
 
-    $desc = $dbh->quote($desc);
-    my $SQL = "UPDATE files SET file_desc=$desc WHERE id=$fid";
+    my $SQL = sprintf("UPDATE files SET file_desc=%s WHERE id=%s",$dbh->quote($desc),$dbh->quote($fid));
     eval {
 	my $sth = $dbh->do($SQL);
 	$dbh->commit;
@@ -881,7 +881,8 @@ sub changeDescFileDB {
 sub getFileListDB {
     my ($pid,$hash) = @_;
 
-    my $SQL = "SELECT id,filename,access,mimetype,file_desc FROM files WHERE pid=$pid;";
+    
+    my $SQL = sprintf("SELECT id,filename,access,mimetype,file_desc FROM files WHERE pid=%s",$dbh->quote($pid));
 
     eval {
 	my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
@@ -911,7 +912,7 @@ sub getFileListDB {
 # file削除
 sub deleteFileDB {
     my $fid = shift;
-    my $SQL = "DELETE FROM files WHERE id=\'$fid\' ;";
+    my $SQL = sprintf("DELETE FROM files WHERE id=%s",$dbh->quote($fid));
     eval {
  	my $sth = $dbh->do($SQL);
 	$dbh->commit;
@@ -929,7 +930,7 @@ sub getTagListDB {
     my ($pid) = @_;
     my @taglist;
 
-    my $SQL = "SELECT tag FROM tags WHERE paper_id=$pid;";
+    my $SQL = sprintf("SELECT tag FROM tags WHERE paper_id=%s",$dbh->quote($pid));
     eval {
 	my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
 	foreach (@$f) {
@@ -950,7 +951,7 @@ sub getIdFromTagDB {
     my ($tag) = @_;
     my @idlist;
 
-    my $SQL = "SELECT paper_id FROM tags WHERE tag=$tag;";
+    my $SQL = sprintf("SELECT paper_id FROM tags WHERE tag=%s",$dbh->quote($tag));
     eval {
 	my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
 	foreach (@$f) {
@@ -989,6 +990,8 @@ sub getTop10TagDB {
 sub getMyTagDB {
     my ($pids) = @_;
     my @tf;
+    
+    $pids = join(",", map {$dbh->quote($_);} split(/,/,$pids));
     my $SQL = "SELECT tag,count(tag) FROM tags WHERE paper_id IN ( $pids ) GROUP BY tag ORDER BY count(tag) desc;";
     eval {
 	my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
@@ -1009,7 +1012,7 @@ sub getMyTagDB {
 sub updateTagDB {
     my ($pid,$tag) = @_;
 
-    my $SQL = "DELETE FROM tags WHERE paper_id=$pid ;";
+    my $SQL = sprintf("DELETE FROM tags WHERE paper_id=%s",$dbh->quote($pid));
     eval {
 	my $sth = $dbh->do($SQL);
 	$dbh->commit;
@@ -1049,7 +1052,7 @@ sub deleteTagDB {
 sub downloadFileDB {
     my ($id) = @_;
 
-    my $SQL = "SELECT filename,mimetype,file,access FROM files WHERE id=$id;";
+    my $SQL = sprintf("SELECT filename,mimetype,file,access FROM files WHERE id=%s",$dbh->quote($id));
     my @ary;
     eval {
 	@ary = $dbh->selectrow_array($SQL);
@@ -1072,9 +1075,11 @@ sub getIdFromAuthorsDB {
     my ($author,$ord) = @_;
     my @idlist;
 
+    $author = $dbh->quote($author);
+    $ord = $dbh->quote($ord);
     my $SQL = "SELECT paper_id FROM authors WHERE ( author_name LIKE $author OR author_key LIKE $author) ";
     if (defined $ord) {
-	$SQL .= " AND author_order='$ord'";
+	$SQL .= " AND author_order=$ord";
     }
     eval {
 	my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
@@ -1095,6 +1100,7 @@ sub getAuthorsByIdDB {
     my ($pids) = @_;
     my @authorlist;#
 
+    $pids = join(",", map {$dbh->quote($_);} split(/,/,$pids));
     my $SQL = "SELECT author_key,count(author_key) FROM authors WHERE author_key not null AND paper_id IN ( $pids ) GROUP BY author_key ORDER BY count(author_key) desc;";
     eval {
 	my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
@@ -1135,7 +1141,7 @@ sub getAuthorListDB {
 sub deleteAuthorDB {
     my ($pid) = @_;
 
-    my $SQL = "DELETE FROM authors WHERE paper_id=$pid ;";
+    my $SQL = sprintf("DELETE FROM authors WHERE paper_id=%s",$dbh->quote($pid));
     eval {
 	my $sth = $dbh->do($SQL);
 	$dbh->commit;
@@ -4238,9 +4244,9 @@ sub createAList {
 	$pages = 'pp.'; $page = 'p.';
     }
     my $pp = ($$ent{'pages'} eq "" ? "": 
-	      ($$ent{'pages'}=~/^\d+\-+\d+$/ ? "$pages $$ent{'pages'}," :
-	       ($$ent{'pages'}=~/^\d+$/ ? "$page $$ent{'pages'}," :
-		"$$ent{'pages'},") ) );
+	      ($$ent{'pages'}=~/^\d+\-+\d+$/ ? "$pages $$ent{'pages'}" :
+	       ($$ent{'pages'}=~/^\d+$/ ? "$page $$ent{'pages'}" :
+		"$$ent{'pages'}") ) );
 
     my $edr;
     my $chp;   
@@ -4263,7 +4269,7 @@ sub createAList {
 
 # 各文献スタイルに応じた出力生成
     my $aline = "$strauth, ";
-
+    $aline = "\\publication\{$strauth\}";
     if ($isTitle) {
 	$aline .= "$t, $yymm.";
 	$$rbody .= $aline;
@@ -4277,18 +4283,20 @@ sub createAList {
     $lquot = $rquot = "&#34;" if ($mode eq "list" || $mode eq 'detail');
 
     if ($$ent{'style'} eq "article") {
-	$aline .= "$lquot$t,$rquot $jj, $vvnn $pp $yymm.";
-	if ($check{'jcr'} && $$ent{'impactfactor'} ne "") {
-	    $aline .= " (JCR: $$ent{'impactfactor'})";
-	}
+#	$aline .= "$lquot$t,$rquot $jj, $vvnn $pp $yymm.";
+	$aline .= "\{$t\}\{$jj, $vvnn $pp\}\{$yy\}\{ほげほげ\}";
+#	if ($check{'jcr'} && $$ent{'impactfactor'} ne "") {
+#	    $aline .= " (JCR: $$ent{'impactfactor'})";
+#	}
     } elsif ($$ent{'style'} eq "inproceedings") {
-	$aline .= "$lquot$t,$rquot $edr $bkt $vvnn $pp $yymm.";
-	if ($$ent{'note'} ne "" && $check{'note'}) {
-	    $aline .= " ($$ent{'note'})";
-	}
-	if ($check{'jcr'} && $$ent{'acceptance'} ne "") {
-	    $aline .= " (Acceptance rate: $$ent{'acceptance'})";
-	}
+#	$aline .= "$lquot$t,$rquot $edr $bkt $vvnn $pp $yymm.";
+	$aline .= "\{$t\}\{$edr $bkt $vvnn $pp\}\{$yy\}\{ほげほげ\}";
+#	if ($$ent{'note'} ne "" && $check{'note'}) {
+#	    $aline .= " ($$ent{'note'})";
+#	}
+#	if ($check{'jcr'} && $$ent{'acceptance'} ne "") {
+#	    $aline .= " (Acceptance rate: $$ent{'acceptance'})";
+#	}
     } elsif ($$ent{'style'} eq "incollection") {
 	$aline .= "$t, $edr $bkt $chp $pp $pub $yy.";
     } elsif ($$ent{'style'} =~ /(in)?book|manual/) {
@@ -4296,14 +4304,16 @@ sub createAList {
     } elsif ($$ent{'style'} eq "phdthesis") {
 	my $phdthesis = 'Ph.D. thesis';
 	$phdthesis = '博士学位論文' if ($isJA && $lang eq 'ja');
-	$aline .= "$lquot$t,$rquot $phdthesis, $$ent{'school'}, $yy.";
+#	$aline .= "$lquot$t,$rquot $phdthesis, $$ent{'school'}, $yy.";
+	$aline .= "\{$t\}\{$$ent{'school'}\}\{$yy\}\{ほげほげ\}";
     } elsif ($$ent{'style'} eq "masterthesis") {
 	my $mathesis = 'Master thesis';
 	$mathesis = '修士学位論文' if ($isJA && $lang eq 'ja');
 	$aline .= "$lquot$t,$rquot $mathesis, $$ent{'school'}, $yy.";
     } elsif ($$ent{'style'} eq "techreport") {
 	my $tp = "$$ent{'type'}," if ($$ent{'type'});
-	$aline .= "$lquot$t,$rquot $tp $vvnn $$ent{'institution'}, $yymm.";
+#	$aline .= "$lquot$t,$rquot $tp $vvnn $$ent{'institution'}, $yymm.";
+	$aline .= "\{$t\}\{$tp $vvnn $$ent{'institution'}\}\{$yy\}\{ほげほげ\}";
     } elsif ($$ent{'style'} eq "misc") {
 	my $how = $$ent{'howpublished'};
 	$aline .= "$lquot$t,$rquot $how, $yymm.";
