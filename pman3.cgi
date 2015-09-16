@@ -950,8 +950,8 @@ sub getTagListDB {
 sub getIdFromTagDB {
     my ($tag) = @_;
     my @idlist;
-
-    my $SQL = sprintf("SELECT paper_id FROM tags WHERE tag=%s",$dbh->quote($tag));
+    # tag は quote済み
+    my $SQL = sprintf("SELECT paper_id FROM tags WHERE tag=%s",$tag);
     eval {
 	my $f = $dbh->selectall_arrayref($SQL,{Columns => {}});
 	foreach (@$f) {
@@ -1076,9 +1076,9 @@ sub getIdFromAuthorsDB {
     my @idlist;
 
 #    $author = $dbh->quote($author); # authorはすでにquote済み
-    $ord = $dbh->quote($ord);
     my $SQL = "SELECT paper_id FROM authors WHERE ( author_name LIKE $author OR author_key LIKE $author) ";
     if (defined $ord) {
+	$ord = $dbh->quote($ord);
 	$SQL .= " AND author_order=$ord";
     }
     eval {
