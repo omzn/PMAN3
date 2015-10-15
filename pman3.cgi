@@ -3655,7 +3655,7 @@ EOM
 
 	$head2 .= <<EOM;
 <!-- 1. Add these JavaScript inclusions in the head of your page -->
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
 <script type="text/javascript" src="$path_highcharts/highcharts.js"></script>
 <!-- 1a) Optional: add a theme file -->
 <script type="text/javascript" src="$path_highcharts/themes/$theme_highcharts"></script>
