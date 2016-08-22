@@ -2193,6 +2193,23 @@ EOM
 	    # リスト1行生成
 	    if  (!defined($cgi->param('SSI')) && !defined($cgi->param('STATIC'))) {
 		&createAList(\$body,\%check,$ssp,$abib,"$scriptName?","$scriptName?");
+		### Insert PDF link here ###
+		my %efiles;
+		&getFileListDB($$abib{'id'},\%efiles);
+		# file表示
+		if (keys(%efiles)) {
+		    foreach (sort(grep(/,filename/,keys(%efiles)))) {
+			my @ff = split(/,/,$_);
+			my $desc = $efiles{$_};
+			if ($efiles{$ff[0].",file_desc"} ne "") {
+			    $desc = $efiles{$ff[0].",file_desc"};
+			}
+			$body .= <<EOM;
+			<a title="$desc" href="$scriptName?DOWNLOAD=$ff[0]">[$desc]</a>
+EOM
+		    }
+		}
+
 		$body .= "</dd>\n";
 	    } else {
 		&createAList(\$body,\%check,$ssp,$abib);
