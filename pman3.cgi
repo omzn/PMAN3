@@ -1528,7 +1528,7 @@ sub printScreen {
 	my $url = &generateURL;
 	$rss->channel(
 	    title => "PMAN3 RSS",
-	    link => "http://$httpServerName$url",
+	    link => "https://$httpServerName$url",
 	    description => "Search result of PMAN3"
 	    );
 	my $ssp = $session->param_hashref();
@@ -1544,7 +1544,7 @@ sub printScreen {
 	    }
 	    $rss->add_item(
 		title => "[$ptype{$_->{'ptype'}}] $_->{'title'}",
-		link => "http://$httpServerName$scriptName?D=$id",
+		link => "https://$httpServerName$scriptName?D=$id",
 		description => $aline
 		);
 	}
@@ -1729,7 +1729,7 @@ EOM
 EOM
     }
     $topmenu .= <<EOM;
-  Help: <a class="toptab" href="http://se.is.kit.ac.jp/~o-mizuno/pman3help.html">$topMenu{'help'}</a><span class="hide"> | </span>
+  Help: <a class="toptab" href="https://se.is.kit.ac.jp/~o-mizuno/pman3help.html">$topMenu{'help'}</a><span class="hide"> | </span>
   </p>
 EOM
 
@@ -1983,7 +1983,7 @@ EOM
 
     # ビューメニュー
     my $viewmenu .= <<EOM;
-<ul id="menu-menu" class="sf-menu view">
+<ul id="menu-menu" class="sf-menu view nav nav navbar-nav navbar-right">
 EOM
 
     if ($login == 1) {
@@ -2146,7 +2146,7 @@ return $body;
 
 	if (!defined($cgi->param('SSI')) && !defined($cgi->param('STATIC')) && !defined($cgi->param('FEED'))) {
 	    $body .= <<EOM;
-<div class="opt">
+<div class="opt entry-meta">
 <!-- <div class="small"><a href="" onclick="if(document.listoption.style.display == 'none') { document.listoption.style.display = 'block'} else {document.listoption.style.display = 'none'} ;return(false);">$msg{'showDisplayOptions'}Toggle</a></div> -->
 <form name="listoption" method="POST">
 <input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="abbrev" $check{'abbrev'} id="c5" /><label for="c5">$msg{'showAbbrev'}</label>
@@ -2541,15 +2541,15 @@ EOM
 	&createAList(\$tline,\%ck,$ssp,$abib,'','',1);
 	$titleOfSite .= ": $tline";
 
-	my $svn = uri_escape_utf8("http://".$httpServerName);
+	my $svn = uri_escape_utf8("https://".$httpServerName);
 	my $scn = uri_escape_utf8(&htmlScrub($scriptName));
 
 	$body .= <<EOM;
     <table>
 <tr>
 <td colspan="2">
-<a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
-<iframe src="http://www.facebook.com/plugins/like.php?app_id=143903329035904&amp;href=$svn$scn%3FD%3D$$abib{'id'}&amp;send=false&amp;layout=button_count&amp;width=50&amp;show_faces=false&amp;action=recommend&amp;colorscheme=light&amp;font&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:150px; height:21px;" allowTransparency="true"></iframe>
+<a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal">Tweet</a><script type="text/javascript" src="https://platform.twitter.com/widgets.js"></script>
+<iframe src="https://www.facebook.com/plugins/like.php?app_id=143903329035904&amp;href=$svn$scn%3FD%3D$$abib{'id'}&amp;send=false&amp;layout=button_count&amp;width=50&amp;show_faces=false&amp;action=recommend&amp;colorscheme=light&amp;font&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:150px; height:21px;" allowTransparency="true"></iframe>
 </td></tr>
 <tr>
 <td colspan="2">
@@ -3590,7 +3590,7 @@ EOM
 	MathJax.Hub.Config({ tex2jax: { inlineMath: [['\$','\$'] ] } });
     </script>
     <script type="text/javascript"
-        src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML">
+        src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML">
     </script>
     <meta http-equiv="X-UA-Compatible" CONTENT="IE=EmulateIE7" />
 EOM
@@ -4027,7 +4027,7 @@ sub printFooter {
     $footer .=<<EOM;
 <p class="center">
 This site is maintained by <a href="$maintainerAddress">$maintainerName</a>.<br />
-<a href="http://se.is.kit.ac.jp/~o-mizuno/pman3/">PMAN $VERSION</a> - Paper MANagement system / (C) 2002-2012, <a href="http://se.is.kit.ac.jp/~o-mizuno/">Osamu Mizuno</a> / All rights reserved.
+<a href="https://se.is.kit.ac.jp/~o-mizuno/pman3/">PMAN $VERSION</a> - Paper MANagement system / (C) 2002-2012, <a href="https://se.is.kit.ac.jp/~o-mizuno/">Osamu Mizuno</a> / All rights reserved.
 <br />
 Time to show this page: $drawingTime seconds.
 </p>
