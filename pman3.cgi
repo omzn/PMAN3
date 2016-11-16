@@ -2,9 +2,9 @@
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
-#              (c) 2002-2015 Osamu Mizuno, All right researved.
+#              (c) 2002-2016 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.2.5 build 20150916";
+my $VERSION = "3.2.6 build 20161116";
 # 
 # =================================================================================
 BEGIN {
@@ -1698,9 +1698,11 @@ sub printMenu {
 	my $tabdetail = $mmode eq "detail" ? "activetoptab" : "toptab";
 
 	$topmenu .= <<EOM;
+	<span class="topmenu-item">
   Search:
   <a class=$tabsimple href="$scriptName?MENU=simple;MODE=$mode">$topMenu{'simple'}</a><span class="hide"> | </span>
   <a class=$tabdetail href="$scriptName?MENU=detail;MODE=$mode">$topMenu{'detail'}</a><span class="hide"> || </span>
+  </span>
 EOM
     }
 
@@ -1709,13 +1711,15 @@ EOM
     my $tabja = $lang eq "ja" ? "activetoptab" : "toptab";
 
     $topmenu .= <<EOM;
+	<span class="topmenu-item">
   Language:
   <a class=$taben href="$scriptName?LANG=en;MODE=$mode">$topMenu{'english'}</a><span class="hide"> | </span>
   <a class=$tabja href="$scriptName?LANG=ja;MODE=$mode">$topMenu{'japanese'}</a><span class="hide"> || </span>
+  </span>
 EOM
 
     $topmenu .= <<EOM;
-  Login:
+	<span class="topmenu-item"> 
 EOM
     if ($login == 1) {
 	$topmenu .= <<EOM;
@@ -1729,7 +1733,8 @@ EOM
 EOM
     }
     $topmenu .= <<EOM;
-  Help: <a class="toptab" href="https://se.is.kit.ac.jp/~o-mizuno/pman3help.html">$topMenu{'help'}</a><span class="hide"> | </span>
+<!--      <a class="toptab" href="https://se.is.kit.ac.jp/~o-mizuno/pman3help.html">$topMenu{'help'}</a><span class="hide"> | </span>
+      </span> -->
   </p>
 EOM
 
@@ -1771,14 +1776,15 @@ function clearElement(element) {
 </script>
 <form name="search" method="POST" action="$scriptName">
 <input type="hidden" name="MODE" value="$mode" />
-<div id="smenu">
+<div id="smenu" >
 EOM
 
     my $multi = "onChange=\"doument.search.submit();\"";
     $multi = "multiple size=\"7\"" if ($mmode eq "detail") ;
 
-    $searchmenu .= <<EOM;
-    <select class="longinput" name="PTYPE" $multi>
+	$searchmenu .= <<EOM;
+	<span class="form-group">
+    <select class="form-control longinput" name="PTYPE" $multi>
 EOM
 
     # PTYPEに応じてメニューを作成 (なぜか異様に面倒なことに)
@@ -1830,8 +1836,9 @@ EOM
     }
     $searchmenu .= <<EOM;
     </select>
-
-    <select class="longinput" name="SORT" onChange="document.search.submit();">
+	</span>
+	<span class="form-group">
+    <select class="form-control longinput" name="SORT" onChange="document.search.submit();">
 EOM
 
     my @selected = ();
@@ -1857,7 +1864,7 @@ EOM
     <option value="y_t_ascend" $selected[4]>$msg{'y_t_ascend'}</option>
     <option value="y_t_descend" $selected[5]>$msg{'y_t_descend'}</option>
     </select>
-</div>
+</span>
 <div id="smenu">
 EOM
     my @selected = ();
@@ -1879,8 +1886,8 @@ EOM
     }
 
     $searchmenu .= <<EOM;
-    <span id="searchbox">
-      <select class="longinput" name="FROM">
+    <span id="searchbox form-group">
+      <select class="form-control longinput" name="FROM">
         <option value="all" $selected[6]>$msg{'all'}</option>
         <option value="author" $selected[0]>$msg{'author'}</option>
         <option value="1stauthor" $selected[5]>$msg{'1stauthor'}</option>
@@ -1895,7 +1902,7 @@ EOM
     $search=~s/\"//g;
     utf8::decode($search) if (!utf8::is_utf8($search)) ;
     $searchmenu .= <<EOM;
-        <input class="longinput" name="SEARCH" type="text" size="25" value="$search" />
+        <input class="form-control longinput" name="SEARCH" type="text" size="25" value="$search" />
 EOM
 
     my @selected = ();
@@ -1907,7 +1914,7 @@ EOM
     }
 
     $searchmenu .= <<EOM;
-      <select class="shortinput" name="LOGIC">
+      <select class="form-control shortinput" name="LOGIC">
         <option value="and" $selected[0]>and</option>
         <option value="or" $selected[1]>or</option>
       </select>
@@ -1936,7 +1943,7 @@ EOM
 
 	    $searchmenu .= <<EOM;
     <br /><span id="searchbox">
-      <select class="longinput" name="FROM$i">
+      <select class="form-control longinput" name="FROM$i">
         <option value="all" $selected[6]>$msg{'all'}</option>
         <option value="author" $selected[0]>$msg{'author'}</option>
         <option value="1stauthor" $selected[5]>$msg{'1stauthor'}</option>
@@ -1950,7 +1957,7 @@ EOM
             my $search = $session->param("SEARCH$i") || "" ;
 	    utf8::decode($search)  if (!utf8::is_utf8($search)) ;;
 	    $searchmenu .= <<EOM;
-        <input class="longinput" name="SEARCH$i" type="text" size="25" value="$search" />
+        <input class="form-control longinput" name="SEARCH$i" type="text" size="25" value="$search" />
 EOM
 
             my @selected = ();
@@ -1962,7 +1969,7 @@ EOM
 	    }
 	
 	    $searchmenu .= <<EOM;
-      <select class="shortinput" name="LOGIC$i">
+      <select class="form-control shortinput" name="LOGIC$i">
         <option value="and" $selected[0]>and</option>
         <option value="or" $selected[1]>or</option>
       </select>
@@ -1973,9 +1980,9 @@ EOM
 
     $searchmenu .= <<EOM;
 </div>
-<div id="smenu">
-<input class="shortinput" type="submit" value="Search">
-<input class="shortinput" type="button" value="Clear" onclick="clearFormAll();">
+<div id="smenu" class="form-group">
+<input class="form-control shortinput" type="submit" value="Search">
+<input class="form-control shortinput" type="button" value="Clear" onclick="clearFormAll();">
 </div>
 </form>
 EOM
@@ -1989,32 +1996,32 @@ EOM
     if ($login == 1) {
 	my $id = $session->param('ID');
 	$viewmenu .= <<EOM;
-<li class="menu-item"><a href="$scriptName?MODE=add">$viewMenu{'add'}</a></li>
-<li class="menu-item"><a href="$scriptName?MODE=bib">$viewMenu{'bib'}</a></li>
+<li class="menu-item"><a href="$scriptName?MODE=add"><span class="glyphicon glyphicon-plus"></span>$viewMenu{'add'}</a></li>
+<li class="menu-item"><a href="$scriptName?MODE=bib"><span class="glyphicon glyphicon-plus"></span>$viewMenu{'bib'}</a></li>
 EOM
         if ($mode eq "detail") {
 	    $viewmenu .= <<EOM;
-<li class="menu-item"><a href="$scriptName?MODE=edit;ID=$id">$viewMenu{'edit'}</a></li>
+<li class="menu-item"><a href="$scriptName?MODE=edit;ID=$id"><span class="glyphicon glyphicon-pencil"></span>$viewMenu{'edit'}</a></li>
 EOM
         }	    
 
         if ($mode eq "edit") {
 	    $viewmenu .= <<EOM;
-<li class="menu-item"><a href="$scriptName?MODE=delete;ID=$id" onClick="if( !confirm(\'$msg{'deleteConfirm'}\')) {return false;}">$viewMenu{'delete'}</a></li>
+<li class="menu-item"><a href="$scriptName?MODE=delete;ID=$id" onClick="if( !confirm(\'$msg{'deleteConfirm'}\')) {return false;}"><span class="glyphicon glyphicon-trash"></span>$viewMenu{'delete'}</a></li>
 EOM
         }	    
 	#$viewmenu .= "<li class=\"hide\"></li>";
     }
 
     $viewmenu .= <<EOM;
-<li class="menu-item"><a href="$scriptName?MODE=list">$viewMenu{'list'}</a></li>
-<li class="menu-item"><a href="$scriptName?MODE=table">$viewMenu{'table'}</a></li>
-<li class="menu-item"><a href="$scriptName?MODE=latex">$viewMenu{'latex'}</a></li>
-<li class="menu-item"><a href="$scriptName?MODE=bbl">$viewMenu{'bbl'}</a></li>
+<li class="menu-item"><a href="$scriptName?MODE=list"><span class="glyphicon glyphicon-list-alt"></span>$viewMenu{'list'}</a></li>
+<li class="menu-item"><a href="$scriptName?MODE=table"><span class="glyphicon glyphicon-th"></span>$viewMenu{'table'}</a></li>
+<li class="menu-item"><a href="$scriptName?MODE=latex"><span class="glyphicon glyphicon-print"></span>$viewMenu{'latex'}</a></li>
+<li class="menu-item"><a href="$scriptName?MODE=bbl"><span class="glyphicon glyphicon-bookmark"></span>$viewMenu{'bbl'}</a></li>
 EOM
     if ($use_highcharts) {
 	$viewmenu .= <<EOM;
-<li class="menu-item"><a href="$scriptName?MODE=graph">$viewMenu{'graph'}</a></li>
+<li class="menu-item"><a href="$scriptName?MODE=graph"><span class="glyphicon glyphicon-stats"></span>$viewMenu{'graph'}</a></li>
 EOM
     }
     $viewmenu .= <<EOM;
@@ -2146,14 +2153,14 @@ return $body;
 
 	if (!defined($cgi->param('SSI')) && !defined($cgi->param('STATIC')) && !defined($cgi->param('FEED'))) {
 	    $body .= <<EOM;
-<div class="opt entry-meta">
+<div class="opt entry-meta checkbox">
 <!-- <div class="small"><a href="" onclick="if(document.listoption.style.display == 'none') { document.listoption.style.display = 'block'} else {document.listoption.style.display = 'none'} ;return(false);">$msg{'showDisplayOptions'}Toggle</a></div> -->
 <form name="listoption" method="POST">
-<input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="abbrev" $check{'abbrev'} id="c5" /><label for="c5">$msg{'showAbbrev'}</label>
-<input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="underline" $check{'underline'} id="c4" /><label for="c4">$msg{'showUL'}</label>
-<input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="shortvn" $check{'shortvn'} id="c1" /><label for="c1">$msg{'showShortVN'}</label>
-<input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="jcr" $check{'jcr'} id="c2" /><label for="c2">$msg{'showJCR'}</label>
-<input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="note" $check{'note'} id="c3" /><label for="c3">$msg{'showNote'}</label>
+<label class="checkbox-inline" for="c5"><input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="abbrev" $check{'abbrev'} id="c5" />$msg{'showAbbrev'}</label>
+<label class="checkbox-inline" for="c4"><input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="underline" $check{'underline'} id="c4" />$msg{'showUL'}</label>
+<label class="checkbox-inline" for="c1"><input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="shortvn" $check{'shortvn'} id="c1" />$msg{'showShortVN'}</label>
+<label class="checkbox-inline" for="c2"><input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="jcr" $check{'jcr'} id="c2" />$msg{'showJCR'}</label>
+<label class="checkbox-inline" for="c3"><input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="note" $check{'note'} id="c3" />$msg{'showNote'}</label>
 <input type="hidden"   name="OPT" value="xx" />
 </form>
 </div>
@@ -2278,24 +2285,24 @@ EOM
 	$texHeader =~s/myTitle\}\{\}/myTitle\}\{$texttl\}/;
 
 	$body .= <<EOM;
-<div class="opt">
+<div class="opt entry-meta checkbox">
 <form name="listoption" method="POST">
-<input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="abbrev" $check{'abbrev'} id="c5" \><label for="c5">$msg{'showAbbrev'}</label>
-<input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="underline" $check{'underline'} id="c4" \><label for="c4">$msg{'showUL'}</label>
-<input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="shortvn" $check{'shortvn'} id="c1" \><label for="c1">$msg{'showShortVN'}</label>
-<input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="jcr" $check{'jcr'} id="c2" \><label for="c2">$msg{'showJCR'}</label>
-<input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="note" $check{'note'} id="c3" \><label for="c3">$msg{'showNote'}</label>
+<label class="checkbox-inline" for="c5"><input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="abbrev" $check{'abbrev'} id="c5" \>$msg{'showAbbrev'}</label>
+<label class="checkbox-inline" for="c4"><input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="underline" $check{'underline'} id="c4" \>$msg{'showUL'}</label>
+<label class="checkbox-inline" for="c1"><input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="shortvn" $check{'shortvn'} id="c1" \>$msg{'showShortVN'}</label>
+<label class="checkbox-inline" for="c2"><input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="jcr" $check{'jcr'} id="c2" \>$msg{'showJCR'}</label>
+<label class="checkbox-inline" for="c3"><input type="checkbox" onclick="this.blur();" onchange="document.listoption.submit();" name="OPT" value="note" $check{'note'} id="c3" \>$msg{'showNote'}</label>
 <input type="hidden"   name="OPT" value="xx" \>
 </form>
 </div>
 EOM
 	$body .= <<EOM;
-<div class="opt">
+<div class="opt form-group">
 <form name="texparam" method="POST">
-$msg{'texnme'}: <input type="text" name="texname" size="20" value="$texnme" \><br />
-$msg{'texaff'}: <input type="text" name="texaffi" size="20" value="$texaff" \><br />
-$msg{'texttl'}: <input type="text" name="textitle" size="20" value="$texttl" \><br />
-<input type="submit" value="$msg{'save'}" />
+<label for="texname">$msg{'texnme'}:</label><input class="form-control longinput" type="text" name="texname" id="texname" size="20" value="$texnme" \></label><br />
+<label for="texaffi">$msg{'texaff'}:</label><input class="form-control longinput" type="text" name="texaffi" size="20" value="$texaff" \><br />
+<label for="texttl">$msg{'texttl'}:</label><input class="form-control longinput" type="text" name="textitle" size="20" value="$texttl" \><br />
+<input class="form-control shortinput" type="submit" value="$msg{'save'}" />
 </form>
 </div>
 <p>$msg{'latex_exp'}</p>
@@ -2400,7 +2407,7 @@ EOM
 #EOM
 
 	$body .= <<EOM;
-<table class="tableview" id="bibtable">
+<table class="table table-striped tableview" id="bibtable">
 <thead>
 <tr>
   <th class="pth"><br /></th>
@@ -2545,7 +2552,7 @@ EOM
 	my $scn = uri_escape_utf8(&htmlScrub($scriptName));
 
 	$body .= <<EOM;
-    <table>
+    <table class="table table-striped">
 <tr>
 <td colspan="2">
 <a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal">Tweet</a><script type="text/javascript" src="https://platform.twitter.com/widgets.js"></script>
@@ -2639,7 +2646,7 @@ EOM
 <form name="edit" enctype="multipart/form-data" method="POST" action="$scriptName">
 <input type="hidden" name="MODE" value="edit2">
 <input type="hidden" name="edit_style" value="$$abib{'style'}">
-<table>
+<table class="table table-striped tableview">
 <tr>
   <td width="20%" class="fieldHead">$msg{'category'}</td>
   <td width="80%" class="fieldBody">
@@ -2650,7 +2657,7 @@ EOM
 #				  -default=>"$pt",
 #				  -labels=>\%ptype);
 	$body .= <<EOM;
-<select class="longinput" name="edit_ptype">
+<select class="form-control longinput" name="edit_ptype">
 EOM
         foreach (@ptype_order) {
 	    my $selected = '';
@@ -2675,7 +2682,7 @@ EOM
 <tr>
   <td class="fieldHead_O">$msg{'tags'}</td>
   <td class="fieldBody">
-  <input name="edit_tags" type="text" size="80" value="$tags" /><br />
+  <input name="edit_tags" type="text" size="70" value="$tags" /><br />
 EOM
 	my $tlist = &getTop10TagDB;
 	my @tl; my $x=0;
@@ -2684,6 +2691,7 @@ EOM
 	    $x++;
 	}
 	$body .= $cgi->popup_menu(-name=>'tagpop',
+				  -class=>'form-control',
 				  -values=>["",sort(@tl)],
 				  -onChange=>'var taglist=edit.edit_tags.value.split(" "); taglist.push(edit.tagpop.options[edit.tagpop.selectedIndex].value); edit.edit_tags.value = taglist.join(" ");',
 				  -default=>""
@@ -2716,7 +2724,7 @@ EOM
 <tr>
   <td class="fieldHead">$msg{'efile'}</td>
   <td class="fieldBody">
-  <table>
+  <table class="table table-striped">
 EOM
 	my %efiles;
 	&getFileListDB($$abib{'id'},\%efiles);
@@ -2765,7 +2773,7 @@ EOM
     } elsif ($mode eq "add") {
 
 	$body .= <<EOM;
-<table>
+<table class="table table-striped">
 <tr>
   <td width="20%" class="fieldHead">$msg{'Head_style'}</td>
   <td width="80%" class="fieldBody">
@@ -2773,6 +2781,7 @@ EOM
 EOM
 	my $sty = $session->param('edit_style') || 'article';
 	$body .= $cgi->popup_menu(-name=>'edit_style',
+			  -class=>'form-control',
 				  -values=>[keys(%bt)],
 				  -default=>$sty,
 				  -onChange=>'document.addst.submit();',
@@ -2793,6 +2802,7 @@ EOM
         my $pt = 0;
 
 	$body .= $cgi->popup_menu(-name=>'edit_ptype',
+			  -class=>'form-control',
 				  -values=>[@ptype_order],
 				  -default=>$pt,
 				  -labels=>\%ptype);
@@ -2805,7 +2815,7 @@ EOM
 <tr>
   <td class="fieldHead_O">$msg{'tags'}</td>
   <td class="fieldBody">
-  <input name="edit_tags" type="text" size="80" value="" /><br />
+  <input name="edit_tags" type="text" size="70" value="" /><br />
 EOM
 	my $tlist = &getTop10TagDB;
 	my @tl; my $x=0;
@@ -2814,6 +2824,7 @@ EOM
 	    $x++;
 	}
 	$body .= $cgi->popup_menu(-name=>'tagpop',
+			  -class=>'form-control',
 				  -values=>["",sort(@tl)],
 				  -onChange=>'var taglist=edit.edit_tags.value.split(" "); taglist.push(edit.tagpop.options[edit.tagpop.selectedIndex].value); edit.edit_tags.value = taglist.join(" ");',
 				  -default=>""
@@ -2834,7 +2845,7 @@ EOM
   <td class="fieldBody">
 EOM
 	$body .= <<EOM;
-<table><tr><td>$msg{'uploadfile'}: <input name="edit_upfile" type="file" /> </td>
+<table class="table table-striped"><tr><td>$msg{'uploadfile'}: <input name="edit_upfile" type="file" /> </td>
 <td>$msg{'filedesc'}: <input name="files_desc_new" type="text" /> </td>
 <td><input type="checkbox" name="files_faccess" value="new" id="chknew"/><label for="chknew">$msg{'faccess'}</label></td>
 </tr></table>
@@ -2853,7 +2864,7 @@ EOM
     } elsif ($mode eq "bib") {
 
 	$body .= <<EOM;
-<table>
+<table class="table table-striped">
 <tr>
   <td class="fieldHead">$msg{'category'}</td>
   <td class="fieldBody">
@@ -2863,6 +2874,7 @@ EOM
         my $pt = 0;
 
 	$body .= $cgi->popup_menu(-name=>'edit_ptype',
+			  -class=>'form-control',
 				  -values=>[@ptype_order],
 				  -default=>$pt,
 				  -labels=>\%ptype);
@@ -2875,7 +2887,7 @@ EOM
 <tr>
   <td class="fieldHead_O">$msg{'tags'}</td>
   <td class="fieldBody">
-  <input name="edit_tags" type="text" size="80" value="" /><br />
+  <input name="edit_tags" type="text" size="70" value="" /><br />
 EOM
 	my $tlist = &getTop10TagDB;
 	my @tl; my $x=0;
@@ -2884,6 +2896,7 @@ EOM
 	    $x++;
 	}
 	$body .= $cgi->popup_menu(-name=>'tagpop',
+			  -class=>'form-control',
 				  -values=>["",sort(@tl)],
 				  -onChange=>'var taglist=edit.edit_tags.value.split(" "); taglist.push(edit.tagpop.options[edit.tagpop.selectedIndex].value); edit.edit_tags.value = taglist.join(" ");',
 				  -default=>""
@@ -2912,7 +2925,7 @@ EOM
   <td class="fieldBody">
 EOM
 	$body .= <<EOM;
-<table><tr><td>$msg{'uploadfile'}: <input name="edit_upfile" type="file" /> </td>
+<table class="table table-striped"><tr><td>$msg{'uploadfile'}: <input name="edit_upfile" type="file" /> </td>
 <td>$msg{'filedesc'}: <input name="files_desc_new" type="text" /> </td>
 <td><input type="checkbox" name="files_faccess" value="new" id="chknew"/><label for="chknew">$msg{'faccess'}</label></td>
 </tr></table>
@@ -2936,7 +2949,7 @@ EOM
 	
 	$body .= <<EOM;
 <h3>$msg{'adminsetting'}</h3>
-<table>
+<table class="table table-striped">
 <form method="POST" action="$scriptName">
 <input type="hidden" name="MODE" value="config2">
 <tr>
@@ -2957,7 +2970,7 @@ EOM
 </table>
 
 <h3>$msg{'optionsetting'}</h3>
-<table>
+<table class="table table-striped">
 <form method="POST" action="$scriptName">
 <input type="hidden" name="MODE" value="config2">
 <tr>
@@ -3004,7 +3017,7 @@ EOM
   <td class="fieldBody" width="15%">
 EOM
 	$body .= <<EOM;
-<select name="opt_tmpl_name">
+<select  class="form-control" name="opt_tmpl_name">
 EOM
         my @tmpls = ();
         opendir(DIR,$TMPLDIR);
@@ -3034,7 +3047,7 @@ EOM
   <td class="fieldBody" width="15%">
 EOM
 	$body .= <<EOM;
-<select name="opt_use_cache">
+<select  class="form-control" name="opt_use_cache">
 EOM
         my %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
         for ( 0 .. 1 ) {
@@ -3058,7 +3071,7 @@ EOM
   <td class="fieldBody" width="15%">
 EOM
 	$body .= <<EOM;
-<select name="opt_use_DBforSession">
+<select  class="form-control" name="opt_use_DBforSession">
 EOM
         %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
         for ( 0 .. 1 ) {
@@ -3082,7 +3095,7 @@ EOM
 EOM
     if (&check_module('Text::MeCab')) {
 	$body .= <<EOM;
-<select name="opt_use_AutoJapaneseTags">
+<select  class="form-control" name="opt_use_AutoJapaneseTags">
 EOM
         %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
         for ( 0 .. 1 ) {
@@ -3109,7 +3122,7 @@ EOM
 EOM
     if (&check_module('XML::RSS')) {
 	$body .= <<EOM;
-<select name="opt_use_RSS">
+<select  class="form-control" name="opt_use_RSS">
 EOM
         %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
         for ( 0 .. 1 ) {
@@ -3136,7 +3149,7 @@ EOM
 EOM
     if (&check_module('XML::Simple')) {
 	$body .= <<EOM;
-<select name="opt_use_XML">
+<select  class="form-control" name="opt_use_XML">
 EOM
         %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
         for ( 0 .. 1 ) {
@@ -3161,7 +3174,7 @@ EOM
   <td class="fieldBody" width="15%">
 EOM
 	$body .= <<EOM;
-<select name="opt_use_mathjax">
+<select  class="form-control" name="opt_use_mathjax">
 EOM
         %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
         for ( 0 .. 1 ) {
@@ -3188,7 +3201,7 @@ EOM
 	-d $path_highcharts."/themes" 
     ) {
 	$body .= <<EOM;
-<select name="opt_use_highcharts">
+<select  class="form-control" name="opt_use_highcharts">
 EOM
         %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
         for ( 0 .. 1 ) {
@@ -3224,7 +3237,7 @@ EOM
 	-d $path_highcharts."/themes" 
     ) {
 	$body .= <<EOM;
-<select name="opt_theme_highcharts">
+<select  class="form-control" name="opt_theme_highcharts">
 EOM
         my @tmpls = ();
         opendir(DIR,$path_highcharts."/themes");
@@ -3262,7 +3275,7 @@ EOM
 </table>
 
 <h3>$msg{'texsetting'}</h3>
-<table>
+<table class="table table-striped">
 <form method="POST" action="$scriptName">
 <input type="hidden" name="MODE" value="config2">
 <tr>
@@ -3284,14 +3297,14 @@ EOM
   </td>
 </tr>
 </table>
-<table>
+<table class="table table-striped">
 <tr>
   <td class="fieldHead" width="25%">$msg{'use_latexpdf'}</td>
   <td class="fieldBody" width="60%">$msg{'use_latexpdf_exp'}</td> 
   <td class="fieldBody" width="15%">
 EOM
 	$body .= <<EOM;
-<select name="opt_use_latexpdf">
+<select  class="form-control" name="opt_use_latexpdf">
 EOM
         %labels = ('1' => $msg{'use'}, '0'=>$msg{'dontuse'});
         for ( 0 .. 1 ) {
@@ -3333,7 +3346,7 @@ EOM
 
 
 <h3>$msg{'tagsetting'}</h3>
-<table>
+<table class="table table-striped">
 <form method="POST" action="$scriptName">
 <input type="hidden" name="MODE" value="config2">
 <tr>
@@ -3399,7 +3412,7 @@ EOM
 </table>
 
 <h3>$msg{'cachesetting'}</h3>
-<table>
+<table class="table table-striped">
 <form method="POST" action="$scriptName">
 <input type="hidden" name="MODE" value="config2">
 <tr>
@@ -3423,7 +3436,7 @@ EOM
 	$body .= <<EOM;
 <form method="POST" action="$scriptName">
 <input type="hidden" name="MODE" value="category2">
-<table>
+<table class="table table-striped">
 <tr>
   <td class="fieldHead" width="25%">
   <input type="hidden" name="op" value="add" />
@@ -3448,7 +3461,8 @@ EOM
   <td class="fieldBody">
       $msg{'selectdelcat'}<br />
 EOM
-	$body .= $cgi->popup_menu(-name=>'cat_del',
+$body .= $cgi->popup_menu(-name=>'cat_del',
+			  -class=>'form-control',
 				  -values=>[@ptype_order],
 				  -labels=>\%ptype);
 
@@ -3459,6 +3473,7 @@ EOM
 EOM
 
 	$body .= $cgi->popup_menu(-name=>'cat_mov',
+			  -class=>'form-control',
 				  -values=>[@ptype_order],
 				  -labels=>\%ptype);
 
@@ -3481,6 +3496,7 @@ EOM
 EOM
 
        $body .= $cgi->popup_menu(-name=>'cat_del',
+			  -class=>'form-control',
 				  -values=>[@ptype_order],
 				  -labels=>\%ptype);
 
@@ -3505,7 +3521,7 @@ EOM
   </td>
   <td class="fieldBody">
     $msg{'ordercat'}<br />
-    <table>
+    <table class="table table-striped">
     <tr><td>$msg{'catname'}</td><td>$msg{'order'}</td><td>$msg{'neworder'}</td></tr>
 EOM
        my $i=0;
@@ -4567,7 +4583,7 @@ sub editEntry {
   $msg{"Head_$fld"} $ndd
   </td>
   <td class="fieldBody">
-  <input name="edit_$fld" type="text" size="80" value="$vl" /><br />
+  <input name="edit_$fld" type="text" size="70" value="$vl" /><br />
   $msg{"Exp_$fld"}
   </td> 
 </tr>
@@ -4583,7 +4599,7 @@ EOM
   $msg{"Head_$fld"} $ndd
   </td>
   <td class="fieldBody">
-  <input name="edit_$fld" type="text" size="80" value="$vl" /><br />
+  <input name="edit_$fld" type="text" size="70" value="$vl" /><br />
 EOM
         my %jn;
 	foreach (@jname) {
@@ -4591,6 +4607,7 @@ EOM
 	}
 	$jn{""} = "----";
 	$ent .= $cgi->popup_menu(-name=>"${fld}sel",
+			  -class=>'form-control',
 				  -values=>["",sort(@jname)],
 				  -default=>"",
 				  -labels=>\%jn,
@@ -4612,7 +4629,7 @@ EOM
   $msg{"Head_$fld"} $ndd
   </td>
   <td class="fieldBody">
-  <input name="edit_$fld" type="text" size="80" value="$vl" /><br />
+  <input name="edit_$fld" type="text" size="70" value="$vl" /><br />
   $msg{"Exp_$fld"}
   </td> 
 </tr>
@@ -4629,7 +4646,7 @@ EOM
   $msg{"Head_$fld"} $ndd
   </td>
   <td class="fieldBody">
-  <input name="edit_$fld" type="text" size="80" value="$vl" onchange="author_autoinput()" /><br />
+  <input name="edit_$fld" type="text" size="70" value="$vl" onchange="author_autoinput()" /><br />
   $msg{"Exp_$fld"}
   </td> 
 </tr>
@@ -4645,7 +4662,7 @@ EOM
   $msg{"Head_$fld"} $ndd
   </td>
   <td class="fieldBody">
-  <input name="edit_$fld" type="text" size="80" value="$vl" /><br />
+  <input name="edit_$fld" type="text" size="70" value="$vl" /><br />
   $msg{"Exp_$fld"}
   <input type="button" value="Auto Input" onclick="author_autoinput()" /><br />
   </td> 
@@ -4661,7 +4678,7 @@ EOM
   $msg{"Head_$fld"} $ndd
   </td>
   <td class="fieldBody">
-  <input name="edit_$fld" type="text" size="80" value="$vl" /><br />
+  <input name="edit_$fld" type="text" size="70" value="$vl" /><br />
   $msg{"Exp_$fld"}
   <script type="text/javascript">
       var keys = {
@@ -4685,7 +4702,7 @@ EOM
   $msg{"Head_$fld"} $ndd
   </td>
   <td class="fieldBody">
-<textarea name="edit_$fld" rows="10" cols="80">$vl</textarea>
+<textarea class="form-control" name="edit_$fld" rows="10" cols="70">$vl</textarea>
   $msg{"Exp_$fld"}
   </td> 
 </tr>
@@ -4698,7 +4715,7 @@ EOM
   $msg{"Head_$fld"} $ndd
   </td>
   <td class="fieldBody">
-  <select name="edit_month">
+  <select class="form-control" name="edit_month">
 EOM
 
             for (0..12) {
@@ -4727,7 +4744,7 @@ EOM
   $msg{'Head_year'} $ndd
   </td>
   <td class="fieldBody">
-  <select name="edit_year">
+  <select class="form-control" name="edit_year">
 EOM
 
             if ($vl == 9999) {

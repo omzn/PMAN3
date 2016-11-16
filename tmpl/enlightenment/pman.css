@@ -1,0 +1,143 @@
+.yearhead {
+    font-size:1.6em; 
+    font-weight:400; 
+    margin:20px 0 12px 0; 
+    padding: 5px 0 0 0; 
+    width:100%; 
+    border-top: 1px solid #303030;
+}
+dl {
+    line-height:1.2em; 
+}
+dt {
+    margin-top:15px;
+    margin-bottom:10px;
+    font-weight: bold;
+}
+dd {
+    text-indent: -2em; 
+    text-align:justify;
+    margin:0 0px 5px 25px;
+}
+
+.fieldHead_N {
+    background-color: #d8a0a0;
+}
+.fieldHead_A {
+    background-color: #d8d8a0;
+}
+.fieldHead_O {
+    background-color: #e0e0e0;
+}
+.fieldHead {
+    background-color: #e0e0e0;
+}
+
+/* Top menu */
+#topmenu {
+    font-size:.8em; 
+    display:block;
+    margin: 10px auto 5px;
+}
+#topmenu p {
+    color:gray; 
+    text-align:left;
+    line-height:2.5em; 
+}
+.topmenu-item {
+    margin: 2px auto 2px;
+    display: block;
+}
+.toptab {
+    background-color:#ffffff;
+    border-bottom:1px none #ffffff; 
+    color:#505050; 
+    margin:0 0 0 4px; 
+    padding:4px 5px 3px; 
+    text-decoration:none;
+}
+.toptab:hover {
+    background-color:#fafafa;
+    border-bottom:1px solid #ffffff; 
+    color:#505050; 
+    text-decoration:none;
+}
+.activetoptab {
+    background-color:#ffffff;
+    border-bottom:1px solid #303030; 
+    color: black; 
+    margin:0 0 0 4px; 
+    padding:4px 5px 3px; 
+    text-decoration:none;
+}
+.activetoptab:hover {
+    background-color:#fafafa;
+    border-bottom:1px solid #ffffff; 
+    color:#505050; 
+    text-decoration:none;
+}
+
+.logo, .logo:hover {
+    float: right;
+    position: relative;
+    border: none;
+    padding-top: 20px;
+}
+
+a, a:visited, a:hover {
+    color: inherit;
+    color: expression(this.parentNode.currentStyle.color);
+    text-decoration: none;
+}
+
+
+a:hover {
+    text-decoration: underline;
+}
+
+img {
+    border: none;
+}
+
+img.math {
+}
+
+.right {
+    text-align:right;
+}
+.hide {
+    display:none;
+}
+.tableview {
+    font-size: 0.8em;
+}
+.pth {
+    background-color: #f0f0f0;
+}
+.ptd {
+    border-right: 1px solid #f0f0f0;
+}
+.shortinput {
+    width: 75px;
+}
+.longinput {
+    width: 150px;
+}
+.small {
+    font-size:0.7em;
+}
+.red, .red a:link, .red a:visited, .red a:hover {
+    color: red;
+}
+
+pre {
+  white-space: -moz-pre-wrap; /* Mozilla */
+  white-space: -pre-wrap;     /* Opera 4-6 */
+  white-space: -o-pre-wrap;   /* Opera 7 */
+  white-space: pre-wrap;      /* CSS3 */
+  word-wrap: break-word;      /* IE 5.5+ */
+}
+
+.bibent {
+    width: 100%;
+}
