@@ -25,6 +25,8 @@ img.emoji {
 <link rel='stylesheet' id='enlightenment-theme-stylesheet-css'  href='https://se.is.kit.ac.jp/~o-mizuno/wp/wp-content/themes/enlightenment/style.css' type='text/css' media='all' />
 <link rel='stylesheet' id='colorbox-css'  href='https://se.is.kit.ac.jp/wp/wp-content/themes/enlightenment/core/css/colorbox.css' type='text/css' media='all' />
 <link rel="stylesheet" type="text/css" href="tmpl/enlightenment/pman.css" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <style id='enlightenment-theme-stylesheet-inline-css' type='text/css'>
 .entry-title {
 	font-style: normal;
@@ -68,12 +70,12 @@ margin-top:0;
     <header id="masthead"  class="site-header navbar-large navbar navbar-static-top navbar-default"  role="banner">
     <div class="container">
 	<div class="branding navbar-header">
-	  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#site-navigation">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-	  </button>
-	  <a class="navbar-brand" href="#" rel="home">
+<button class="navicon navbar-toggle" type="button" data-toggle="collapse" data-target=".navbar-collapse">
+<span class="sr-only">Toggle Navigation</span><span class="icon-bar"></span>
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+</button>
+        <a class="navbar-brand" href="#" rel="home">
 	    <img height="48"  class="site-logo" src="img/logo.png" sizes="(max-width: 48px) 100vw, 48px"/>
 	    <span class="site-title-text"><TMPL_VAR NAME="MAIN_TITLE">
 	    </span>

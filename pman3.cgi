@@ -4043,7 +4043,7 @@ sub printFooter {
     $footer .=<<EOM;
 <p class="center">
 This site is maintained by <a href="$maintainerAddress">$maintainerName</a>.<br />
-<a href="https://se.is.kit.ac.jp/~o-mizuno/pman3/">PMAN $VERSION</a> - Paper MANagement system / (C) 2002-2012, <a href="https://se.is.kit.ac.jp/~o-mizuno/">Osamu Mizuno</a> / All rights reserved.
+<a href="https://se.is.kit.ac.jp/~o-mizuno/portfolio/pman3/">PMAN $VERSION</a> - Paper MANagement system / (C) 2002-2016, <a href="https://se.is.kit.ac.jp/~o-mizuno/">Osamu Mizuno</a>
 <br />
 Time to show this page: $drawingTime seconds.
 </p>
