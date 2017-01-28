@@ -1865,6 +1865,7 @@ EOM
     <option value="y_t_descend" $selected[5]>$msg{'y_t_descend'}</option>
     </select>
 </span>
+</div>
 <div id="smenu">
 EOM
     my @selected = ();
