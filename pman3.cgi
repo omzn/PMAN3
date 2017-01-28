@@ -2,9 +2,9 @@
 # =================================================================================
 #                        PMAN 3 - Paper MANagement system
 #                               
-#              (c) 2002-2016 Osamu Mizuno, All right researved.
+#              (c) 2002-2017 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.2.6 build 20161116";
+my $VERSION = "3.2.7 build 20170129";
 # 
 # =================================================================================
 BEGIN {
@@ -4072,7 +4072,8 @@ sub createAList {
 
 
     $t = ($tlink ne "" ? "<a href=\"".$tlink."D=$$ent{'id'}\">$t</a>" : $t);
-
+    $t = "<span class=\"l_title\">".$t."</span>";
+    
 ################################[TIME]
     $tt1 += Time::HiRes::tv_interval($tt0);
     $tt0 = [Time::HiRes::gettimeofday];

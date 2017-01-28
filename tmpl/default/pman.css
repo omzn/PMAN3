@@ -11,6 +11,10 @@
     background-color: #e0e0e0;
 }
 
+.l_title {
+    font-weight: bold;
+}
+
 .toptab, .toptab:link, .toptab:visited {
     display: inline;
     font-weight: bold;
