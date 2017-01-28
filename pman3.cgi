@@ -4297,6 +4297,7 @@ sub createAList {
     my $bkt = ($lang eq "en" && $$ent{'booktitle_e'} ne "") ? "$$ent{'booktitle_e'},":"$$ent{'booktitle'},";
     
     my $pub = ($lang eq "en" && $$ent{'publisher_e'} ne "") ? "$$ent{'publisher_e'},":"$$ent{'publisher'},";
+    $pub .= "," if ($pub ne '');
     
 ################################[TIME]
     $tt3 += Time::HiRes::tv_interval($tt0);
@@ -4336,7 +4337,7 @@ sub createAList {
     } elsif ($$ent{'style'} eq "incollection") {
 	$aline .= "$t, $edr $bkt $chp $pp $pub $yy.";
     } elsif ($$ent{'style'} =~ /(in)?book|manual/) {
-	$aline .= "$t, $pub, $yy.";
+	$aline .= "$t, $pub $yy.";
     } elsif ($$ent{'style'} eq "phdthesis") {
 	my $phdthesis = 'Ph.D. thesis';
 	$phdthesis = '博士学位論文' if ($isJA && $lang eq 'ja');
