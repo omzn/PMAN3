@@ -4318,13 +4318,13 @@ sub createAList {
     $lquot = $rquot = "&#34;" if ($mode eq "list" || $mode eq 'detail');
 
     if ($$ent{'style'} eq "article") {
-	$aline .= "$lquot$t,$rquot $jj, $vvnn $pp $yymm.";
+	$aline .= "$lquot$t,$rquot $jj, $vvnn $pp, $yymm.";
 #	$aline .= "\{$t\}\{$jj, $vvnn $pp\}\{$yy\}\{ほげほげ\}";
 	if ($check{'jcr'} && $$ent{'impactfactor'} ne "") {
 	    $aline .= " (JCR: $$ent{'impactfactor'})";
 	}
     } elsif ($$ent{'style'} eq "inproceedings") {
-	$aline .= "$lquot$t,$rquot $edr $bkt $vvnn $pp $yymm.";
+	$aline .= "$lquot$t,$rquot $edr $bkt $vvnn $pp, $yymm.";
 #	$aline .= "\{$t\}\{$edr $bkt $vvnn $pp\}\{$yy\}\{ほげほげ\}";
 	if ($$ent{'note'} ne "" && $check{'note'}) {
 	    $aline .= " ($$ent{'note'})";
@@ -4333,7 +4333,7 @@ sub createAList {
 	    $aline .= " (Acceptance rate: $$ent{'acceptance'})";
 	}
     } elsif ($$ent{'style'} eq "incollection") {
-	$aline .= "$t, $edr $bkt $chp $pp $pub $yy.";
+	$aline .= "$t, $edr $bkt $chp $pp $pub, $yy.";
     } elsif ($$ent{'style'} =~ /(in)?book|manual/) {
 	$aline .= "$t, $pub $yy.";
     } elsif ($$ent{'style'} eq "phdthesis") {
