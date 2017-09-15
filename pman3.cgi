@@ -4,7 +4,7 @@
 #                               
 #              (c) 2002-2017 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.2.7 build 20170129";
+my $VERSION = "3.2.8 build 20170915";
 # 
 # =================================================================================
 BEGIN {
@@ -4071,9 +4071,10 @@ sub createAList {
     my $t = ($lang eq "en" && $$ent{'title_e'} ne "") ? $$ent{'title_e'} : $$ent{'title'};
     &capitalizePaperTitle(\$t,$mode);
 
-
-    $t = ($tlink ne "" ? "<a href=\"".$tlink."D=$$ent{'id'}\">$t</a>" : $t);
-    $t = "<span class=\"l_title\">".$t."</span>";
+    if ($mode eq "list" || $mode eq "table") {
+	$t = ($tlink ne "" ? "<a href=\"".$tlink."D=$$ent{'id'}\">$t</a>" : $t);
+	$t = "<span class=\"l_title\">".$t."</span>";
+    }
     
 ################################[TIME]
     $tt1 += Time::HiRes::tv_interval($tt0);
