@@ -4,7 +4,7 @@
 #                               
 #              (c) 2002-2017 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.2.8 build 20170915";
+my $VERSION = "3.2.9 build 20171026";
 # 
 # =================================================================================
 BEGIN {
@@ -4144,7 +4144,8 @@ sub createAList {
 	# 下線処理 (終)
 
 	# 略称作成 (始)
-	my $isJ = $isJA; #&isJapanese($authors[$_]);
+#	my $isJ = $isJA; #&isJapanese($authors[$_]);
+	my $isJ = &isJapanese($authors[$_]);
 	if ($authors[$_]=~/(?<!\\),/) {
 	    my @as = split(/\s*(?<!\\),\s*/,$authors[$_]);
 	    if ($#as == 1) { # Last, First -> First Last
