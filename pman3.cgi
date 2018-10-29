@@ -374,7 +374,8 @@ EOM
 
 
     # 言語設定
-    my $l = $session->param('LANG') || "ja";
+    my $l = $session->param('LANG');
+    $l = "ja" unless ($l eq "en");
     require "$LIBDIR/lang.$l.pl";
 
     $title_add = $msg{'Title_add'};
