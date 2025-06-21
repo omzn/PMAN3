@@ -4,7 +4,7 @@
 #                               
 #              (c) 2002-2017 Osamu Mizuno, All right researved.
 # 
-my $VERSION = "3.2.10 build 20181029";
+my $VERSION = "3.2.11 build 20240207";
 # 
 # =================================================================================
 BEGIN {
@@ -19,6 +19,7 @@ my $debug=0;
 use DBI;
 use CGI;
 use CGI::Session;
+
 use CGI::Cookie;
 use HTML::Template;
 use HTML::Scrubber;
@@ -2213,8 +2214,16 @@ EOM
 			if ($efiles{$ff[0].",file_desc"} ne "") {
 			    $desc = $efiles{$ff[0].",file_desc"};
 			}
+			my $icon;
+			if ($efiles{$ff[0].",mimetype"} =~/pdf/) {
+				$icon = "<i class=\"fa fa-file-pdf-o\"></i>"
+			} elsif ($efiles{$ff[0].",mimetype"} =~/powerpoint/) {
+				$icon = "<i class=\"fa fa-file-powerpoint-o\"></i>"
+			} else {
+				$icon = "<i class=\"fa fa-file-text-o\"></i>"
+			}
 			$body .= <<EOM;
-			<a title="$desc" href="$scriptName?DOWNLOAD=$ff[0]">[$desc]</a>
+			<a title="$desc" href="$scriptName?DOWNLOAD=$ff[0]">$icon</a>
 EOM
 		    }
 		}
